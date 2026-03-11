@@ -28,7 +28,7 @@ export function HomePage() {
 
           <nav class="navbar-links">
             <a href="#why" class="nav-link">Why us</a>
-            <a href="#how" class="nav-link">How it works</a>
+            <a href="#how" class="nav-link">Why us</a>
             <a href="#features" class="nav-link">Features</a>
             <a href="#cta" class="nav-link">Get started</a>
           </nav>
