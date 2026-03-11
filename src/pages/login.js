@@ -1,9 +1,11 @@
 /**
  * Login Page Component
- * Renders the login form with navbar
+ * Renders the login / register forms and connects to the real API.
  */
 
 import { getNavbar, setupNavbarBurger } from '../components/navbar.js';
+import { loginUser, registerUser } from '../services/api.js';
+import { saveUserData } from '../utils/auth.js';
 
 export function LoginPage() {
   const app = document.getElementById('app');
@@ -39,6 +41,7 @@ export function LoginPage() {
                         <input type="password" id="login-password" placeholder="•••••••" required>
                     </div>
                     <a href="#forgot-password">forget your password?</a>
+                    <div class="form-error" id="login-error"></div>
                     <button type="submit" class="button-logIn">Log In</button>
                 </form>
             </div>
@@ -72,6 +75,7 @@ export function LoginPage() {
                         <ion-icon name="call-outline"></ion-icon>
                         <input type="tel" id="register-phone" placeholder="Your Phone Number" required>
                     </div>
+                    <div class="form-error" id="register-error"></div>
                     <button type="submit" class="button-register">Register</button>
                 </form>
             </div>
@@ -170,32 +174,30 @@ function setupFormHandlers() {
  * Handle login submission
  */
 async function handleLogin() {
-  const email = document.getElementById('login-email')?.value;
+  const email = document.getElementById('login-email')?.value.trim();
   const password = document.getElementById('login-password')?.value;
+  const errorEl = document.getElementById('login-error');
+  const btn = document.querySelector('#form-sign-in .button-logIn');
 
   if (!email || !password) {
-    alert('Please fill in all fields');
+    showError(errorEl, 'Please fill in all fields.');
     return;
   }
 
+  setLoading(btn, true);
+  clearError(errorEl);
+
   try {
-    // TODO: Replace with actual API call
-    // const response = await fetch("/api/login", {
-    //     method: "POST",
-    //     headers: { "Content-Type": "application/json" },
-    //     body: JSON.stringify({ email, password })
-    // });
+    const data = await loginUser(email, password);
+    saveUserData(data);
 
-    // For now, simulate successful login
-    console.log('Login attempt:', { email, password });
-    localStorage.setItem('authToken', 'mock_token_' + Date.now());
-
-    // Redirect to home page
-    const { HomePage } = await import('./home.js');
-    HomePage();
+    // Navigate to profile
+    const { ProfilePage } = await import('./profile.js');
+    ProfilePage();
   } catch (error) {
-    console.error('Login error:', error);
-    alert('Login failed. Please try again.');
+    showError(errorEl, error.message || 'Login failed. Please try again.');
+  } finally {
+    setLoading(btn, false);
   }
 }
 
@@ -203,34 +205,67 @@ async function handleLogin() {
  * Handle register submission
  */
 async function handleRegister() {
-  const firstName = document.getElementById('register-firstname')?.value;
-  const lastName = document.getElementById('register-lastname')?.value;
-  const email = document.getElementById('register-email')?.value;
+  const firstName = document.getElementById('register-firstname')?.value.trim();
+  const lastName = document.getElementById('register-lastname')?.value.trim();
+  const email = document.getElementById('register-email')?.value.trim();
   const password = document.getElementById('register-password')?.value;
-  const phone = document.getElementById('register-phone')?.value;
+  const phone = document.getElementById('register-phone')?.value.trim();
+  const errorEl = document.getElementById('register-error');
+  const btn = document.querySelector('#form-sign-up .button-register');
 
   if (!firstName || !lastName || !email || !password || !phone) {
-    alert('Please fill in all fields');
+    showError(errorEl, 'Please fill in all fields.');
     return;
   }
 
+  setLoading(btn, true);
+  clearError(errorEl);
+
   try {
-    // TODO: Replace with actual API call
-    // const response = await fetch("/api/register", {
-    //     method: "POST",
-    //     headers: { "Content-Type": "application/json" },
-    //     body: JSON.stringify({ firstName, lastName, email, password, phone })
-    // });
+    const data = await registerUser(
+      firstName,
+      lastName,
+      email,
+      password,
+      phone
+    );
+    saveUserData(data);
 
-    // For now, simulate successful registration
-    console.log('Register attempt:', { firstName, lastName, email, phone });
-    localStorage.setItem('authToken', 'mock_token_' + Date.now());
-
-    // Redirect to home page
-    const { HomePage } = await import('./home.js');
-    HomePage();
+    // Navigate to profile
+    const { ProfilePage } = await import('./profile.js');
+    ProfilePage();
   } catch (error) {
-    console.error('Registration error:', error);
-    alert('Registration failed. Please try again.');
+    showError(
+      errorEl,
+      error.message || 'Registration failed. Please try again.'
+    );
+  } finally {
+    setLoading(btn, false);
+  }
+}
+
+/** Show inline error message */
+function showError(el, message) {
+  if (!el) return;
+  el.textContent = message;
+  el.style.display = 'block';
+}
+
+/** Clear inline error message */
+function clearError(el) {
+  if (!el) return;
+  el.textContent = '';
+  el.style.display = 'none';
+}
+
+/** Toggle loading state on submit button */
+function setLoading(btn, loading) {
+  if (!btn) return;
+  btn.disabled = loading;
+  btn.textContent = loading ? 'Loading…' : btn.dataset.label || btn.textContent;
+  if (!btn.dataset.label && !loading) {
+    btn.textContent = btn.classList.contains('button-logIn')
+      ? 'Log In'
+      : 'Register';
   }
 }
