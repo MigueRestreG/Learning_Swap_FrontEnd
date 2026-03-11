@@ -1,6 +1,8 @@
 export function HomePage() {
   const app = document.getElementById('app');
-  console.log('HomePage ejecutándose');
+
+  // Remove auth-page class from body
+  document.body.classList.remove('auth-page', 'register-mode');
 
   // Limpieza SPA: evita duplicar listeners al re-render
   if (window.__homeCleanup) {
@@ -25,9 +27,9 @@ export function HomePage() {
           </a>
 
           <nav class="navbar-links">
+            <a href="#why" class="nav-link">Why us</a>
             <a href="#how" class="nav-link">How it works</a>
             <a href="#features" class="nav-link">Features</a>
-            <a href="#why" class="nav-link">Why us</a>
             <a href="#cta" class="nav-link">Get started</a>
           </nav>
 
@@ -187,8 +189,14 @@ export function HomePage() {
   // =========================
   // Actions (placeholder)
   // =========================
-  const goLogin = () => console.log('Go to /login');
-  const goSignup = () => console.log('Go to /signup');
+  const goLogin = async () => {
+    const { LoginPage } = await import('./login.js');
+    LoginPage();
+  };
+  const goSignup = async () => {
+    const { LoginPage } = await import('./login.js');
+    LoginPage();
+  };
 
   document.getElementById('btnLogin')?.addEventListener('click', goLogin);
   document.getElementById('btnLoginMobile')?.addEventListener('click', goLogin);

@@ -1,0 +1,61 @@
+/* Ionicons Font */
+@import url('https://unpkg.com/ionicons@7.1.0/dist/css/ionicons.min.css');
+
+/* Authentication Pages Shared Styles */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'montserrat', sans-serif;
+}
+
+/* Only apply full height and centering when NOT on home page */
+body.auth-page {
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(135deg, #9d9aa7, #9e73c1);
+  transition: background 0.6s ease;
+  padding-top: 0;
+}
+
+body.auth-page #scroll-space {
+  height: 0 !important;
+  display: none !important;
+}
+
+body.auth-page.register-mode {
+  background: linear-gradient(135deg, #b0c1b0, #bde77f);
+}
+
+/* Default body for home page - reset */
+body {
+  background: transparent;
+  min-height: initial;
+}
+
+/* Auth wrapper container - center content */
+.auth-wrapper {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  padding: 40px 20px;
+}
+
+/* Navbar styling for auth pages */
+body.auth-page .navbar {
+  position: relative;
+  background: rgba(245, 248, 255, 0.95);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  width: 100%;
+}
+
+body.auth-page.register-mode .navbar {
+  background: rgba(255, 250, 235, 0.95);
+}

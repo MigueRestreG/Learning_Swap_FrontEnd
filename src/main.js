@@ -1,3 +1,11 @@
-import { HomePage } from "./pages/home.js";
+import { HomePage } from './pages/home.js';
 
-HomePage();
+function initializeApp() {
+  HomePage();
+}
+
+// Call immediately since Vite handles everything
+document.addEventListener('DOMContentLoaded', initializeApp);
+if (document.readyState !== 'loading') {
+  initializeApp();
+}
