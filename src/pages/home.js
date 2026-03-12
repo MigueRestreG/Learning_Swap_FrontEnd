@@ -18,9 +18,52 @@ export function HomePage() {
   }
 
   app.innerHTML = `
-    <main class="home">
+    <section class="home">
 
-      ${getNavbar(false)}
+      <!-- NAVBAR -->
+      <header class="navbar">
+        <div class="navbar-container">
+          <a class="navbar-brand" href="/" data-link>
+            <img class="navbar-logo" src="/assets/logos/logo.png"  alt="Learning Swap Exchange" />
+            <span>Learning Swap</span>
+          </a>
+
+          <nav class="navbar-links">
+            <a href="#why" class="nav-link">Why us</a>
+            <a href="#how" class="nav-link">How it works</a>
+            <a href="#features" class="nav-link">Features</a>
+            <a href="#prices" class="nav-link">Pricing</a>
+            <a href="#cta" class="nav-link">Get started</a>
+          </nav>
+
+          <div class="navbar-actions">
+            <button class="btn secondary" id="btnLogin">Log in</button>
+            <button class="btn primary" id="btnSignup">Create account</button>
+          </div>
+
+          <button
+            class="navbar-burger"
+            id="navToggle"
+            aria-label="Toggle menu"
+            aria-expanded="false"
+            aria-controls="navMobile"
+          >
+            <span></span><span></span><span></span>
+          </button>
+        </div>
+
+        <div class="navbar-mobile" id="navMobile">
+          <a href="#how" class="nav-link">How it works</a>
+          <a href="#features" class="nav-link">Features</a>
+          <a href="#prices" class="nav-link">Pricing</a>
+          <a href="#why" class="nav-link">Why us</a>
+          <a href="#cta" class="nav-link">Get started</a>
+          <div class="navbar-mobile-actions">
+            <button class="btn secondary" id="btnLoginMobile">Log in</button>
+            <button class="btn primary" id="btnSignupMobile">Create account</button>
+          </div>
+        </div>
+      </header>
 
       <!-- ESCENA 1: HERO -->
       <section class="hero" id="hero">
@@ -40,8 +83,8 @@ export function HomePage() {
 
           <div class="hero-stats">
             <div>
-              <strong>10K+</strong>
-              <span>Learners</span>
+              <strong>+1</strong>
+              <span>Match</span>
             </div>
             <div>
               <strong>50+</strong>
@@ -53,6 +96,9 @@ export function HomePage() {
             </div>
           </div>
         </div>
+      <div class="hero-banner">
+          <img class="logo-navbar" src="./assets/homeBanner.png" alt="banner" />
+          </div>
       </section>
 
       <!-- ESCENA 2 -->
@@ -117,6 +163,182 @@ export function HomePage() {
         </ul>
       </section>
 
+      
+      <!-- PRICING/ MEMbERSHIPS SECTION -->
+      <section class="prices card" id="prices">
+      <!--<h2 class="prices-title">Learning Swap Membresias</h2>-->
+    <!--CARDS CONTAINERr-->
+        
+        <article class="card-content-free">
+            <div class="card-logo">
+                <img src="./assets/logos/free.png" alt="card logo">
+            </div>
+
+              <!--free suscription-->
+            <div class="card-price-box">
+                <h3 class="card-tittle-free">Gratis</h3>
+                <p class="card-price">$0</p>
+                <p class="card-price-description">Plan gratuito</p>
+            </div>
+            <div class="card-bennefits-box">
+                <ul class="card-list">
+                   
+                     <li>
+                        <ion-icon name="checkmark-circle-outline"></ion-icon>
+                        <p>1 match por mes.</p>
+                    </li>
+                     <li>
+                        <ion-icon name="checkmark-circle-outline"></ion-icon>
+                        <p>Apoyo de IA limitado.</p>
+                    </li>
+                     <li>
+                        <ion-icon name="checkmark-circle-outline"></ion-icon>
+                        <p>Quizz semi-personalizado.</p>
+                    </li>
+                     
+                </ul>
+                <button class="card-button-free">Escoger Plan</button>
+                
+            </div>
+        </article>
+
+
+        <!--emerald suscription-->
+        <article class="card-content-emerald">
+            <div class="card-logo">
+                <img src="./assets/logos/emerald.png" alt="">
+            </div>
+            <div class="card-price-box">
+                <h3 class="card-tittle-emerald">Emerald</h3>
+                <p class="card-price">$12.000<sup>/ mes</sup></p>
+                <p class="card-price-description">Plan basico</p>
+            </div>
+            <div class="card-bennefits-box">
+                <ul class="card-list">
+                   
+                     <li>
+                        <ion-icon name="checkmark-circle-outline"></ion-icon>
+                        <p>3 match por mes.</p>
+                    </li>
+                     <li>
+                        <ion-icon name="checkmark-circle-outline"></ion-icon>
+                        <p>Ayuda de IA ilimitado.</p>
+                    </li>
+                     <li>
+                        <ion-icon name="checkmark-circle-outline"></ion-icon>
+                        <p>Quizz personalizado.</p>
+                    </li>
+                     <li>
+                        <ion-icon name="checkmark-circle-outline"></ion-icon>
+                        <p>Historial de aprendizaje. </p>
+                    </li>
+                </ul>
+                <button class="card-button-emerald">Escoger Plan.</button>
+                
+            </div>
+        </article>
+
+                <!--ruby suscription-->
+        <article class="card-content-ruby">
+            <div class="card-logo">
+                <img src="./assets/logos/ruby.png" alt="logo">
+            </div>
+            <div class="card-price-box">
+                <h3 class="card-tittle-ruby">Ruby</h3>
+                <p class="card-price">$25.000<sup>/ mes</sup></p>
+                <p class="card-price-description">Plan mejorado</p>
+            </div>
+            <div class="card-bennefits-box">
+                <ul class="card-list">
+                 
+                     <li>
+                        <ion-icon name="checkmark-circle-outline"></ion-icon>
+                        <p>7 match por mes</p>
+                    </li>
+                     <li>
+                        <ion-icon name="checkmark-circle-outline"></ion-icon>
+                        <p>Ayuda de IA ilimitado</p>
+                    </li>
+                     <li>
+                        <ion-icon name="checkmark-circle-outline"></ion-icon>
+                        <p>Quizz personalizado</p>
+                    </li>
+                     <li>
+                        <ion-icon name="checkmark-circle-outline"></ion-icon>
+                        <p>Recomendaciones inteligentes y personalizadas.</p>
+                    </li>
+                    <li>
+                        <ion-icon name="checkmark-circle-outline"></ion-icon>
+                        <p>Acceso a grupos privados de apredizaje.</p>
+                    </li>
+                    <li>
+                        <ion-icon name="checkmark-circle-outline"></ion-icon>
+                        <p>Insignia de reputacion.</p>
+                    </li>
+                </ul>
+                <button class="card-button-ruby">Escoger Plan</button>
+                
+            </div>
+        </article>
+
+
+                        <!--diamod suscription-->
+        <article class="card-content-diamond">
+            <div class="card-logo">
+                <img src="./assets/logos/diamond.png" alt="card logo">
+            </div>
+            <div class="card-price-box">
+                <h3 class="card-tittle-diamond">Diamond</h3>
+                <p class="card-price">$35.000<sup>/ mes</sup></p>
+                <p class="card-price-description">Full plan</p>
+            </div>
+            <div class="card-bennefits-box">
+                <ul class="card-list">
+                   
+                     <li>
+                        <ion-icon name="checkmark-circle-outline"></ion-icon>
+                        <p>12 match por mes.</p>
+                    </li>
+                     <li>
+                        <ion-icon name="checkmark-circle-outline"></ion-icon>
+                        <p>Ayuda de IA ilimitado.</p>
+                    </li>
+                     <li>
+                        <ion-icon name="checkmark-circle-outline"></ion-icon>
+                        <p>Quizz personalizado.</p>
+                    </li>
+                     <li>
+                        <ion-icon name="checkmark-circle-outline"></ion-icon>
+                        <p>Recomendaciones inteligentes y personalizadas.</p>
+                    </li>
+                    <li>
+                        <ion-icon name="checkmark-circle-outline"></ion-icon>
+                        <p>Acceso a grupos privados de apredizaje.</p>
+                    </li>
+                    <li>
+                        <ion-icon name="checkmark-circle-outline"></ion-icon>
+                        <p>Insignia de reputacion.</p>
+                    </li>
+                    <li>
+                        <ion-icon name="checkmark-circle-outline"></ion-icon>
+                        <p>Certificado digital de aprendizaje.</p>
+                    </li>
+                    <li>
+                        <ion-icon name="checkmark-circle-outline"></ion-icon>
+                        <p>Recomendaciones inteligentes de match.</p>
+                    </li>
+                        <li>
+                        <ion-icon name="checkmark-circle-outline"></ion-icon>
+                        <p>Posibilidad de monetizar su contenido a futuro.</p>
+                    </li>
+                    </li>
+                </ul>
+                <button class="card-button-diamond">Escoger Plan</button>
+                
+            </div>
+        </article>
+    </section>
+
       <!-- ESCENA 5 -->
       <section class="cta" id="cta">
         <h2>Ready to start exchanging knowledge?</h2>
@@ -152,11 +374,11 @@ export function HomePage() {
   // =========================
   const goLogin = async () => {
     const { LoginPage } = await import('./login.js');
-    LoginPage();
+    LoginPage('login');
   };
   const goSignup = async () => {
     const { LoginPage } = await import('./login.js');
-    LoginPage();
+    LoginPage('register');
   };
 
   setupNavbarAuthActions();

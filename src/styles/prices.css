@@ -1,0 +1,449 @@
+:root {
+  --bg-main: #f5f8ff;}
+
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'montserrat', sans-serif;
+}
+/*body*/
+
+body{
+    width: 100%;
+    height: 100vh;
+    background:
+    radial-gradient(circle at 20% 10%, #e9f4ff 0%, transparent 38%),
+    radial-gradient(circle at 80% 80%, #ece9ff 0%, transparent 36%),
+    var(--bg-main);
+   /*background: linear-gradient(135deg, #f4f4f4, #b689db);*/
+   display: flex;
+   flex-direction: column;
+   justify-content: center;
+   align-items: center;
+}
+
+
+.prices-title{
+  text-align: center;
+  margin-bottom: 50px;
+  font-size: 2rem;
+  font-weight: 700;
+}
+
+/*main*/
+.card{
+    position: relative;
+    width: 100%;
+    display: grid;
+    place-content: center;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 0fr));
+    gap: 80px;
+}
+
+/*free card*/
+
+.card-content-free{
+    position:relative;
+    width: 320px;
+    height: 480px;
+    display: flex;
+    /* pastel warm yellow */
+    background: linear-gradient(135deg, #fffefa 0%, #fff5d1 60%, #FFEB99 100%);
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    outline: transparent;
+    border-radius: 13px;
+    transition: 0.3s ease-in-out;
+    font-size: 13px;
+}
+
+.card-content-free:hover{
+    box-shadow: 0 0 44px 3px #FFEA84;
+    transform: scale(1.1);
+}
+/*card content emerald*/
+
+.card-content-emerald{
+    position:relative;
+    width: 320px;
+    height: 480px;
+    display: flex;
+    /* pastel green */
+    background: linear-gradient(135deg, #ebfdf6 0%, #d4f5e9 60%, #7FCFA1 100%);
+
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    outline: transparent;
+    border-radius: 13px;
+    transition: 0.3s ease-in-out;
+    font-size: 13px;
+}
+
+.card-content-emerald:hover{
+    box-shadow: 0 0 44px 3px #009C6A;
+    transform: scale(1.1);
+}
+
+/*card content ruby*/
+.card-content-ruby{
+    position:relative;
+    width: 320px;
+    height: 480px;
+    display: flex;
+    /* pastel red */
+    background: linear-gradient(135deg, #fff5f5 0%, #f7d1d1 60%, #FF8A8A 100%);
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    outline: transparent;
+    border-radius: 13px;
+    transition: 0.3s ease-in-out;
+    font-size: 13px;
+}
+
+.card-content-ruby:hover{
+    box-shadow: 0 0 44px 3px #FF4946;
+    transform: scale(1.1);
+}
+
+/*card content diamond*/
+.card-content-diamond{
+    position:relative;
+    width: 320px;
+    height: 480px;
+    display: flex;
+    /* pastel blue */
+    background: linear-gradient(135deg, #e7f9ff 0%, #e0f2ff 60%, #c4affe 100%);
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    outline: transparent;
+    border-radius: 13px;
+    transition: 0.3s ease-in-out;
+    font-size: 13px;
+}
+
+.card-content-diamond:hover{
+    box-shadow: 0 0 44px 3px #7FD4FF;
+    transform: scale(1.1);
+}
+
+.card-logo{
+    position: absolute;
+    top: 12px;
+    left: 230px;
+    
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    outline: 2px solid #000120;
+    background-color: linear-gradient(135deg, #f4f4f4, #b689db) ;
+}
+
+.card-logo img{
+    position: absolute;
+    top:2px ;
+    left: 2px;
+    width: 45px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.card-price-box{
+    position: relative;
+    margin-top: 40px;
+    text-align: center;
+}
+
+.card-price-box::before{
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: -40px;
+    width: 280px ;
+    height: 1px;
+    background-color: black
+
+}
+
+.card-tittle-free{
+    font-size: 1.2rem;
+    
+    letter-spacing: 1px;
+    color: var(--text-main);
+    background-color: #FFEA84; /* same warm yellow */
+    border-radius: 20px;
+    margin-bottom: 10px;
+    width: 200px;
+    
+}
+
+.card-tittle-emerald{
+    font-size: 1.2rem;
+    
+    letter-spacing: 1px;
+    color: white;
+    background-color: #009C6A;
+    border-radius: 20px;
+    margin-bottom: 10px;
+    width: 200px;
+}
+
+.card-tittle-ruby{
+    font-size: 1.2rem;
+    
+    letter-spacing: 1px;
+    color: white;
+    background-color: #FF4946;
+    border-radius: 20px;
+    margin-bottom: 10px;
+    width: 200px;
+}
+
+.card-tittle-diamond{
+    font-size: 1.2rem;
+    
+    letter-spacing: 1px;
+    color: var(--text-main);
+    background-color: var(--primary-b);
+    border-radius: 20px;
+    margin-bottom: 10px;
+    width: 200px;
+}
+
+.card-price{
+    font-size: 20px;
+    color: black;
+    margin-bottom: 10px;
+}
+
+.card-price sup{
+    font-size: 0.7em;
+    margin-left: 10px;
+
+}
+
+.card-price-description{
+    color: black;
+    margin-bottom: 20px;
+}
+
+.card-bennefits-box{
+    width: 300px;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    padding: 10px;
+    margin-top: 15px;
+}
+
+.card-list{
+    list-style: none;
+}
+
+.card-list li{
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin-top: 5px;
+}
+
+.card-list li p{
+    color: black;
+    font-size: 10px;
+}
+
+
+
+/*card buttom Free*/
+
+.card-button-free{
+    margin-top: 30px;
+    width: 50%;
+    background-color: transparent;
+    border: 2px solid black;
+    border-radius: 22px;
+    color: black;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1,1em;
+    cursor: pointer;
+    transition: 0.3s ease-in-out;
+    overflow: hidden;
+    position: relative;
+    padding: 5px;
+    
+}
+
+.card-button-free::before{
+    content: "";
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: -50%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255,255,255,0.3), rgba(0, 255, 255, 0) 70%);
+    transition: 0.4s;
+    transform: scale(0);
+}
+
+.card-button-free:hover::before{
+    transform: scale(1);
+}
+
+.card-button-free:hover{
+    color: black;
+    background: #ffffff ;
+    box-shadow: 0 0 15px #ffffff, 0 0 60px #ffffff, 0 0 120px #ffffff;
+}
+
+.card-button-free:active{
+    transform: scale(0.95);
+}
+
+/*buttom card emerald*/
+
+.card-button-emerald{
+    margin-top: 30px;
+    width: 50%;
+    background-color: transparent;
+    border: 2px solid black;
+    border-radius: 22px;
+    color: black;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1,1em;
+    cursor: pointer;
+    transition: 0.3s ease-in-out;
+    overflow: hidden;
+    position: relative;
+    padding: 5px;
+    
+}
+
+.card-button-emerald::before{
+    content: "";
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: -50%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255,255,255,0.3), rgba(0, 255, 255, 0) 70%);
+    transition: 0.4s;
+    transform: scale(0);
+}
+
+.card-button-emerald:hover::before{
+    transform: scale(1);
+}
+
+.card-button-emerald:hover{
+    color: black;
+    background: #ffffff ;
+    box-shadow: 0 0 15px #ffffff, 0 0 60px #ffffff, 0 0 120px #ffffff;
+}
+
+.card-button-emerald:active{
+    transform: scale(0.95);
+}
+
+
+/*buttom card ruby*/
+
+.card-button-ruby{
+    margin-top: 30px;
+    width: 50%;
+    background-color: transparent;
+    border: 2px solid black;
+    border-radius: 22px;
+    color: black;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1,1em;
+    cursor: pointer;
+    transition: 0.3s ease-in-out;
+    overflow: hidden;
+    position: relative;
+    padding: 5px;
+    
+}
+
+.card-button-ruby::before{
+    content: "";
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: -50%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255,255,255,0.3), rgba(0, 255, 255, 0) 70%);
+    transition: 0.4s;
+    transform: scale(0);
+}
+
+.card-button-ruby:hover::before{
+    transform: scale(1);
+}
+
+.card-button-ruby:hover{
+    color: black;
+    background: #ffffff ;
+    box-shadow: 0 0 15px #ffffff, 0 0 60px #ffffff, 0 0 120px #ffffff;
+}
+
+.card-button-ruby:active{
+    transform: scale(0.95);
+}
+
+/*buttom card diamond*/
+
+.card-button-diamond{
+    margin-top: 30px;
+    width: 50%;
+    background-color: transparent;
+    border: 2px solid black;
+    border-radius: 22px;
+    color: black;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1,1em;
+    cursor: pointer;
+    transition: 0.3s ease-in-out;
+    overflow: hidden;
+    position: relative;
+    padding: 5px;
+    
+}
+
+.card-button-diamond::before{
+    content: "";
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: -50%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255,255,255,0.3), rgba(0, 255, 255, 0) 70%);
+    transition: 0.4s;
+    transform: scale(0);
+}
+
+.card-button-diamond:hover::before{
+    transform: scale(1);
+}
+
+.card-button-diamond:hover{
+    color: black;
+    background: #ffffff ;
+    box-shadow: 0 0 15px #ffffff, 0 0 60px #ffffff, 0 0 120px #ffffff;
+}
+
+.card-button-diamond:active{
+    transform: scale(0.95);
+}

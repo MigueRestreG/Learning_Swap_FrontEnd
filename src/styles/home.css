@@ -12,6 +12,21 @@
   margin: 0 auto 2.2rem;
 }
 
+.logo-banner{
+  max-width: 80px;
+  height: 100px;
+  border-radius: 15px;
+}
+
+
+
+.logo-navbar{
+  width: 480px;
+  height: 270px;
+  border-radius: 18px;
+  
+  box-shadow: 10px 0 20px rgba(0,0,0,0.2);
+}
 .hero-actions {
   display: flex;
   justify-content: center;
@@ -42,6 +57,11 @@
 .hero-stats span {
   font-size: 0.83rem;
   color: var(--text-muted);
+}
+
+.nav-logo{
+  width: 40px;
+  height: 50%;
 }
 
 .why,

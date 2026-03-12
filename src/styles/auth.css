@@ -48,15 +48,11 @@ body.auth-page #scroll-space {
 }
 
 body.auth-page.register-mode {
-  background: transparent;
-}
-
-body.auth-page.register-mode::before {
-  opacity: 0;
-}
-
-body.auth-page.register-mode::after {
-  opacity: 1;
+  /* same background as the main site (radial gradients over --bg-main) */
+  background:
+    radial-gradient(circle at 20% 10%, #e9f4ff 0%, transparent 38%),
+    radial-gradient(circle at 80% 80%, #ece9ff 0%, transparent 36%),
+    var(--bg-main);
 }
 
 /* Default body for home page - reset */
@@ -76,16 +72,36 @@ body {
   padding: 40px 20px;
 }
 
-/* Navbar styling for auth pages */
+/* Navbar styling for auth pages – match main site appearance */
 body.auth-page .navbar {
-  position: relative;
-  background: rgba(239, 245, 255, 0.94);
-  border-bottom: 1px solid rgba(26, 36, 64, 0.1);
-  box-shadow: 0 2px 10px rgba(42, 62, 125, 0.15);
-  transition: background-color 0.35s ease;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
   width: 100%;
+  z-index: 300;
+  background: rgba(245, 248, 255, 0.95);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--line-soft);
+  transition: box-shadow 0.25s ease, background-color 0.25s ease;
+}
+
+/* make sure the inner container remains centered and not pushed right */
+body.auth-page .navbar-container {
+  margin: 0 auto;
+  padding: 0.95rem 8%;
 }
 
 body.auth-page.register-mode .navbar {
-  background: rgba(224, 244, 255, 0.94);
+  /* blue gradient matching primary theme */
+  background: linear-gradient(135deg, var(--primary-a), var(--primary-b));
 }
+
+/* make sure navbar buttons are visible against the blue gradient */
+body.auth-page.register-mode .navbar .btn.primary {
+  background: #ffffff;
+  color: var(--text-main);
+  border: 1.5px solid var(--primary-b);
+}
+

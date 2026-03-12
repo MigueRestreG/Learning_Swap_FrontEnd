@@ -11,7 +11,7 @@ import {
 import { loginUser, registerUser } from '../services/api.js';
 import { saveUserData } from '../utils/auth.js';
 
-export function LoginPage() {
+export function LoginPage(mode = 'login') {
   const app = document.getElementById('app');
 
   // Add auth-page class to body for styling
@@ -103,6 +103,13 @@ export function LoginPage() {
 
   app.innerHTML = template;
 
+  // if caller requested the register form, activate toggle immediately
+  if (mode === 'register') {
+    const container = document.querySelector('.container');
+    if (container) container.classList.add('toggle');
+    document.body.classList.add('register-mode');
+  }
+
   // Setup navbar interactions
   setupAuthNavbar();
   setupNavbarBurger();
@@ -128,6 +135,33 @@ function setupAuthNavbar() {
       HomePage();
     });
   }
+
+  // buttons on auth pages should switch mode or navigate
+  const navAction = async (targetMode) => {
+    document.body.classList.remove('auth-page', 'register-mode');
+    const { LoginPage } = await import('./login.js');
+    LoginPage(targetMode);
+  };
+
+  ['btnLogin', 'btnLoginMobile'].forEach((id) => {
+    const btn = document.getElementById(id);
+    if (btn) {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        navAction('login');
+      });
+    }
+  });
+
+  ['btnSignup', 'btnSignupMobile'].forEach((id) => {
+    const btn = document.getElementById(id);
+    if (btn) {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        navAction('register');
+      });
+    }
+  });
 }
 
 /**

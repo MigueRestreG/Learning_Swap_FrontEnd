@@ -7,7 +7,7 @@
   border-radius: 22px;
   cursor: pointer;
   margin-top: 10px;
-  background: linear-gradient(135deg, #38bdf8, var(--primary-b));
+  background-color: #C4BFFE;
   color: white;
   font-weight: 600;
   box-shadow: 0 10px 22px rgba(56, 189, 248, 0.32);
@@ -45,7 +45,7 @@
 .container.toggle .container-welcome {
   transform: translateX(0);
   border-radius: 0 50% 50% 0;
-  background: linear-gradient(145deg, #b8ddff, #7e6ddf);
+  background-color: #C2E9FE;
 }
 
 .container-welcome .welcome {
@@ -54,9 +54,12 @@
   align-items: center;
   flex-direction: column;
   gap: 20px;
-  padding: 0 50px;
+  padding: 40px 50px;    /* more breathing room */
   color: white;
+  text-align: center;
   transition: transform 0.5s ease-in-out;
+  box-sizing: border-box;
+  overflow-y: auto;
 }
 
 .welcome-sign-in {
