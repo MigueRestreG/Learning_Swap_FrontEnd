@@ -1,3 +1,5 @@
+import { getNavbar, setupNavbarAuthActions } from '../components/navbar.js';
+
 export function HomePage() {
   const app = document.getElementById('app');
 
@@ -18,48 +20,7 @@ export function HomePage() {
   app.innerHTML = `
     <main class="home">
 
-      <!-- NAVBAR -->
-      <header class="navbar">
-        <div class="navbar-container">
-          <a class="navbar-brand" href="/" data-link>
-            <img class="navbar-logo" src="/assets/icons/logo.svg" alt="Learning Swap Exchange" />
-            <span>Learning Swap</span>
-          </a>
-
-          <nav class="navbar-links">
-            <a href="#why" class="nav-link">Why us</a>
-            <a href="#how" class="nav-link">Why us</a>
-            <a href="#features" class="nav-link">Features</a>
-            <a href="#cta" class="nav-link">Get started</a>
-          </nav>
-
-          <div class="navbar-actions">
-            <button class="btn secondary" id="btnLogin">Log in</button>
-            <button class="btn primary" id="btnSignup">Create account</button>
-          </div>
-
-          <button
-            class="navbar-burger"
-            id="navToggle"
-            aria-label="Toggle menu"
-            aria-expanded="false"
-            aria-controls="navMobile"
-          >
-            <span></span><span></span><span></span>
-          </button>
-        </div>
-
-        <div class="navbar-mobile" id="navMobile">
-          <a href="#how" class="nav-link">How it works</a>
-          <a href="#features" class="nav-link">Features</a>
-          <a href="#why" class="nav-link">Why us</a>
-          <a href="#cta" class="nav-link">Get started</a>
-          <div class="navbar-mobile-actions">
-            <button class="btn secondary" id="btnLoginMobile">Log in</button>
-            <button class="btn primary" id="btnSignupMobile">Create account</button>
-          </div>
-        </div>
-      </header>
+      ${getNavbar(false)}
 
       <!-- ESCENA 1: HERO -->
       <section class="hero" id="hero">
@@ -197,6 +158,8 @@ export function HomePage() {
     const { LoginPage } = await import('./login.js');
     LoginPage();
   };
+
+  setupNavbarAuthActions();
 
   document.getElementById('btnLogin')?.addEventListener('click', goLogin);
   document.getElementById('btnLoginMobile')?.addEventListener('click', goLogin);

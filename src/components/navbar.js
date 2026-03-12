@@ -3,7 +3,33 @@
  * Returns the navbar HTML structure
  */
 
+import { getCurrentUser, isAuthenticated, logout } from '../utils/auth.js';
+
 export function getNavbar(isAuthPage = false) {
+  const user = getCurrentUser();
+  const authenticated = isAuthenticated();
+  const profileLabel = user?.first_name || user?.name || 'Profile';
+
+  const desktopActions = authenticated
+    ? `
+      <button class="btn secondary" id="btnProfile">${profileLabel}</button>
+      <button class="btn primary" id="btnLogoutNav">Log out</button>
+    `
+    : `
+      <button class="btn secondary" id="btnLogin">Log in</button>
+      <button class="btn primary" id="btnSignup">Create account</button>
+    `;
+
+  const mobileActions = authenticated
+    ? `
+      <button class="btn secondary" id="btnProfileMobile">${profileLabel}</button>
+      <button class="btn primary" id="btnLogoutMobile">Log out</button>
+    `
+    : `
+      <button class="btn secondary" id="btnLoginMobile">Log in</button>
+      <button class="btn primary" id="btnSignupMobile">Create account</button>
+    `;
+
   return `
         <!-- NAVBAR -->
         <header class="navbar">
@@ -21,8 +47,7 @@ export function getNavbar(isAuthPage = false) {
                 </nav>
 
                 <div class="navbar-actions">
-                    <button class="btn secondary" id="btnLogin">Log in</button>
-                    <button class="btn primary" id="btnSignup">Create account</button>
+                  ${desktopActions}
                 </div>
 
                 <button
@@ -42,8 +67,7 @@ export function getNavbar(isAuthPage = false) {
                 <a href="#why" class="nav-link">Why us</a>
                 <a href="#cta" class="nav-link">Get started</a>
                 <div class="navbar-mobile-actions">
-                    <button class="btn secondary" id="btnLoginMobile">Log in</button>
-                    <button class="btn primary" id="btnSignupMobile">Create account</button>
+                  ${mobileActions}
                 </div>
             </div>
         </header>
@@ -76,11 +100,31 @@ export function setupNavbarBurger() {
 
   if (navToggle && navMobile) {
     navToggle.addEventListener('click', () => {
-      navMobile.classList.toggle('active');
+      navMobile.classList.toggle('open');
       navToggle.setAttribute(
         'aria-expanded',
         navToggle.getAttribute('aria-expanded') === 'true' ? 'false' : 'true'
       );
     });
   }
+}
+
+export function setupNavbarAuthActions() {
+  const goProfile = async () => {
+    const { ProfilePage } = await import('../pages/profile.js');
+    ProfilePage();
+  };
+
+  document.getElementById('btnProfile')?.addEventListener('click', goProfile);
+  document
+    .getElementById('btnProfileMobile')
+    ?.addEventListener('click', goProfile);
+
+  document.getElementById('btnLogoutNav')?.addEventListener('click', () => {
+    logout();
+  });
+
+  document.getElementById('btnLogoutMobile')?.addEventListener('click', () => {
+    logout();
+  });
 }

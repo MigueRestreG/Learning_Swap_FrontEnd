@@ -3,12 +3,26 @@
  * Displays the authenticated user's profile
  */
 
-import { getNavbar, setupNavbarBurger } from '../components/navbar.js';
+import {
+  getNavbar,
+  setupNavbarAuthActions,
+  setupNavbarBurger,
+} from '../components/navbar.js';
 import { getCurrentUser, getUserInitials, logout } from '../utils/auth.js';
 import { getUserProfile, updateUserProfile } from '../services/api.js';
 
 export async function ProfilePage() {
   const app = document.getElementById('app');
+
+  if (window.__homeCleanup) {
+    window.__homeCleanup();
+    window.__homeCleanup = null;
+  }
+
+  if (window.__homeScrollHandler) {
+    window.removeEventListener('scroll', window.__homeScrollHandler);
+    window.__homeScrollHandler = null;
+  }
 
   document.body.classList.remove('auth-page', 'register-mode');
   document.body.classList.add('profile-page');
@@ -26,6 +40,7 @@ export async function ProfilePage() {
   `;
 
   setupNavbarBurger();
+  setupNavbarAuthActions();
   setupProfileNavbar();
 
   // Fetch fresh data from API, fallback to cached
@@ -56,6 +71,8 @@ function renderProfile(app, user) {
     user.first_name || user.name,
     user.last_name
   );
+  const bio = (user.bio || user.about_me || '').trim();
+  const safeBio = escapeHtml(bio).replace(/\n/g, '<br>');
   const fullName = [user.first_name || user.name, user.last_name]
     .filter(Boolean)
     .join(' ');
@@ -150,13 +167,17 @@ function renderProfile(app, user) {
             <h3>About Me</h3>
           </div>
           <div class="profile-card-body" id="aboutBody">
-            <p class="profile-placeholder">
+            ${
+              bio
+                ? `<p class="profile-about-text">${safeBio}</p>`
+                : `<p class="profile-placeholder">
               <ion-icon name="sparkles-outline"></ion-icon>
               No bio yet — tell the community who you are!
-            </p>
+            </p>`
+            }
           </div>
           <button class="card-action-btn" id="btnEditAbout">
-            <ion-icon name="add-outline"></ion-icon> Add bio
+            <ion-icon name="${bio ? 'create-outline' : 'add-outline'}"></ion-icon> ${bio ? 'Edit bio' : 'Add bio'}
           </button>
         </div>
 
@@ -270,6 +291,7 @@ function renderProfile(app, user) {
   `;
 
   setupNavbarBurger();
+  setupNavbarAuthActions();
   setupProfileNavbar();
   setupProfileActions(user);
 }
@@ -328,6 +350,94 @@ function setupProfileActions(user) {
       e.preventDefault();
       await handleEditProfile();
     });
+
+  setupAboutActions(user);
+}
+
+function setupAboutActions(user) {
+  const btnEditAbout = document.getElementById('btnEditAbout');
+  const aboutBody = document.getElementById('aboutBody');
+  if (!btnEditAbout || !aboutBody) return;
+
+  const renderEditor = (currentBio = '') => {
+    const escapedBio = escapeHtml(currentBio);
+    aboutBody.innerHTML = `
+      <div class="about-editor">
+        <label class="about-editor-label" for="aboutBioInput">About me</label>
+        <textarea id="aboutBioInput" class="about-editor-textarea" rows="4" maxlength="350" placeholder="Tell the community who you are...">${escapedBio}</textarea>
+        <div class="about-editor-actions">
+          <button type="button" class="about-editor-btn about-editor-btn--cancel" id="btnCancelAbout">Cancel</button>
+          <button type="button" class="about-editor-btn about-editor-btn--save" id="btnSaveAbout">Save</button>
+        </div>
+        <p class="about-editor-error" id="aboutEditorError"></p>
+      </div>
+    `;
+
+    btnEditAbout.hidden = true;
+
+    const bioInput = document.getElementById('aboutBioInput');
+    const saveBtn = document.getElementById('btnSaveAbout');
+    const cancelBtn = document.getElementById('btnCancelAbout');
+    const errorEl = document.getElementById('aboutEditorError');
+
+    bioInput?.focus();
+
+    cancelBtn?.addEventListener('click', () => {
+      const app = document.getElementById('app');
+      renderProfile(app, user);
+    });
+
+    saveBtn?.addEventListener('click', async () => {
+      const normalizedBio = bioInput?.value.trim() || '';
+      saveBtn.disabled = true;
+      saveBtn.textContent = 'Saving...';
+      errorEl.textContent = '';
+
+      try {
+        const updated = await updateUserProfile({
+          bio: normalizedBio,
+          about_me: normalizedBio,
+        });
+
+        const freshUser = {
+          ...user,
+          ...(updated.user || updated),
+        };
+
+        if (normalizedBio) {
+          freshUser.bio = normalizedBio;
+          freshUser.about_me = normalizedBio;
+        } else {
+          delete freshUser.bio;
+          delete freshUser.about_me;
+        }
+
+        localStorage.setItem('userData', JSON.stringify(freshUser));
+
+        const app = document.getElementById('app');
+        renderProfile(app, freshUser);
+      } catch (err) {
+        errorEl.textContent =
+          err.message || 'Could not save your bio. Please try again.';
+        saveBtn.disabled = false;
+        saveBtn.textContent = 'Save';
+      }
+    });
+  };
+
+  btnEditAbout.addEventListener('click', () => {
+    const currentBio = (user.bio || user.about_me || '').trim();
+    renderEditor(currentBio);
+  });
+}
+
+function escapeHtml(value = '') {
+  return value
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
 }
 
 function closeModal() {

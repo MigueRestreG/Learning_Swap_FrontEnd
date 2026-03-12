@@ -11,15 +11,17 @@ const USER_KEY = 'userData';
  */
 export function isAuthenticated() {
   const token = localStorage.getItem(TOKEN_KEY);
-  return !!token;
+  const user = getCurrentUser();
+  return !!token || !!user;
 }
 
 /**
  * Save user data to localStorage after login/register
  */
 export function saveUserData(data) {
-  if (data.token) {
-    localStorage.setItem(TOKEN_KEY, data.token);
+  const token = data?.token || data?.access_token || data?.authToken;
+  if (token) {
+    localStorage.setItem(TOKEN_KEY, token);
   }
   // Store user info separately for quick access
   const user = data.user || data;

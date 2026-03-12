@@ -3,7 +3,11 @@
  * Renders the login / register forms and connects to the real API.
  */
 
-import { getNavbar, setupNavbarBurger } from '../components/navbar.js';
+import {
+  getNavbar,
+  setupNavbarAuthActions,
+  setupNavbarBurger,
+} from '../components/navbar.js';
 import { loginUser, registerUser } from '../services/api.js';
 import { saveUserData } from '../utils/auth.js';
 
@@ -102,6 +106,7 @@ export function LoginPage() {
   // Setup navbar interactions
   setupAuthNavbar();
   setupNavbarBurger();
+  setupNavbarAuthActions();
 
   // Add event listeners for toggle functionality
   initializeAuthToggle();

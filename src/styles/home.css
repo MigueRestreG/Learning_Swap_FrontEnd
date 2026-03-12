@@ -29,7 +29,7 @@
   padding: 0.75rem 1rem;
   min-width: 120px;
   border-radius: 16px;
-  background: rgba(255, 255, 255, 0.66);
+  background: rgba(255, 255, 255, 0.8);
   border: 1px solid var(--line-soft);
 }
 
@@ -94,7 +94,7 @@
 .features-list li {
   padding: 0.9rem 1rem;
   border-radius: 14px;
-  background: rgba(255, 255, 255, 0.74);
+  background: rgba(255, 255, 255, 0.86);
   border: 1px solid var(--line-soft);
   font-weight: 500;
 }
@@ -102,8 +102,8 @@
 .cta {
   margin: 0 8%;
   border-radius: var(--radius-xl);
-  background: linear-gradient(145deg, #e7f5ff, #ece7ff);
-  border: 1px solid #d9ddff;
+  background: linear-gradient(145deg, #d9f4ff, #e8ddff);
+  border: 1px solid rgba(99, 102, 241, 0.25);
   box-shadow: var(--shadow-soft);
 }
 
