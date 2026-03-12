@@ -9,13 +9,14 @@ export function getNavbar(isAuthPage = false) {
         <header class="navbar">
             <div class="navbar-container">
                 <a class="navbar-brand" href="#home" data-link>
-                    <img class="navbar-logo" src="/assets/icons/logo.svg" alt="Learning Swap Exchange" />
+                    <img class="navbar-logo" src="/assets/logos/logo.png" alt="Learning Swap Exchange" />
                     <span>Learning Swap</span>
                 </a>
 
                 <nav class="navbar-links">
                     <a href="#how" class="nav-link">How it works</a>
                     <a href="#features" class="nav-link">Features</a>
+                    <a href="#prices" class="nav-link">Pricing</a>
                     <a href="#why" class="nav-link">Why us</a>
                     <a href="#cta" class="nav-link">Get started</a>
                 </nav>
@@ -39,6 +40,7 @@ export function getNavbar(isAuthPage = false) {
             <div class="navbar-mobile" id="navMobile">
                 <a href="#how" class="nav-link">How it works</a>
                 <a href="#features" class="nav-link">Features</a>
+                <a href="#prices" class="nav-link">Pricing</a>
                 <a href="#why" class="nav-link">Why us</a>
                 <a href="#cta" class="nav-link">Get started</a>
                 <div class="navbar-mobile-actions">

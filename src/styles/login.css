@@ -11,7 +11,7 @@
 
 .container {
   width: 100%;
-  max-width: 800px;
+  max-width: 840px;  /* slightly wider */
   height: 500px;
   display: flex;
   position: relative;
@@ -25,6 +25,20 @@
 .container-form {
   width: 100%;
   overflow: hidden;
+  padding: 0 30px;           /* add horizontal padding so content doesn’t touch edges */
+  box-sizing: border-box;
+}
+
+/* allow vertical scrolling if fields exceed available height */
+.container-form form {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  transition: transform 0.5s ease-in;
+  overflow-y: auto;
+  padding: 20px 0;          /* small vertical padding */
 }
 
 .container-form form {
@@ -52,7 +66,6 @@
   padding: 8px;
   cursor: pointer;
 }
-
 .container-form span {
   font-size: 12px;
   margin-bottom: 15px;
