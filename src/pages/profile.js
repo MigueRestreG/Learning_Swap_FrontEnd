@@ -7,9 +7,11 @@ import {
   getNavbar,
   setupNavbarAuthActions,
   setupNavbarBurger,
+  setupNavbarSectionLinks,
 } from '../components/navbar.js';
 import { getCurrentUser, getUserInitials, logout } from '../utils/auth.js';
 import { getUserProfile, updateUserProfile } from '../services/api.js';
+import { saveUserData } from '../utils/auth.js';
 
 export async function ProfilePage() {
   const app = document.getElementById('app');
@@ -34,13 +36,14 @@ export async function ProfilePage() {
     <main class="profile-main">
       <div class="profile-loading">
         <div class="spinner"></div>
-        <p>Loading your profile…</p>
+        <p>Cargando tu perfil…</p>
       </div>
     </main>
   `;
 
   setupNavbarBurger();
   setupNavbarAuthActions();
+  setupNavbarSectionLinks();
   setupProfileNavbar();
 
   // Fetch fresh data from API, fallback to cached
@@ -48,7 +51,7 @@ export async function ProfilePage() {
   try {
     user = await getUserProfile();
     // Update local cache with fresh data
-    localStorage.setItem('userData', JSON.stringify(user));
+    saveUserData({ user });
   } catch {
     user = getCurrentUser();
   }
@@ -77,11 +80,11 @@ function renderProfile(app, user) {
     .filter(Boolean)
     .join(' ');
   const memberSince = user.created_at
-    ? new Date(user.created_at).toLocaleDateString('en-US', {
+    ? new Date(user.created_at).toLocaleDateString('es-ES', {
         month: 'long',
         year: 'numeric',
       })
-    : 'Recently joined';
+    : 'Se unió recientemente';
 
   app.innerHTML = `
     ${getNavbar(false)}
@@ -100,7 +103,7 @@ function renderProfile(app, user) {
           </div>
 
           <div class="profile-hero-info">
-            <h1 class="profile-name">${fullName || 'Learning Swapper'}</h1>
+            <h1 class="profile-name">${fullName || 'Usuario de Learning Swap'}</h1>
             <p class="profile-email">
               <ion-icon name="mail-outline"></ion-icon>
               ${user.email || ''}
@@ -116,18 +119,18 @@ function renderProfile(app, user) {
             }
             <p class="profile-since">
               <ion-icon name="calendar-outline"></ion-icon>
-              Member since ${memberSince}
+              Miembro desde ${memberSince}
             </p>
           </div>
 
           <div class="profile-hero-actions">
             <button class="btn-profile-edit" id="btnEditProfile">
               <ion-icon name="create-outline"></ion-icon>
-              Edit Profile
+              Editar perfil
             </button>
             <button class="btn-profile-logout" id="btnLogout">
               <ion-icon name="log-out-outline"></ion-icon>
-              Log Out
+              Cerrar sesión
             </button>
           </div>
         </div>
@@ -137,22 +140,22 @@ function renderProfile(app, user) {
       <section class="profile-stats">
         <div class="stat-card">
           <span class="stat-number">0</span>
-          <span class="stat-label">Skills Offered</span>
+          <span class="stat-label">Habilidades ofrecidas</span>
           <ion-icon name="school-outline"></ion-icon>
         </div>
         <div class="stat-card">
           <span class="stat-number">0</span>
-          <span class="stat-label">Sessions Done</span>
+          <span class="stat-label">Sesiones realizadas</span>
           <ion-icon name="swap-horizontal-outline"></ion-icon>
         </div>
         <div class="stat-card">
           <span class="stat-number">0</span>
-          <span class="stat-label">People Helped</span>
+          <span class="stat-label">Personas ayudadas</span>
           <ion-icon name="people-outline"></ion-icon>
         </div>
         <div class="stat-card">
           <span class="stat-number">0</span>
-          <span class="stat-label">Points Earned</span>
+          <span class="stat-label">Puntos ganados</span>
           <ion-icon name="star-outline"></ion-icon>
         </div>
       </section>
@@ -164,7 +167,7 @@ function renderProfile(app, user) {
         <div class="profile-card" id="aboutCard">
           <div class="profile-card-header">
             <ion-icon name="person-circle-outline"></ion-icon>
-            <h3>About Me</h3>
+            <h3>Sobre mí</h3>
           </div>
           <div class="profile-card-body" id="aboutBody">
             ${
@@ -172,12 +175,12 @@ function renderProfile(app, user) {
                 ? `<p class="profile-about-text">${safeBio}</p>`
                 : `<p class="profile-placeholder">
               <ion-icon name="sparkles-outline"></ion-icon>
-              No bio yet — tell the community who you are!
+              Aún no tienes biografía — ¡cuéntale a la comunidad quién eres!
             </p>`
             }
           </div>
           <button class="card-action-btn" id="btnEditAbout">
-            <ion-icon name="${bio ? 'create-outline' : 'add-outline'}"></ion-icon> ${bio ? 'Edit bio' : 'Add bio'}
+            <ion-icon name="${bio ? 'create-outline' : 'add-outline'}"></ion-icon> ${bio ? 'Editar biografía' : 'Agregar biografía'}
           </button>
         </div>
 
@@ -185,13 +188,13 @@ function renderProfile(app, user) {
         <div class="profile-card">
           <div class="profile-card-header">
             <ion-icon name="bulb-outline"></ion-icon>
-            <h3>Skills I Can Teach</h3>
+            <h3>Habilidades que puedo enseñar</h3>
           </div>
           <div class="profile-card-body">
             <div class="skills-grid" id="skillsOffered">
               <span class="skill-tag skill-tag--empty">
                 <ion-icon name="add-circle-outline"></ion-icon>
-                Add a skill
+                Agregar una habilidad
               </span>
             </div>
           </div>
@@ -201,13 +204,13 @@ function renderProfile(app, user) {
         <div class="profile-card">
           <div class="profile-card-header">
             <ion-icon name="telescope-outline"></ion-icon>
-            <h3>Skills I Want to Learn</h3>
+            <h3>Habilidades que quiero aprender</h3>
           </div>
           <div class="profile-card-body">
             <div class="skills-grid" id="skillsWanted">
               <span class="skill-tag skill-tag--empty skill-tag--want">
                 <ion-icon name="add-circle-outline"></ion-icon>
-                Add a skill
+                Agregar una habilidad
               </span>
             </div>
           </div>
@@ -217,26 +220,26 @@ function renderProfile(app, user) {
         <div class="profile-card">
           <div class="profile-card-header">
             <ion-icon name="shield-checkmark-outline"></ion-icon>
-            <h3>Account Info</h3>
+            <h3>Información de la cuenta</h3>
           </div>
           <div class="profile-card-body account-info">
             <div class="info-row">
-              <span class="info-label">Name</span>
+              <span class="info-label">Nombre</span>
               <span class="info-value">${fullName || '—'}</span>
             </div>
             <div class="info-row">
-              <span class="info-label">Email</span>
+              <span class="info-label">Correo</span>
               <span class="info-value">${user.email || '—'}</span>
             </div>
             <div class="info-row">
-              <span class="info-label">Phone</span>
+              <span class="info-label">Teléfono</span>
               <span class="info-value">${user.phone || '—'}</span>
             </div>
             <div class="info-row">
-              <span class="info-label">Status</span>
+              <span class="info-label">Estado</span>
               <span class="info-value info-badge">
                 <ion-icon name="checkmark-circle-outline"></ion-icon>
-                Active
+                Activa
               </span>
             </div>
           </div>
@@ -248,39 +251,39 @@ function renderProfile(app, user) {
       <div class="modal-overlay" id="editModal" hidden>
         <div class="modal">
           <div class="modal-header">
-            <h3>Edit Profile</h3>
+            <h3>Editar perfil</h3>
             <button class="modal-close" id="btnCloseModal">
               <ion-icon name="close-outline"></ion-icon>
             </button>
           </div>
           <form class="modal-form" id="editProfileForm">
             <div class="modal-input-group">
-              <label>First Name</label>
+              <label>Nombre</label>
               <div class="modal-input">
                 <ion-icon name="person-outline"></ion-icon>
-                <input type="text" id="edit-firstname" value="${user.first_name || user.name || ''}" placeholder="First Name" required>
+                <input type="text" id="edit-firstname" value="${user.first_name || user.name || ''}" placeholder="Nombre" required>
               </div>
             </div>
             <div class="modal-input-group">
-              <label>Last Name</label>
+              <label>Apellido</label>
               <div class="modal-input">
                 <ion-icon name="person-outline"></ion-icon>
-                <input type="text" id="edit-lastname" value="${user.last_name || ''}" placeholder="Last Name" required>
+                <input type="text" id="edit-lastname" value="${user.last_name || ''}" placeholder="Apellido" required>
               </div>
             </div>
             <div class="modal-input-group">
-              <label>Phone</label>
+              <label>Teléfono</label>
               <div class="modal-input">
                 <ion-icon name="call-outline"></ion-icon>
-                <input type="tel" id="edit-phone" value="${user.phone || ''}" placeholder="Phone number">
+                <input type="tel" id="edit-phone" value="${user.phone || ''}" placeholder="Número de teléfono">
               </div>
             </div>
             <div class="form-error" id="edit-error"></div>
             <div class="modal-actions">
-              <button type="button" class="btn-modal-cancel" id="btnCancelEdit">Cancel</button>
+              <button type="button" class="btn-modal-cancel" id="btnCancelEdit">Cancelar</button>
               <button type="submit" class="btn-modal-save">
                 <ion-icon name="save-outline"></ion-icon>
-                Save Changes
+                Guardar cambios
               </button>
             </div>
           </form>
@@ -292,6 +295,7 @@ function renderProfile(app, user) {
 
   setupNavbarBurger();
   setupNavbarAuthActions();
+  setupNavbarSectionLinks();
   setupProfileNavbar();
   setupProfileActions(user);
 }
@@ -363,11 +367,11 @@ function setupAboutActions(user) {
     const escapedBio = escapeHtml(currentBio);
     aboutBody.innerHTML = `
       <div class="about-editor">
-        <label class="about-editor-label" for="aboutBioInput">About me</label>
-        <textarea id="aboutBioInput" class="about-editor-textarea" rows="4" maxlength="350" placeholder="Tell the community who you are...">${escapedBio}</textarea>
+        <label class="about-editor-label" for="aboutBioInput">Sobre mí</label>
+        <textarea id="aboutBioInput" class="about-editor-textarea" rows="4" maxlength="350" placeholder="Cuéntale a la comunidad quién eres...">${escapedBio}</textarea>
         <div class="about-editor-actions">
-          <button type="button" class="about-editor-btn about-editor-btn--cancel" id="btnCancelAbout">Cancel</button>
-          <button type="button" class="about-editor-btn about-editor-btn--save" id="btnSaveAbout">Save</button>
+          <button type="button" class="about-editor-btn about-editor-btn--cancel" id="btnCancelAbout">Cancelar</button>
+          <button type="button" class="about-editor-btn about-editor-btn--save" id="btnSaveAbout">Guardar</button>
         </div>
         <p class="about-editor-error" id="aboutEditorError"></p>
       </div>
@@ -390,7 +394,7 @@ function setupAboutActions(user) {
     saveBtn?.addEventListener('click', async () => {
       const normalizedBio = bioInput?.value.trim() || '';
       saveBtn.disabled = true;
-      saveBtn.textContent = 'Saving...';
+      saveBtn.textContent = 'Guardando...';
       errorEl.textContent = '';
 
       try {
@@ -418,9 +422,9 @@ function setupAboutActions(user) {
         renderProfile(app, freshUser);
       } catch (err) {
         errorEl.textContent =
-          err.message || 'Could not save your bio. Please try again.';
+          err.message || 'No se pudo guardar tu biografía. Inténtalo de nuevo.';
         saveBtn.disabled = false;
-        saveBtn.textContent = 'Save';
+        saveBtn.textContent = 'Guardar';
       }
     });
   };
@@ -458,13 +462,13 @@ async function handleEditProfile() {
   const phone = phoneEl?.value.trim();
 
   if (!first_name || !last_name) {
-    errorEl.textContent = 'First and last name are required.';
+    errorEl.textContent = 'El nombre y el apellido son obligatorios.';
     errorEl.style.display = 'block';
     return;
   }
 
   saveBtn.disabled = true;
-  saveBtn.textContent = 'Saving…';
+  saveBtn.textContent = 'Guardando…';
   errorEl.style.display = 'none';
 
   try {
@@ -476,10 +480,11 @@ async function handleEditProfile() {
     const app = document.getElementById('app');
     renderProfile(app, freshUser);
   } catch (err) {
-    errorEl.textContent = err.message || 'Failed to save. Try again.';
+    errorEl.textContent =
+      err.message || 'No se pudo guardar. Inténtalo de nuevo.';
     errorEl.style.display = 'block';
     saveBtn.disabled = false;
     saveBtn.innerHTML =
-      '<ion-icon name="save-outline"></ion-icon> Save Changes';
+      '<ion-icon name="save-outline"></ion-icon> Guardar cambios';
   }
 }

@@ -1,20 +1,28 @@
-/* Register Page Styles */
+/* Register Page Styles - Fully Responsive */
 .button-register {
-  width: 170px;
-  height: 45px;
-  font-size: 15px;
+  width: clamp(130px, 40%, 170px);
+  height: clamp(36px, 8vw, 45px);
+  font-size: clamp(0.85rem, 1.5vw, 1rem);
   border: none;
   border-radius: 22px;
   cursor: pointer;
-  margin-top: 10px;
-  background-color: #C4BFFE;
+  margin-top: clamp(0.8rem, 1.5vw, 1.2rem);
+  background: linear-gradient(135deg, #38bdf8, var(--primary-b));
   color: white;
   font-weight: 600;
   box-shadow: 0 10px 22px rgba(56, 189, 248, 0.32);
+  transition: all 0.3s ease;
+  min-height: 44px;
+  white-space: nowrap;
 }
 
 .button-register:hover {
   opacity: 0.9;
+  box-shadow: 0 14px 28px rgba(56, 189, 248, 0.42);
+}
+
+.button-register:active {
+  transform: scale(0.95);
 }
 
 /* Animation for sign-up form */
@@ -30,7 +38,8 @@
 .container-welcome {
   position: absolute;
   height: 100%;
-  width: 50%;
+  width: clamp(40%, 50%, 50%);
+  z-index: 3;
   background: linear-gradient(145deg, #cdefff, #c7b9ff);
   display: flex;
   align-items: center;
@@ -45,7 +54,7 @@
 .container.toggle .container-welcome {
   transform: translateX(0);
   border-radius: 0 50% 50% 0;
-  background-color: #C2E9FE;
+  background: linear-gradient(145deg, #b8ddff, #7e6ddf);
 }
 
 .container-welcome .welcome {
@@ -53,13 +62,14 @@
   display: flex;
   align-items: center;
   flex-direction: column;
-  gap: 20px;
-  padding: 40px 50px;    /* more breathing room */
+  gap: clamp(1rem, 2vw, 1.5rem);
+  padding: clamp(2rem, 4vw, 3.2rem) clamp(2rem, 4vw, 3.2rem);
   color: white;
   text-align: center;
   transition: transform 0.5s ease-in-out;
   box-sizing: border-box;
   overflow-y: auto;
+  max-height: 100%;
 }
 
 .welcome-sign-in {
@@ -67,47 +77,66 @@
 }
 
 .container-welcome h3 {
-  font-size: 40px;
+  font-size: clamp(1.8rem, 5vw, 2.5rem);
+  font-weight: 700;
+  line-height: 1.3;
 }
 
 .container-welcome p {
-  font-size: 14px;
-  align-items: center;
+  font-size: clamp(0.9rem, 1.5vw, 1rem);
+  line-height: 1.6;
+  max-width: 85%;
 }
 
 .button-signup {
-  width: 170px;
-  height: 45px;
-  font-size: 15px;
+  width: clamp(130px, 40%, 170px);
+  height: clamp(36px, 8vw, 45px);
+  font-size: clamp(0.85rem, 1.5vw, 1rem);
   border: none;
   border-radius: 22px;
   cursor: pointer;
-  margin-top: 10px;
+  margin-top: clamp(0.8rem, 1.5vw, 1.2rem);
   background: linear-gradient(135deg, #38bdf8, var(--primary-b));
   color: #0f2f4f;
   font-weight: 600;
+  transition: all 0.3s ease;
+  min-height: 44px;
+  white-space: nowrap;
 }
 
 .button-signup:hover {
   opacity: 0.9;
+  box-shadow: 0 10px 22px rgba(56, 189, 248, 0.32);
+}
+
+.button-signup:active {
+  transform: scale(0.95);
 }
 
 .button-star {
-  width: 170px;
-  height: 45px;
-  font-size: 15px;
+  width: clamp(130px, 40%, 170px);
+  height: clamp(36px, 8vw, 45px);
+  font-size: clamp(0.85rem, 1.5vw, 1rem);
   border: none;
   border-radius: 22px;
   cursor: pointer;
-  margin-top: 10px;
+  margin-top: clamp(0.8rem, 1.5vw, 1.2rem);
   background: linear-gradient(135deg, #a78bfa, #f472b6);
   color: white;
   font-weight: 600;
   box-shadow: 0 10px 22px rgba(167, 139, 250, 0.32);
+  transition: all 0.3s ease;
+  min-height: 44px;
+  white-space: nowrap;
 }
 
 .button-star:hover {
   opacity: 0.9;
+  box-shadow: 0 14px 28px rgba(167, 139, 250, 0.42);
+}
+
+.button-star:active {
+  transform: scale(0.95);
 }
 
 .container.toggle .welcome-sign-in {
@@ -116,4 +145,55 @@
 
 .container.toggle .welcome-sign-up {
   transform: translateX(-100%);
+}
+
+/* ─────────────────────────────────────────────────
+   Responsive Register Styles
+   ───────────────────────────────────────────────── */
+
+/* Extra small devices (< 480px) */
+@media (max-width: 479px) {
+  .container-welcome {
+    display: none !important;
+  }
+
+  .container {
+    max-width: 95vw !important;
+  }
+
+  .button-register,
+  .button-signup,
+  .button-star {
+    width: 100%;
+    max-width: 150px;
+  }
+}
+
+/* Small devices/tablets (480px - 768px) */
+@media (min-width: 480px) and (max-width: 768px) {
+  .container-welcome {
+    width: 45%;
+  }
+
+  .container-welcome .welcome {
+    padding: clamp(1.5rem, 3vw, 2.5rem);
+  }
+
+  .container-welcome h3 {
+    font-size: clamp(1.5rem, 4vw, 2rem);
+  }
+}
+
+/* Tablets/Laptops (768px - 1024px) */
+@media (min-width: 768px) and (max-width: 1024px) {
+  .container-welcome {
+    width: 48%;
+  }
+}
+
+/* Desktop (1024px+) */
+@media (min-width: 1024px) {
+  .container-welcome {
+    width: 50%;
+  }
 }

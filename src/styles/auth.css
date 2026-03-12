@@ -48,11 +48,15 @@ body.auth-page #scroll-space {
 }
 
 body.auth-page.register-mode {
-  /* same background as the main site (radial gradients over --bg-main) */
-  background:
-    radial-gradient(circle at 20% 10%, #e9f4ff 0%, transparent 38%),
-    radial-gradient(circle at 80% 80%, #ece9ff 0%, transparent 36%),
-    var(--bg-main);
+  background: transparent;
+}
+
+body.auth-page.register-mode::before {
+  opacity: 0;
+}
+
+body.auth-page.register-mode::after {
+  opacity: 1;
 }
 
 /* Default body for home page - reset */
@@ -80,11 +84,13 @@ body.auth-page .navbar {
   right: 0;
   width: 100%;
   z-index: 300;
-  background: rgba(245, 248, 255, 0.95);
+  background: rgba(239, 245, 255, 0.94);
   -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
   border-bottom: 1px solid var(--line-soft);
-  transition: box-shadow 0.25s ease, background-color 0.25s ease;
+  transition:
+    box-shadow 0.25s ease,
+    background-color 0.25s ease;
 }
 
 /* make sure the inner container remains centered and not pushed right */
@@ -94,14 +100,5 @@ body.auth-page .navbar-container {
 }
 
 body.auth-page.register-mode .navbar {
-  /* blue gradient matching primary theme */
-  background: linear-gradient(135deg, var(--primary-a), var(--primary-b));
+  background: rgba(224, 244, 255, 0.94);
 }
-
-/* make sure navbar buttons are visible against the blue gradient */
-body.auth-page.register-mode .navbar .btn.primary {
-  background: #ffffff;
-  color: var(--text-main);
-  border: 1.5px solid var(--primary-b);
-}
-

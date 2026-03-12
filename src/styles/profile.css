@@ -47,7 +47,7 @@ body.profile-page #scroll-space {
 .profile-main {
   max-width: 1000px;
   margin: 0 auto;
-  padding: 104px 24px 80px;
+  padding: 132px 24px 80px;
 }
 
 /* ── Hero Section ────────────────────────────── */
@@ -743,7 +743,7 @@ body.profile-page #scroll-space {
 /* ── Responsive ──────────────────────────────── */
 @media (max-width: 768px) {
   .profile-main {
-    padding: 92px 16px 60px;
+    padding: 108px 16px 60px;
   }
 
   .profile-hero-content {

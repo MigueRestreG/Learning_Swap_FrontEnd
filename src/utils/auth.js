@@ -19,12 +19,41 @@ export function isAuthenticated() {
  * Save user data to localStorage after login/register
  */
 export function saveUserData(data) {
-  const token = data?.token || data?.access_token || data?.authToken;
+  const token =
+    data?.token ||
+    data?.accessToken ||
+    data?.access_token ||
+    data?.authToken ||
+    data?.user?.token ||
+    data?.data?.token ||
+    data?.data?.accessToken ||
+    data?.data?.access_token;
   if (token) {
     localStorage.setItem(TOKEN_KEY, token);
   }
-  // Store user info separately for quick access
-  const user = data.user || data;
+
+  const current = getCurrentUser() || {};
+  const candidate =
+    data?.user ||
+    data?.data?.user ||
+    data?.profile ||
+    (data && typeof data === 'object' ? data : null);
+
+  if (!candidate || typeof candidate !== 'object') return;
+
+  const hasIdentityFields =
+    'id' in candidate ||
+    'email' in candidate ||
+    'first_name' in candidate ||
+    'last_name' in candidate ||
+    'name' in candidate ||
+    'phone' in candidate ||
+    'bio' in candidate ||
+    'about_me' in candidate;
+
+  if (!hasIdentityFields) return;
+
+  const user = { ...current, ...candidate };
   localStorage.setItem(USER_KEY, JSON.stringify(user));
 }
 

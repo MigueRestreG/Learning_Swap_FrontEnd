@@ -8,12 +8,14 @@ async function handleResponse(response) {
   try {
     data = await response.json();
   } catch {
-    throw new Error('Invalid server response');
+    throw new Error('Respuesta del servidor no válida');
   }
 
   if (!response.ok) {
     // Use server message when available
-    throw new Error(data.message || data.error || `HTTP ${response.status}`);
+    throw new Error(
+      data.message || data.error || data.detail || `HTTP ${response.status}`
+    );
   }
   return data;
 }

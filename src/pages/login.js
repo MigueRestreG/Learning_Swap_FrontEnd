@@ -7,9 +7,10 @@ import {
   getNavbar,
   setupNavbarAuthActions,
   setupNavbarBurger,
+  setupNavbarSectionLinks,
 } from '../components/navbar.js';
 import { loginUser, registerUser } from '../services/api.js';
-import { saveUserData } from '../utils/auth.js';
+import { getCurrentUser, saveUserData } from '../utils/auth.js';
 
 export function LoginPage(mode = 'login') {
   const app = document.getElementById('app');
@@ -26,7 +27,7 @@ export function LoginPage(mode = 'login') {
             <!-- Login Form -->
             <div class="container-form">
                 <form class="sign-in" id="form-sign-in">
-                    <h2>Log In</h2>
+                <h2>Iniciar sesión</h2>
 
                     <!-- Social Media Icons -->
                     <div class="social-networks">
@@ -35,7 +36,7 @@ export function LoginPage(mode = 'login') {
                     </div>
 
                     <!-- Inputs -->
-                    <span>use your email and password</span>
+                    <span>usa tu correo y contraseña</span>
                     <div class="container-input">
                         <ion-icon name="mail-outline"></ion-icon>
                         <input type="email" id="login-email" placeholder="youremail@gmail.com" required>
@@ -44,28 +45,28 @@ export function LoginPage(mode = 'login') {
                         <ion-icon name="lock-closed-outline"></ion-icon>
                         <input type="password" id="login-password" placeholder="•••••••" required>
                     </div>
-                    <a href="#forgot-password">forget your password?</a>
+                    <a href="#forgot-password">¿Olvidaste tu contraseña?</a>
                     <div class="form-error" id="login-error"></div>
-                    <button type="submit" class="button-logIn">Log In</button>
+                    <button type="submit" class="button-logIn">Iniciar sesión</button>
                 </form>
             </div>
 
             <!-- Register Form (Hidden by default) -->
             <div class="container-form">
                 <form class="sign-up" id="form-sign-up">
-                    <h2>Register</h2>
+                  <h2>Registrarse</h2>
                     <div class="social-networks">
                         <ion-icon name="accessibility-outline"></ion-icon>
                         <ion-icon name="swap-horizontal-outline"></ion-icon>
                     </div>
-                    <span>use your email for registration.</span>
+                    <span>usa tu correo para registrarte.</span>
                     <div class="container-input">
                         <ion-icon name="person-circle-outline"></ion-icon>
-                        <input type="text" id="register-firstname" placeholder="First Name" required>
+                        <input type="text" id="register-firstname" placeholder="Nombre" required>
                     </div>
                     <div class="container-input">
                         <ion-icon name="person-circle-outline"></ion-icon>
-                        <input type="text" id="register-lastname" placeholder="Last Name" required>
+                        <input type="text" id="register-lastname" placeholder="Apellido" required>
                     </div>
                     <div class="container-input">
                         <ion-icon name="mail-outline"></ion-icon>
@@ -77,24 +78,24 @@ export function LoginPage(mode = 'login') {
                     </div>
                     <div class="container-input">
                         <ion-icon name="call-outline"></ion-icon>
-                        <input type="tel" id="register-phone" placeholder="Your Phone Number" required>
+                        <input type="tel" id="register-phone" placeholder="Tu número de teléfono" required>
                     </div>
                     <div class="form-error" id="register-error"></div>
-                    <button type="submit" class="button-register">Register</button>
+                      <button type="submit" class="button-register">Registrarse</button>
                 </form>
             </div>
 
             <!-- Welcome Container -->
             <div class="container-welcome">
                 <div class="welcome-sign-up welcome">
-                    <h3>¡Welcome Again!</h3>
-                    <p>welcome to the new world that awaits you, please enter your personal information</p>
-                    <button type="button" class="button-signup" id="btn-sign-up">Register</button>
+                  <h3>¡Bienvenido de nuevo!</h3>
+                  <p>te damos la bienvenida al nuevo mundo que te espera, ingresa tu información personal</p>
+                  <button type="button" class="button-signup" id="btn-sign-up">Registrarse</button>
                 </div>
                 <div class="welcome-sign-in welcome">
-                    <h3>¡Welcome!</h3>
-                    <p>welcome back, log in with your personal information</p>
-                    <button type="button" class="button-star" id="btn-sign-in">Log in</button>
+                  <h3>¡Bienvenido!</h3>
+                  <p>qué bueno verte de nuevo, inicia sesión con tu información personal</p>
+                  <button type="button" class="button-star" id="btn-sign-in">Iniciar sesión</button>
                 </div>
             </div>
         </div>
@@ -114,6 +115,7 @@ export function LoginPage(mode = 'login') {
   setupAuthNavbar();
   setupNavbarBurger();
   setupNavbarAuthActions();
+  setupNavbarSectionLinks();
 
   // Add event listeners for toggle functionality
   initializeAuthToggle();
@@ -219,7 +221,7 @@ async function handleLogin() {
   const btn = document.querySelector('#form-sign-in .button-logIn');
 
   if (!email || !password) {
-    showError(errorEl, 'Please fill in all fields.');
+    showError(errorEl, 'Por favor completa todos los campos.');
     return;
   }
 
@@ -230,11 +232,18 @@ async function handleLogin() {
     const data = await loginUser(email, password);
     saveUserData(data);
 
+    if (!getCurrentUser()) {
+      saveUserData({ user: { email } });
+    }
+
     // Navigate to profile
     const { ProfilePage } = await import('./profile.js');
     ProfilePage();
   } catch (error) {
-    showError(errorEl, error.message || 'Login failed. Please try again.');
+    showError(
+      errorEl,
+      error.message || 'El inicio de sesión falló. Inténtalo de nuevo.'
+    );
   } finally {
     setLoading(btn, false);
   }
@@ -253,7 +262,7 @@ async function handleRegister() {
   const btn = document.querySelector('#form-sign-up .button-register');
 
   if (!firstName || !lastName || !email || !password || !phone) {
-    showError(errorEl, 'Please fill in all fields.');
+    showError(errorEl, 'Por favor completa todos los campos.');
     return;
   }
 
@@ -270,13 +279,24 @@ async function handleRegister() {
     );
     saveUserData(data);
 
+    if (!getCurrentUser()) {
+      saveUserData({
+        user: {
+          first_name: firstName,
+          last_name: lastName,
+          email,
+          phone,
+        },
+      });
+    }
+
     // Navigate to profile
     const { ProfilePage } = await import('./profile.js');
     ProfilePage();
   } catch (error) {
     showError(
       errorEl,
-      error.message || 'Registration failed. Please try again.'
+      error.message || 'El registro falló. Inténtalo de nuevo.'
     );
   } finally {
     setLoading(btn, false);
@@ -301,10 +321,12 @@ function clearError(el) {
 function setLoading(btn, loading) {
   if (!btn) return;
   btn.disabled = loading;
-  btn.textContent = loading ? 'Loading…' : btn.dataset.label || btn.textContent;
+  btn.textContent = loading
+    ? 'Cargando…'
+    : btn.dataset.label || btn.textContent;
   if (!btn.dataset.label && !loading) {
     btn.textContent = btn.classList.contains('button-logIn')
-      ? 'Log In'
-      : 'Register';
+      ? 'Iniciar sesión'
+      : 'Registrarse';
   }
 }

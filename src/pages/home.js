@@ -1,6 +1,10 @@
-import { getNavbar, setupNavbarAuthActions } from '../components/navbar.js';
+import {
+  getNavbar,
+  setupNavbarAuthActions,
+  setupNavbarSectionLinks,
+} from '../components/navbar.js';
 
-export function HomePage() {
+export function HomePage(initialSectionId = null) {
   const app = document.getElementById('app');
 
   // Remove auth-page class from body
@@ -21,145 +25,103 @@ export function HomePage() {
     <section class="home">
 
       <!-- NAVBAR -->
-      <header class="navbar">
-        <div class="navbar-container">
-          <a class="navbar-brand" href="/" data-link>
-            <img class="navbar-logo" src="/assets/logos/logo.png"  alt="Learning Swap Exchange" />
-            <span>Learning Swap</span>
-          </a>
-
-          <nav class="navbar-links">
-            <a href="#why" class="nav-link">Why us</a>
-            <a href="#how" class="nav-link">How it works</a>
-            <a href="#features" class="nav-link">Features</a>
-            <a href="#prices" class="nav-link">Pricing</a>
-            <a href="#cta" class="nav-link">Get started</a>
-          </nav>
-
-          <div class="navbar-actions">
-            <button class="btn secondary" id="btnLogin">Log in</button>
-            <button class="btn primary" id="btnSignup">Create account</button>
-          </div>
-
-          <button
-            class="navbar-burger"
-            id="navToggle"
-            aria-label="Toggle menu"
-            aria-expanded="false"
-            aria-controls="navMobile"
-          >
-            <span></span><span></span><span></span>
-          </button>
-        </div>
-
-        <div class="navbar-mobile" id="navMobile">
-          <a href="#how" class="nav-link">How it works</a>
-          <a href="#features" class="nav-link">Features</a>
-          <a href="#prices" class="nav-link">Pricing</a>
-          <a href="#why" class="nav-link">Why us</a>
-          <a href="#cta" class="nav-link">Get started</a>
-          <div class="navbar-mobile-actions">
-            <button class="btn secondary" id="btnLoginMobile">Log in</button>
-            <button class="btn primary" id="btnSignupMobile">Create account</button>
-          </div>
-        </div>
-      </header>
+      ${getNavbar(false)}
 
       <!-- ESCENA 1: HERO -->
       <section class="hero" id="hero">
         <div class="hero-content">
-          <h1>Share Knowledge, Not Identity.</h1>
+          <h1>Comparte conocimiento, no identidad.</h1>
 
           <p class="hero-description">
-            Join a global community where people exchange skills in complete privacy.
-            Teach what you know, learn what you love — with real-time translation
-            breaking every barrier.
+            Únete a una comunidad global donde las personas intercambian habilidades con total privacidad.
+            Enseña lo que sabes, aprende lo que te apasiona — con traducción en tiempo real
+            para romper cualquier barrera.
           </p>
 
           <div class="hero-actions">
-            <button class="btn primary" id="btnStartLearning">Start Learning</button>
-            <button class="btn secondary" id="btnExploreSkills">Explore Skills</button>
+            <button class="btn primary" id="btnStartLearning">Comenzar a aprender</button>
+            <button class="btn secondary" id="btnExploreSkills">Explorar habilidades</button>
           </div>
 
           <div class="hero-stats">
             <div>
               <strong>+1</strong>
-              <span>Match</span>
+              <span>Coincidencia</span>
             </div>
             <div>
               <strong>50+</strong>
-              <span>Languages</span>
+              <span>Idiomas</span>
             </div>
             <div>
               <strong>100%</strong>
-              <span>Private</span>
+              <span>Privado</span>
             </div>
           </div>
         </div>
       <div class="hero-banner">
-          <img class="logo-navbar" src="./assets/homeBanner.png" alt="banner" />
+          <img class="logo-navbar" src="./assets/homeBanner.png" alt="portada" />
           </div>
       </section>
 
       <!-- ESCENA 2 -->
       <section class="why" id="why">
-        <h2>Why Learning Swap Exchange?</h2>
+        <h2>¿Por qué Learning Swap?</h2>
         <p class="section-description">
-          A new way to learn by connecting people through shared knowledge.
+          Una nueva forma de aprender conectando personas a través del conocimiento compartido.
         </p>
 
         <div class="why-cards">
           <div class="card">
-            <h3>Skill Exchange</h3>
-            <p>Share what you know and learn what you need from real people.</p>
+            <h3>Intercambio de habilidades</h3>
+            <p>Comparte lo que sabes y aprende lo que necesitas de personas reales.</p>
           </div>
 
           <div class="card">
-            <h3>Community Driven</h3>
-            <p>Learn together through collaboration, mentoring, and feedback.</p>
+            <h3>Impulsado por la comunidad</h3>
+            <p>Aprende en conjunto mediante colaboración, mentoría y retroalimentación.</p>
           </div>
 
           <div class="card">
-            <h3>Growth Focused</h3>
-            <p>Build practical skills that help you grow personally and professionally.</p>
+            <h3>Enfocado en el crecimiento</h3>
+            <p>Desarrolla habilidades prácticas que te ayuden a crecer personal y profesionalmente.</p>
           </div>
         </div>
       </section>
 
       <!-- ESCENA 3 -->
       <section class="how" id="how">
-        <h2>How It Works</h2>
+        <h2>Cómo funciona</h2>
 
         <div class="steps">
           <div class="step">
             <span>1</span>
-            <h4>Create your profile</h4>
-            <p>Tell others what you can teach and what you want to learn.</p>
+            <h4>Crea tu perfil</h4>
+            <p>Cuéntales a otros qué puedes enseñar y qué quieres aprender.</p>
           </div>
 
           <div class="step">
             <span>2</span>
-            <h4>Offer or request skills</h4>
-            <p>Find people who match your learning goals.</p>
+            <h4>Ofrece o solicita habilidades</h4>
+            <p>Encuentra personas que coincidan con tus objetivos de aprendizaje.</p>
           </div>
 
           <div class="step">
             <span>3</span>
-            <h4>Connect and learn</h4>
-            <p>Exchange knowledge through sessions and collaboration.</p>
+            <h4>Conecta y aprende</h4>
+            <p>Intercambia conocimiento mediante sesiones y colaboración.</p>
           </div>
         </div>
       </section>
 
       <!-- ESCENA 4 -->
       <section class="features" id="features">
-        <h2>Platform Features</h2>
+        <h2>Funciones de la plataforma</h2>
 
         <ul class="features-list">
-          <li>Skill matching system</li>
-          <li>Learning sessions and mentoring</li>
-          <li>Feedback and reputation</li>
-          <li>Community interaction</li>
+          <li>Sistema de coincidencia de habilidades</li>
+          <li>Sesiones de aprendizaje y mentoría</li>
+          <li>Retroalimentación y reputación</li>
+          <li>Interacción con la comunidad</li>
         </ul>
       </section>
 
@@ -171,7 +133,7 @@ export function HomePage() {
         
         <article class="card-content-free">
             <div class="card-logo">
-                <img src="./assets/logos/free.png" alt="card logo">
+              <img src="./assets/logos/free.png" alt="logo de plan">
             </div>
 
               <!--free suscription-->
@@ -185,7 +147,7 @@ export function HomePage() {
                    
                      <li>
                         <ion-icon name="checkmark-circle-outline"></ion-icon>
-                        <p>1 match por mes.</p>
+                        <p>1 intercambio por mes.</p>
                     </li>
                      <li>
                         <ion-icon name="checkmark-circle-outline"></ion-icon>
@@ -193,7 +155,7 @@ export function HomePage() {
                     </li>
                      <li>
                         <ion-icon name="checkmark-circle-outline"></ion-icon>
-                        <p>Quizz semi-personalizado.</p>
+                        <p>Quiz semipersonalizado.</p>
                     </li>
                      
                 </ul>
@@ -211,29 +173,29 @@ export function HomePage() {
             <div class="card-price-box">
                 <h3 class="card-tittle-emerald">Emerald</h3>
                 <p class="card-price">$12.000<sup>/ mes</sup></p>
-                <p class="card-price-description">Plan basico</p>
+                <p class="card-price-description">Plan básico</p>
             </div>
             <div class="card-bennefits-box">
                 <ul class="card-list">
                    
                      <li>
                         <ion-icon name="checkmark-circle-outline"></ion-icon>
-                        <p>3 match por mes.</p>
+                        <p>3 intercambios por mes.</p>
                     </li>
                      <li>
                         <ion-icon name="checkmark-circle-outline"></ion-icon>
-                        <p>Ayuda de IA ilimitado.</p>
+                        <p>Ayuda de IA ilimitada.</p>
                     </li>
                      <li>
                         <ion-icon name="checkmark-circle-outline"></ion-icon>
-                        <p>Quizz personalizado.</p>
+                        <p>Quiz personalizado.</p>
                     </li>
                      <li>
                         <ion-icon name="checkmark-circle-outline"></ion-icon>
                         <p>Historial de aprendizaje. </p>
                     </li>
                 </ul>
-                <button class="card-button-emerald">Escoger Plan.</button>
+                <button class="card-button-emerald">Escoger plan</button>
                 
             </div>
         </article>
@@ -253,15 +215,15 @@ export function HomePage() {
                  
                      <li>
                         <ion-icon name="checkmark-circle-outline"></ion-icon>
-                        <p>7 match por mes</p>
+                        <p>7 intercambios por mes</p>
                     </li>
                      <li>
                         <ion-icon name="checkmark-circle-outline"></ion-icon>
-                        <p>Ayuda de IA ilimitado</p>
+                        <p>Ayuda de IA ilimitada</p>
                     </li>
                      <li>
                         <ion-icon name="checkmark-circle-outline"></ion-icon>
-                        <p>Quizz personalizado</p>
+                        <p>Quiz personalizado</p>
                     </li>
                      <li>
                         <ion-icon name="checkmark-circle-outline"></ion-icon>
@@ -269,11 +231,11 @@ export function HomePage() {
                     </li>
                     <li>
                         <ion-icon name="checkmark-circle-outline"></ion-icon>
-                        <p>Acceso a grupos privados de apredizaje.</p>
+                        <p>Acceso a grupos privados de aprendizaje.</p>
                     </li>
                     <li>
                         <ion-icon name="checkmark-circle-outline"></ion-icon>
-                        <p>Insignia de reputacion.</p>
+                        <p>Insignia de reputación.</p>
                     </li>
                 </ul>
                 <button class="card-button-ruby">Escoger Plan</button>
@@ -285,27 +247,27 @@ export function HomePage() {
                         <!--diamod suscription-->
         <article class="card-content-diamond">
             <div class="card-logo">
-                <img src="./assets/logos/diamond.png" alt="card logo">
+              <img src="./assets/logos/diamond.png" alt="logo de plan">
             </div>
             <div class="card-price-box">
                 <h3 class="card-tittle-diamond">Diamond</h3>
                 <p class="card-price">$35.000<sup>/ mes</sup></p>
-                <p class="card-price-description">Full plan</p>
+                <p class="card-price-description">Plan completo</p>
             </div>
             <div class="card-bennefits-box">
                 <ul class="card-list">
                    
                      <li>
                         <ion-icon name="checkmark-circle-outline"></ion-icon>
-                        <p>12 match por mes.</p>
+                        <p>12 intercambios por mes.</p>
                     </li>
                      <li>
                         <ion-icon name="checkmark-circle-outline"></ion-icon>
-                        <p>Ayuda de IA ilimitado.</p>
+                        <p>Ayuda de IA ilimitada.</p>
                     </li>
                      <li>
                         <ion-icon name="checkmark-circle-outline"></ion-icon>
-                        <p>Quizz personalizado.</p>
+                        <p>Quiz personalizado.</p>
                     </li>
                      <li>
                         <ion-icon name="checkmark-circle-outline"></ion-icon>
@@ -313,11 +275,11 @@ export function HomePage() {
                     </li>
                     <li>
                         <ion-icon name="checkmark-circle-outline"></ion-icon>
-                        <p>Acceso a grupos privados de apredizaje.</p>
+                        <p>Acceso a grupos privados de aprendizaje.</p>
                     </li>
                     <li>
                         <ion-icon name="checkmark-circle-outline"></ion-icon>
-                        <p>Insignia de reputacion.</p>
+                        <p>Insignia de reputación.</p>
                     </li>
                     <li>
                         <ion-icon name="checkmark-circle-outline"></ion-icon>
@@ -325,7 +287,7 @@ export function HomePage() {
                     </li>
                     <li>
                         <ion-icon name="checkmark-circle-outline"></ion-icon>
-                        <p>Recomendaciones inteligentes de match.</p>
+                        <p>Recomendaciones inteligentes de intercambios.</p>
                     </li>
                         <li>
                         <ion-icon name="checkmark-circle-outline"></ion-icon>
@@ -341,8 +303,8 @@ export function HomePage() {
 
       <!-- ESCENA 5 -->
       <section class="cta" id="cta">
-        <h2>Ready to start exchanging knowledge?</h2>
-        <button class="btn primary" id="btnCreateAccount">Create your account</button>
+        <h2>¿Listo para empezar a intercambiar conocimiento?</h2>
+        <button class="btn primary" id="btnCreateAccount">Crea tu cuenta</button>
       </section>
 
     </main>
@@ -382,6 +344,7 @@ export function HomePage() {
   };
 
   setupNavbarAuthActions();
+  setupNavbarSectionLinks();
 
   document.getElementById('btnLogin')?.addEventListener('click', goLogin);
   document.getElementById('btnLoginMobile')?.addEventListener('click', goLogin);
@@ -409,10 +372,20 @@ export function HomePage() {
     scenes.map((scene, index) => [scene.id, index])
   );
 
-  let currentScene = Math.max(
-    0,
-    Math.min(scenes.length - 1, Math.round(window.scrollY / window.innerHeight))
-  );
+  const requestedScene = initialSectionId
+    ? sceneIndexById.get(initialSectionId)
+    : undefined;
+
+  let currentScene =
+    requestedScene !== undefined
+      ? requestedScene
+      : Math.max(
+          0,
+          Math.min(
+            scenes.length - 1,
+            Math.round(window.scrollY / window.innerHeight)
+          )
+        );
   let isSceneTransitioning = false;
   let sceneTransitionTimer = null;
 
