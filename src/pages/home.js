@@ -1,3 +1,5 @@
+import { getNavbar, setupNavbarAuthActions } from '../components/navbar.js';
+
 export function HomePage() {
   const app = document.getElementById('app');
 
@@ -378,6 +380,8 @@ export function HomePage() {
     const { LoginPage } = await import('./login.js');
     LoginPage('register');
   };
+
+  setupNavbarAuthActions();
 
   document.getElementById('btnLogin')?.addEventListener('click', goLogin);
   document.getElementById('btnLoginMobile')?.addEventListener('click', goLogin);

@@ -16,9 +16,30 @@ body.auth-page {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  background: linear-gradient(135deg, #9d9aa7, #9e73c1);
-  transition: background 0.6s ease;
+  position: relative;
+  isolation: isolate;
+  background: transparent;
   padding-top: 0;
+}
+
+body.auth-page::before,
+body.auth-page::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  transition: opacity 0.65s ease;
+}
+
+body.auth-page::before {
+  background: linear-gradient(135deg, #2356c4, #ece4ff);
+  opacity: 1;
+}
+
+body.auth-page::after {
+  background: linear-gradient(135deg, #e3f4ff, #8276dd);
+  opacity: 0;
 }
 
 body.auth-page #scroll-space {

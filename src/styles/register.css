@@ -10,6 +10,7 @@
   background-color: #C4BFFE;
   color: white;
   font-weight: 600;
+  box-shadow: 0 10px 22px rgba(56, 189, 248, 0.32);
 }
 
 .button-register:hover {
@@ -30,7 +31,7 @@
   position: absolute;
   height: 100%;
   width: 50%;
-  background-color: #c4affe;
+  background: linear-gradient(145deg, #cdefff, #c7b9ff);
   display: flex;
   align-items: center;
   transform: translateX(100%);
@@ -82,8 +83,8 @@
   border-radius: 22px;
   cursor: pointer;
   margin-top: 10px;
-  background-color: #fffcad;
-  color: black;
+  background: linear-gradient(135deg, #38bdf8, var(--primary-b));
+  color: #0f2f4f;
   font-weight: 600;
 }
 
@@ -99,9 +100,10 @@
   border-radius: 22px;
   cursor: pointer;
   margin-top: 10px;
-  background-color: #d399c2;
+  background: linear-gradient(135deg, #a78bfa, #f472b6);
   color: white;
   font-weight: 600;
+  box-shadow: 0 10px 22px rgba(167, 139, 250, 0.32);
 }
 
 .button-star:hover {
