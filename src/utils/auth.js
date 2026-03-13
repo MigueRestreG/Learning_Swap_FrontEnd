@@ -38,9 +38,12 @@ export function saveUserData(data) {
   const directUserId =
     data?.user_id ||
     data?.user?.id ||
+    data?.user?.user_id ||
     data?.data?.user_id ||
     data?.data?.user?.id ||
+    data?.data?.user?.user_id ||
     data?.profile?.id ||
+    data?.profile?.user_id ||
     data?.id;
 
   if (
@@ -62,6 +65,7 @@ export function saveUserData(data) {
 
   const hasIdentityFields =
     'id' in candidate ||
+    'user_id' in candidate ||
     'email' in candidate ||
     'first_name' in candidate ||
     'last_name' in candidate ||
@@ -75,8 +79,9 @@ export function saveUserData(data) {
   const user = { ...current, ...candidate };
   localStorage.setItem(USER_KEY, JSON.stringify(user));
 
-  if (user.id !== undefined && user.id !== null && user.id !== '') {
-    saveCurrentUserId(user.id);
+  const persistedId = user.id ?? user.user_id;
+  if (persistedId !== undefined && persistedId !== null && persistedId !== '') {
+    saveCurrentUserId(persistedId);
   }
 }
 
@@ -86,7 +91,21 @@ export function saveUserData(data) {
 export function getCurrentUser() {
   try {
     const raw = localStorage.getItem(USER_KEY);
-    return raw ? JSON.parse(raw) : null;
+    if (!raw) return null;
+
+    const user = JSON.parse(raw);
+    if (!user || typeof user !== 'object') return null;
+
+    if (
+      (user.id === undefined || user.id === null || user.id === '') &&
+      user.user_id !== undefined &&
+      user.user_id !== null &&
+      user.user_id !== ''
+    ) {
+      user.id = user.user_id;
+    }
+
+    return user;
   } catch {
     return null;
   }
@@ -104,7 +123,50 @@ export function saveCurrentUserId(userId) {
 }
 
 export function getCurrentUserId() {
-  return localStorage.getItem(CURRENT_USER_ID_KEY);
+  const storedId = localStorage.getItem(CURRENT_USER_ID_KEY);
+  if (storedId) return storedId;
+
+  const user = getCurrentUser();
+  const userId = user?.id ?? user?.user_id ?? null;
+  if (userId !== null && userId !== undefined && userId !== '') {
+    saveCurrentUserId(userId);
+    return String(userId);
+  }
+
+  const token = getToken();
+  const tokenId = extractUserIdFromToken(token);
+  if (tokenId !== null) {
+    saveCurrentUserId(tokenId);
+    return String(tokenId);
+  }
+
+  return null;
+}
+
+function extractUserIdFromToken(token) {
+  if (!token || typeof token !== 'string' || !token.includes('.')) {
+    return null;
+  }
+
+  try {
+    const payloadBase64 = token.split('.')[1];
+    const normalized = payloadBase64.replace(/-/g, '+').replace(/_/g, '/');
+    const padded = normalized.padEnd(
+      normalized.length + ((4 - (normalized.length % 4)) % 4),
+      '='
+    );
+    const payloadJson = atob(padded);
+    const payload = JSON.parse(payloadJson);
+
+    const candidate = payload?.user_id ?? payload?.id ?? payload?.sub ?? null;
+    if (candidate === null || candidate === undefined || candidate === '') {
+      return null;
+    }
+
+    return candidate;
+  } catch {
+    return null;
+  }
 }
 
 export function setOnboardingPending(value) {

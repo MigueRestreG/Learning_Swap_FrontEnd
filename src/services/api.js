@@ -97,7 +97,7 @@ export async function getUserProfile() {
 export async function getUserById(userId) {
   const response = await fetch(`${API_URL}/users/${userId}`, {
     method: 'GET',
-    headers: buildHeaders(),
+    headers: buildHeaders(true),
   });
   return handleResponse(response);
 }

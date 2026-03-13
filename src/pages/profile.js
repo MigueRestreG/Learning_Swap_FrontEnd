@@ -15,12 +15,7 @@ import {
   getUserInitials,
   logout,
 } from '../utils/auth.js';
-import {
-  getUserById,
-  getUserProfile,
-  updateUserByIdFormData,
-  updateUserProfile,
-} from '../services/api.js';
+import { getUserById, updateUserByIdFormData } from '../services/api.js';
 import { saveUserData } from '../utils/auth.js';
 
 export async function ProfilePage() {
@@ -56,29 +51,24 @@ export async function ProfilePage() {
   setupNavbarSectionLinks();
   setupProfileNavbar();
 
-  // Fetch fresh data from DB by user id, fallback to auth profile endpoint and then cache
+  // Fetch fresh data from DB only via user id endpoint
   let user = null;
   const localUser = getCurrentUser();
-  const currentUserId = localUser?.id || getCurrentUserId();
+  const currentUserId =
+    localUser?.id || localUser?.user_id || getCurrentUserId();
 
   try {
-    if (currentUserId) {
-      user = await getUserById(currentUserId);
-    } else {
-      user = await getUserProfile();
+    if (!currentUserId) {
+      throw new Error('No se encontró user_id para cargar el perfil.');
     }
 
-    user = normalizeUserResponse(user);
+    user = await getUserById(currentUserId);
+
+    user = normalizeUserResponse(getProfilePayload(user));
     // Update local cache with fresh data
     saveUserData({ user });
   } catch {
-    try {
-      user = await getUserProfile();
-      user = normalizeUserResponse(user);
-      saveUserData({ user });
-    } catch {
-      user = getCurrentUser();
-    }
+    user = getCurrentUser();
   }
 
   if (!user) {
@@ -111,12 +101,14 @@ function renderProfile(app, user) {
         year: 'numeric',
       })
     : 'Se unió recientemente';
+  const teachSkills = getSkillList(user, 'teach');
+  const learnSkills = getSkillList(user, 'learn');
 
   app.innerHTML = `
     ${getNavbar(false)}
 
     <main class="profile-main">
-
+      
       <!-- Hero Section -->
       <section class="profile-hero">
         <div class="profile-hero-bg"></div>
@@ -219,10 +211,7 @@ function renderProfile(app, user) {
           </div>
           <div class="profile-card-body">
             <div class="skills-grid" id="skillsOffered">
-              <span class="skill-tag skill-tag--empty">
-                <ion-icon name="add-circle-outline"></ion-icon>
-                Agregar una habilidad
-              </span>
+              ${renderSkills(teachSkills, 'teach')}
             </div>
           </div>
         </div>
@@ -235,10 +224,7 @@ function renderProfile(app, user) {
           </div>
           <div class="profile-card-body">
             <div class="skills-grid" id="skillsWanted">
-              <span class="skill-tag skill-tag--empty skill-tag--want">
-                <ion-icon name="add-circle-outline"></ion-icon>
-                Agregar una habilidad
-              </span>
+              ${renderSkills(learnSkills, 'learn')}
             </div>
           </div>
         </div>
@@ -418,7 +404,8 @@ async function handleEditProfile() {
   const avatarEl = document.getElementById('edit-avatar');
   const errorEl = document.getElementById('edit-error');
   const saveBtn = document.querySelector('.btn-modal-save');
-  const userId = getCurrentUser()?.id || getCurrentUserId();
+  const userId =
+    getCurrentUser()?.id || getCurrentUser()?.user_id || getCurrentUserId();
 
   const first_name = firstNameEl?.value.trim();
   const last_name = lastNameEl?.value.trim();
@@ -437,20 +424,22 @@ async function handleEditProfile() {
   errorEl.style.display = 'none';
 
   try {
-    const updated = userId
-      ? await updateUserByIdFormData(
-          userId,
-          {
-            first_name,
-            last_name,
-            bio,
-            phone,
-          },
-          avatarFile
-        )
-      : await updateUserProfile({ first_name, last_name, phone, bio });
+    if (!userId) {
+      throw new Error('No se encontró user_id para actualizar el perfil.');
+    }
 
-    const freshUser = normalizeUserResponse(updated.user || updated);
+    const updated = await updateUserByIdFormData(
+      userId,
+      {
+        first_name,
+        last_name,
+        bio,
+        phone,
+      },
+      avatarFile
+    );
+
+    const freshUser = normalizeUserResponse(getProfilePayload(updated));
     localStorage.setItem('userData', JSON.stringify(freshUser));
     closeModal();
     // Re-render with updated data
@@ -471,12 +460,99 @@ function normalizeUserResponse(payload = {}) {
     ...payload,
     id: payload.id ?? payload.user_id,
     user_id: payload.user_id ?? payload.id,
-    first_name: payload.first_name ?? payload.name ?? '',
+    first_name:
+      payload.first_name ??
+      payload.nombre ??
+      payload.firstName ??
+      payload.name ??
+      '',
     last_name: payload.last_name ?? '',
     email: payload.email ?? '',
-    phone: payload.phone ?? null,
+    phone: payload.phone ?? payload.telefono ?? payload.mobile ?? null,
     bio: payload.bio ?? payload.about_me ?? '',
     about_me: payload.about_me ?? payload.bio ?? '',
-    avatar_url: payload.avatar_url ?? payload.avatar ?? '',
+    avatar_url:
+      payload.avatar_url ??
+      payload.avatar ??
+      payload.foto_url ??
+      payload.photo_url ??
+      payload.image_url ??
+      '',
+    learn_skills:
+      payload.learn_skills ??
+      payload.learning_skills ??
+      payload.skills_to_learn ??
+      [],
+    teach_skills:
+      payload.teach_skills ??
+      payload.teaching_skills ??
+      payload.skills_to_teach ??
+      payload.skills ??
+      [],
   };
+}
+
+function getProfilePayload(payload = {}) {
+  if (!payload || typeof payload !== 'object' || Array.isArray(payload)) {
+    return {};
+  }
+
+  return (
+    payload.user ||
+    payload.profile ||
+    payload.data?.user ||
+    payload.data ||
+    payload
+  );
+}
+
+function getSkillList(user = {}, type = 'teach') {
+  const source =
+    type === 'teach'
+      ? user.teach_skills || user.skills_to_teach || user.teaching_skills || []
+      : user.learn_skills || user.skills_to_learn || user.learning_skills || [];
+
+  if (!Array.isArray(source)) return [];
+
+  return source
+    .map((item) => {
+      if (typeof item === 'string') return item.trim();
+      if (item && typeof item === 'object') {
+        return (
+          item.name ||
+          item.skill ||
+          item.title ||
+          item.label ||
+          item.value ||
+          ''
+        )
+          .toString()
+          .trim();
+      }
+      return '';
+    })
+    .filter(Boolean);
+}
+
+function renderSkills(skills = [], type = 'teach') {
+  if (!skills.length) {
+    const emptyClass =
+      type === 'learn'
+        ? 'skill-tag--empty skill-tag--want'
+        : 'skill-tag--empty';
+    return `
+      <span class="skill-tag ${emptyClass}">
+        <ion-icon name="add-circle-outline"></ion-icon>
+        Agregar una habilidad
+      </span>
+    `;
+  }
+
+  return skills
+    .map(
+      (skill) => `
+        <span class="skill-tag ${type === 'learn' ? 'skill-tag--want' : ''}">${escapeHtml(skill)}</span>
+      `
+    )
+    .join('');
 }
