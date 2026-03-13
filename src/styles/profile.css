@@ -115,6 +115,15 @@ body.profile-page #scroll-space {
   letter-spacing: 2px;
 }
 
+.profile-avatar-image {
+  width: 110px;
+  height: 110px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid rgba(255, 255, 255, 0.6);
+  background: rgba(255, 255, 255, 0.2);
+}
+
 .profile-avatar-ring {
   position: absolute;
   inset: -6px;
@@ -675,6 +684,39 @@ body.profile-page #scroll-space {
 
 .modal-input input::placeholder {
   color: #98a2b3;
+}
+
+.modal-input--textarea {
+  padding: 0;
+}
+
+.modal-input--textarea textarea {
+  width: 100%;
+  border: none;
+  outline: none;
+  resize: vertical;
+  min-height: 88px;
+  padding: 12px 14px;
+  background: transparent;
+  color: #1f2a44;
+  font-size: 0.92rem;
+  font-family: inherit;
+}
+
+.modal-input--textarea textarea::placeholder {
+  color: #98a2b3;
+}
+
+.modal-input--file {
+  padding: 10px 14px;
+}
+
+.modal-input--file input[type='file'] {
+  width: 100%;
+  border: none;
+  background: transparent;
+  font-size: 0.86rem;
+  color: #475467;
 }
 
 .modal-actions {

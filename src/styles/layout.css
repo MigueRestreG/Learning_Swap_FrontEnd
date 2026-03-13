@@ -46,7 +46,7 @@ h4 {
 }
 
 p {
-  color: var(--text-muted);
+  color: var(--text-main);
   max-width: 620px;
   line-height: 1.55;
 }

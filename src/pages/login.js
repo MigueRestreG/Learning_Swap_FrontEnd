@@ -9,11 +9,42 @@ import {
   setupNavbarBurger,
   setupNavbarSectionLinks,
 } from '../components/navbar.js';
-import { loginUser, registerUser } from '../services/api.js';
-import { getCurrentUser, saveUserData } from '../utils/auth.js';
+import {
+  loginUser,
+  registerUser,
+  saveOnboardingSkills,
+} from '../services/api.js';
+import {
+  getCurrentUser,
+  getCurrentUserId,
+  saveCurrentUserId,
+  setOnboardingPending,
+  saveUserData,
+} from '../utils/auth.js';
+
+const createRegisterState = () => ({
+  step: 1,
+  userId: null,
+  learnSkills: [],
+  teachSkills: [],
+});
+
+let registerState = createRegisterState();
 
 export function LoginPage(mode = 'login') {
   const app = document.getElementById('app');
+
+  if (window.__homeCleanup) {
+    window.__homeCleanup();
+    window.__homeCleanup = null;
+  }
+
+  if (window.__homeScrollHandler) {
+    window.removeEventListener('scroll', window.__homeScrollHandler);
+    window.__homeScrollHandler = null;
+  }
+
+  registerState = createRegisterState();
 
   // Add auth-page class to body for styling
   document.body.classList.remove('register-mode');
@@ -59,29 +90,78 @@ export function LoginPage(mode = 'login') {
                         <ion-icon name="accessibility-outline"></ion-icon>
                         <ion-icon name="swap-horizontal-outline"></ion-icon>
                     </div>
-                    <span>usa tu correo para registrarte.</span>
-                    <div class="container-input">
-                        <ion-icon name="person-circle-outline"></ion-icon>
-                        <input type="text" id="register-firstname" placeholder="Nombre" required>
+                    <span>completa tus datos y luego agrega tus habilidades.</span>
+
+                    <div class="register-step register-step--active" id="register-step-account">
+                      <div class="register-step-header">
+                        <span class="register-step-badge">Paso 1</span>
+                        <p>Crea tu cuenta con tu información básica.</p>
+                      </div>
+                      <div class="register-fields-grid">
+                        <div class="container-input">
+                            <ion-icon name="person-circle-outline"></ion-icon>
+                            <input type="text" id="register-firstname" placeholder="Nombre" required>
+                        </div>
+                        <div class="container-input">
+                            <ion-icon name="person-circle-outline"></ion-icon>
+                            <input type="text" id="register-lastname" placeholder="Apellido" required>
+                        </div>
+                        <div class="container-input">
+                            <ion-icon name="mail-outline"></ion-icon>
+                            <input type="email" id="register-email" placeholder="youremail@gmail.com" required>
+                        </div>
+                        <div class="container-input">
+                            <ion-icon name="lock-closed-outline"></ion-icon>
+                            <input type="password" id="register-password" placeholder="••••••••" required>
+                        </div>
+                        <div class="container-input">
+                            <ion-icon name="call-outline"></ion-icon>
+                            <input type="tel" id="register-phone" placeholder="Tu número de teléfono" required>
+                        </div>
+                      </div>
                     </div>
-                    <div class="container-input">
-                        <ion-icon name="person-circle-outline"></ion-icon>
-                        <input type="text" id="register-lastname" placeholder="Apellido" required>
+
+                    <div class="register-step" id="register-step-skills">
+                      <div class="register-step-header">
+                        <span class="register-step-badge">Paso 2</span>
+                        <p>Agrega las habilidades que quieres aprender y enseñar.</p>
+                      </div>
+
+                      <div class="register-skills-grid">
+                        <div class="skill-group">
+                          <label for="register-learn-skill">Quiero aprender</label>
+                          <div class="skill-input-row">
+                            <div class="container-input container-input--skill">
+                                <ion-icon name="book-outline"></ion-icon>
+                                <input type="text" id="register-learn-skill" placeholder="Ej: Inglés">
+                            </div>
+                            <button type="button" class="button-skill-add" data-skill-target="learn">Agregar</button>
+                          </div>
+                          <div class="skills-chip-list" id="register-learn-list"></div>
+                        </div>
+
+                        <div class="skill-group">
+                          <label for="register-teach-skill">Puedo enseñar</label>
+                          <div class="skill-input-row">
+                            <div class="container-input container-input--skill">
+                                <ion-icon name="bulb-outline"></ion-icon>
+                                <input type="text" id="register-teach-skill" placeholder="Ej: Programación">
+                            </div>
+                            <button type="button" class="button-skill-add button-skill-add--teach" data-skill-target="teach">Agregar</button>
+                          </div>
+                          <div class="skills-chip-list" id="register-teach-list"></div>
+                        </div>
+                      </div>
+
+                      <p class="register-step-note">Presiona Enter o usa el botón agregar para guardar cada habilidad.</p>
                     </div>
-                    <div class="container-input">
-                        <ion-icon name="mail-outline"></ion-icon>
-                        <input type="email" id="register-email" placeholder="youremail@gmail.com" required>
-                    </div>
-                    <div class="container-input">
-                        <ion-icon name="lock-closed-outline"></ion-icon>
-                        <input type="password" id="register-password" placeholder="••••••••" required>
-                    </div>
-                    <div class="container-input">
-                        <ion-icon name="call-outline"></ion-icon>
-                        <input type="tel" id="register-phone" placeholder="Tu número de teléfono" required>
-                    </div>
+
                     <div class="form-error" id="register-error"></div>
-                      <button type="submit" class="button-register">Registrarse</button>
+                    <div class="register-actions">
+                      <button type="button" class="button-register button-register-secondary" id="register-back" hidden>Volver</button>
+                      <button type="button" class="button-register" id="register-next">Continuar</button>
+                      <button type="submit" class="button-register" id="register-submit" hidden>Guardar habilidades</button>
+                    </div>
                 </form>
             </div>
 
@@ -195,6 +275,8 @@ function initializeAuthToggle() {
 function setupFormHandlers() {
   const loginForm = document.getElementById('form-sign-in');
   const registerForm = document.getElementById('form-sign-up');
+  const nextBtn = document.getElementById('register-next');
+  const backBtn = document.getElementById('register-back');
 
   if (loginForm) {
     loginForm.addEventListener('submit', async (e) => {
@@ -206,9 +288,21 @@ function setupFormHandlers() {
   if (registerForm) {
     registerForm.addEventListener('submit', async (e) => {
       e.preventDefault();
-      await handleRegister();
+      await handleSkillsSubmit();
     });
   }
+
+  nextBtn?.addEventListener('click', async () => {
+    await handleRegister();
+  });
+
+  backBtn?.addEventListener('click', () => {
+    showRegisterStep(1);
+  });
+
+  setupSkillInputs();
+  renderSkillTags('learn');
+  renderSkillTags('teach');
 }
 
 /**
@@ -231,6 +325,7 @@ async function handleLogin() {
   try {
     const data = await loginUser(email, password);
     saveUserData(data);
+    setOnboardingPending(false);
 
     if (!getCurrentUser()) {
       saveUserData({ user: { email } });
@@ -259,7 +354,12 @@ async function handleRegister() {
   const password = document.getElementById('register-password')?.value;
   const phone = document.getElementById('register-phone')?.value.trim();
   const errorEl = document.getElementById('register-error');
-  const btn = document.querySelector('#form-sign-up .button-register');
+  const btn = document.getElementById('register-next');
+
+  if (registerState.userId) {
+    showRegisterStep(2);
+    return;
+  }
 
   if (!firstName || !lastName || !email || !password || !phone) {
     showError(errorEl, 'Por favor completa todos los campos.');
@@ -279,20 +379,35 @@ async function handleRegister() {
     );
     saveUserData(data);
 
-    if (!getCurrentUser()) {
-      saveUserData({
-        user: {
-          first_name: firstName,
-          last_name: lastName,
-          email,
-          phone,
-        },
-      });
+    const userId = getUserIdFromResponse(data);
+
+    if (userId) {
+      saveCurrentUserId(userId);
     }
 
-    // Navigate to profile
-    const { ProfilePage } = await import('./profile.js');
-    ProfilePage();
+    setOnboardingPending(true);
+
+    saveUserData({
+      user: {
+        ...(getCurrentUser() || {}),
+        id: userId,
+        first_name: firstName,
+        last_name: lastName,
+        email,
+        phone,
+      },
+    });
+
+    registerState.userId =
+      userId || getCurrentUser()?.id || getCurrentUserId() || null;
+
+    if (!registerState.userId) {
+      throw new Error(
+        'No fue posible identificar el usuario registrado para guardar sus habilidades.'
+      );
+    }
+
+    showRegisterStep(2);
   } catch (error) {
     showError(
       errorEl,
@@ -301,6 +416,236 @@ async function handleRegister() {
   } finally {
     setLoading(btn, false);
   }
+}
+
+async function handleSkillsSubmit() {
+  const errorEl = document.getElementById('register-error');
+  const btn = document.getElementById('register-submit');
+
+  if (!registerState.userId) {
+    registerState.userId = getCurrentUserId() || registerState.userId;
+  }
+
+  if (!registerState.userId) {
+    showError(
+      errorEl,
+      'Primero debes completar el registro antes de guardar las habilidades.'
+    );
+    showRegisterStep(1);
+    return;
+  }
+
+  setLoading(btn, true, 'Guardar habilidades');
+  clearError(errorEl);
+
+  try {
+    await saveOnboardingSkills(
+      registerState.userId,
+      registerState.learnSkills,
+      registerState.teachSkills
+    );
+
+    setOnboardingPending(false);
+
+    const currentUser = getCurrentUser() || {};
+    saveUserData({
+      user: {
+        ...currentUser,
+        id: registerState.userId,
+        learn_skills: [...registerState.learnSkills],
+        teach_skills: [...registerState.teachSkills],
+      },
+    });
+
+    const { ProfilePage } = await import('./profile.js');
+    ProfilePage();
+  } catch (error) {
+    showError(
+      errorEl,
+      error.message ||
+        'No se pudieron guardar las habilidades. Inténtalo de nuevo.'
+    );
+  } finally {
+    setLoading(btn, false, 'Guardar habilidades');
+  }
+}
+
+function setupSkillInputs() {
+  const learnInput = document.getElementById('register-learn-skill');
+  const teachInput = document.getElementById('register-teach-skill');
+
+  [learnInput, teachInput].forEach((input) => {
+    if (!input) return;
+    input.disabled = false;
+    input.readOnly = false;
+  });
+
+  document.querySelectorAll('.container-input--skill').forEach((wrapper) => {
+    wrapper.addEventListener('click', () => {
+      const input = wrapper.querySelector('input');
+      input?.focus();
+    });
+  });
+
+  document.querySelectorAll('[data-skill-target]').forEach((button) => {
+    button.addEventListener('click', () => {
+      const target = button.dataset.skillTarget;
+      addSkill(target);
+    });
+  });
+
+  learnInput?.addEventListener('keydown', (event) => {
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      addSkill('learn');
+    }
+  });
+
+  teachInput?.addEventListener('keydown', (event) => {
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      addSkill('teach');
+    }
+  });
+}
+
+function addSkill(target) {
+  const input = document.getElementById(
+    target === 'learn' ? 'register-learn-skill' : 'register-teach-skill'
+  );
+  const value = normalizeSkill(input?.value || '');
+
+  if (!value) return;
+
+  const key = target === 'learn' ? 'learnSkills' : 'teachSkills';
+  const alreadyExists = registerState[key].some(
+    (skill) => skill.toLowerCase() === value.toLowerCase()
+  );
+
+  if (!alreadyExists) {
+    registerState[key].push(value);
+    renderSkillTags(target);
+  }
+
+  input.value = '';
+  input.focus();
+}
+
+function removeSkill(target, index) {
+  const key = target === 'learn' ? 'learnSkills' : 'teachSkills';
+  registerState[key] = registerState[key].filter(
+    (_, itemIndex) => itemIndex !== index
+  );
+  renderSkillTags(target);
+}
+
+function renderSkillTags(target) {
+  const list = document.getElementById(
+    target === 'learn' ? 'register-learn-list' : 'register-teach-list'
+  );
+
+  if (!list) return;
+
+  const items =
+    target === 'learn' ? registerState.learnSkills : registerState.teachSkills;
+
+  if (!items.length) {
+    list.innerHTML = `
+      <span class="skill-empty-state">
+        ${target === 'learn' ? 'Aún no agregas habilidades para aprender.' : 'Aún no agregas habilidades para enseñar.'}
+      </span>
+    `;
+    return;
+  }
+
+  list.innerHTML = items
+    .map(
+      (skill, index) => `
+        <span class="skill-chip ${target === 'teach' ? 'skill-chip--teach' : ''}">
+          ${escapeHtml(skill)}
+          <button type="button" class="skill-chip-remove" data-skill-remove="${target}" data-skill-index="${index}" aria-label="Eliminar ${escapeHtml(skill)}">
+            <ion-icon name="close-outline"></ion-icon>
+          </button>
+        </span>
+      `
+    )
+    .join('');
+
+  list.querySelectorAll('[data-skill-remove]').forEach((button) => {
+    button.addEventListener('click', () => {
+      removeSkill(
+        button.dataset.skillRemove,
+        Number(button.dataset.skillIndex)
+      );
+    });
+  });
+}
+
+function showRegisterStep(step) {
+  registerState.step = step;
+
+  const accountStep = document.getElementById('register-step-account');
+  const skillsStep = document.getElementById('register-step-skills');
+  const nextBtn = document.getElementById('register-next');
+  const backBtn = document.getElementById('register-back');
+  const submitBtn = document.getElementById('register-submit');
+  const errorEl = document.getElementById('register-error');
+
+  accountStep?.classList.toggle('register-step--active', step === 1);
+  skillsStep?.classList.toggle('register-step--active', step === 2);
+
+  if (nextBtn) nextBtn.hidden = step !== 1;
+  if (backBtn) backBtn.hidden = step !== 2;
+  if (submitBtn) submitBtn.hidden = step !== 2;
+
+  if (step === 2) {
+    const learnInput = document.getElementById('register-learn-skill');
+    const teachInput = document.getElementById('register-teach-skill');
+
+    [learnInput, teachInput].forEach((input) => {
+      if (!input) return;
+      input.disabled = false;
+      input.readOnly = false;
+    });
+
+    setTimeout(() => {
+      learnInput?.focus();
+    }, 0);
+  }
+
+  clearError(errorEl);
+}
+
+function getUserIdFromResponse(data) {
+  const candidates = [
+    data?.user?.id,
+    data?.data?.user?.id,
+    data?.profile?.id,
+    data?.id,
+    data?.user_id,
+    data?.data?.id,
+    data?.data?.user_id,
+  ];
+
+  const found = candidates.find(
+    (candidate) =>
+      candidate !== undefined && candidate !== null && candidate !== ''
+  );
+
+  return found ?? null;
+}
+
+function normalizeSkill(value) {
+  return value.replace(/\s+/g, ' ').trim();
+}
+
+function escapeHtml(value = '') {
+  return String(value)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
 }
 
 /** Show inline error message */
@@ -318,13 +663,16 @@ function clearError(el) {
 }
 
 /** Toggle loading state on submit button */
-function setLoading(btn, loading) {
+function setLoading(btn, loading, defaultLabel = '') {
   if (!btn) return;
   btn.disabled = loading;
+  if (!btn.dataset.label) {
+    btn.dataset.label = defaultLabel || btn.textContent;
+  }
   btn.textContent = loading
     ? 'Cargando…'
     : btn.dataset.label || btn.textContent;
-  if (!btn.dataset.label && !loading) {
+  if (!defaultLabel && !btn.dataset.label && !loading) {
     btn.textContent = btn.classList.contains('button-logIn')
       ? 'Iniciar sesión'
       : 'Registrarse';

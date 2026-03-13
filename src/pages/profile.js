@@ -9,8 +9,18 @@ import {
   setupNavbarBurger,
   setupNavbarSectionLinks,
 } from '../components/navbar.js';
-import { getCurrentUser, getUserInitials, logout } from '../utils/auth.js';
-import { getUserProfile, updateUserProfile } from '../services/api.js';
+import {
+  getCurrentUser,
+  getCurrentUserId,
+  getUserInitials,
+  logout,
+} from '../utils/auth.js';
+import {
+  getUserById,
+  getUserProfile,
+  updateUserByIdFormData,
+  updateUserProfile,
+} from '../services/api.js';
 import { saveUserData } from '../utils/auth.js';
 
 export async function ProfilePage() {
@@ -46,14 +56,29 @@ export async function ProfilePage() {
   setupNavbarSectionLinks();
   setupProfileNavbar();
 
-  // Fetch fresh data from API, fallback to cached
+  // Fetch fresh data from DB by user id, fallback to auth profile endpoint and then cache
   let user = null;
+  const localUser = getCurrentUser();
+  const currentUserId = localUser?.id || getCurrentUserId();
+
   try {
-    user = await getUserProfile();
+    if (currentUserId) {
+      user = await getUserById(currentUserId);
+    } else {
+      user = await getUserProfile();
+    }
+
+    user = normalizeUserResponse(user);
     // Update local cache with fresh data
     saveUserData({ user });
   } catch {
-    user = getCurrentUser();
+    try {
+      user = await getUserProfile();
+      user = normalizeUserResponse(user);
+      saveUserData({ user });
+    } catch {
+      user = getCurrentUser();
+    }
   }
 
   if (!user) {
@@ -70,6 +95,7 @@ export async function ProfilePage() {
 // ─── Render ──────────────────────────────────────────────────────────────────
 
 function renderProfile(app, user) {
+  const avatarUrl = user.avatar_url || user.avatar || '';
   const initials = getUserInitials(
     user.first_name || user.name,
     user.last_name
@@ -98,7 +124,11 @@ function renderProfile(app, user) {
 
           <!-- Avatar -->
           <div class="profile-avatar">
-            <span class="profile-avatar-initials">${initials}</span>
+            ${
+              avatarUrl
+                ? `<img class="profile-avatar-image" src="${escapeHtml(avatarUrl)}" alt="Foto de perfil" />`
+                : `<span class="profile-avatar-initials">${initials}</span>`
+            }
             <div class="profile-avatar-ring"></div>
           </div>
 
@@ -179,9 +209,6 @@ function renderProfile(app, user) {
             </p>`
             }
           </div>
-          <button class="card-action-btn" id="btnEditAbout">
-            <ion-icon name="${bio ? 'create-outline' : 'add-outline'}"></ion-icon> ${bio ? 'Editar biografía' : 'Agregar biografía'}
-          </button>
         </div>
 
         <!-- Skills Offered Card -->
@@ -278,6 +305,18 @@ function renderProfile(app, user) {
                 <input type="tel" id="edit-phone" value="${user.phone || ''}" placeholder="Número de teléfono">
               </div>
             </div>
+            <div class="modal-input-group">
+              <label>Biografía</label>
+              <div class="modal-input modal-input--textarea">
+                <textarea id="edit-bio" rows="3" placeholder="Cuéntale a la comunidad quién eres">${escapeHtml(user.bio || user.about_me || '')}</textarea>
+              </div>
+            </div>
+            <div class="modal-input-group">
+              <label>Foto de perfil</label>
+              <div class="modal-input modal-input--file">
+                <input type="file" id="edit-avatar" accept="image/*">
+              </div>
+            </div>
             <div class="form-error" id="edit-error"></div>
             <div class="modal-actions">
               <button type="button" class="btn-modal-cancel" id="btnCancelEdit">Cancelar</button>
@@ -354,85 +393,6 @@ function setupProfileActions(user) {
       e.preventDefault();
       await handleEditProfile();
     });
-
-  setupAboutActions(user);
-}
-
-function setupAboutActions(user) {
-  const btnEditAbout = document.getElementById('btnEditAbout');
-  const aboutBody = document.getElementById('aboutBody');
-  if (!btnEditAbout || !aboutBody) return;
-
-  const renderEditor = (currentBio = '') => {
-    const escapedBio = escapeHtml(currentBio);
-    aboutBody.innerHTML = `
-      <div class="about-editor">
-        <label class="about-editor-label" for="aboutBioInput">Sobre mí</label>
-        <textarea id="aboutBioInput" class="about-editor-textarea" rows="4" maxlength="350" placeholder="Cuéntale a la comunidad quién eres...">${escapedBio}</textarea>
-        <div class="about-editor-actions">
-          <button type="button" class="about-editor-btn about-editor-btn--cancel" id="btnCancelAbout">Cancelar</button>
-          <button type="button" class="about-editor-btn about-editor-btn--save" id="btnSaveAbout">Guardar</button>
-        </div>
-        <p class="about-editor-error" id="aboutEditorError"></p>
-      </div>
-    `;
-
-    btnEditAbout.hidden = true;
-
-    const bioInput = document.getElementById('aboutBioInput');
-    const saveBtn = document.getElementById('btnSaveAbout');
-    const cancelBtn = document.getElementById('btnCancelAbout');
-    const errorEl = document.getElementById('aboutEditorError');
-
-    bioInput?.focus();
-
-    cancelBtn?.addEventListener('click', () => {
-      const app = document.getElementById('app');
-      renderProfile(app, user);
-    });
-
-    saveBtn?.addEventListener('click', async () => {
-      const normalizedBio = bioInput?.value.trim() || '';
-      saveBtn.disabled = true;
-      saveBtn.textContent = 'Guardando...';
-      errorEl.textContent = '';
-
-      try {
-        const updated = await updateUserProfile({
-          bio: normalizedBio,
-          about_me: normalizedBio,
-        });
-
-        const freshUser = {
-          ...user,
-          ...(updated.user || updated),
-        };
-
-        if (normalizedBio) {
-          freshUser.bio = normalizedBio;
-          freshUser.about_me = normalizedBio;
-        } else {
-          delete freshUser.bio;
-          delete freshUser.about_me;
-        }
-
-        localStorage.setItem('userData', JSON.stringify(freshUser));
-
-        const app = document.getElementById('app');
-        renderProfile(app, freshUser);
-      } catch (err) {
-        errorEl.textContent =
-          err.message || 'No se pudo guardar tu biografía. Inténtalo de nuevo.';
-        saveBtn.disabled = false;
-        saveBtn.textContent = 'Guardar';
-      }
-    });
-  };
-
-  btnEditAbout.addEventListener('click', () => {
-    const currentBio = (user.bio || user.about_me || '').trim();
-    renderEditor(currentBio);
-  });
 }
 
 function escapeHtml(value = '') {
@@ -454,12 +414,17 @@ async function handleEditProfile() {
   const firstNameEl = document.getElementById('edit-firstname');
   const lastNameEl = document.getElementById('edit-lastname');
   const phoneEl = document.getElementById('edit-phone');
+  const bioEl = document.getElementById('edit-bio');
+  const avatarEl = document.getElementById('edit-avatar');
   const errorEl = document.getElementById('edit-error');
   const saveBtn = document.querySelector('.btn-modal-save');
+  const userId = getCurrentUser()?.id || getCurrentUserId();
 
   const first_name = firstNameEl?.value.trim();
   const last_name = lastNameEl?.value.trim();
   const phone = phoneEl?.value.trim();
+  const bio = bioEl?.value.trim();
+  const avatarFile = avatarEl?.files?.[0] || null;
 
   if (!first_name || !last_name) {
     errorEl.textContent = 'El nombre y el apellido son obligatorios.';
@@ -472,8 +437,20 @@ async function handleEditProfile() {
   errorEl.style.display = 'none';
 
   try {
-    const updated = await updateUserProfile({ first_name, last_name, phone });
-    const freshUser = updated.user || updated;
+    const updated = userId
+      ? await updateUserByIdFormData(
+          userId,
+          {
+            first_name,
+            last_name,
+            bio,
+            phone,
+          },
+          avatarFile
+        )
+      : await updateUserProfile({ first_name, last_name, phone, bio });
+
+    const freshUser = normalizeUserResponse(updated.user || updated);
     localStorage.setItem('userData', JSON.stringify(freshUser));
     closeModal();
     // Re-render with updated data
@@ -487,4 +464,19 @@ async function handleEditProfile() {
     saveBtn.innerHTML =
       '<ion-icon name="save-outline"></ion-icon> Guardar cambios';
   }
+}
+
+function normalizeUserResponse(payload = {}) {
+  return {
+    ...payload,
+    id: payload.id ?? payload.user_id,
+    user_id: payload.user_id ?? payload.id,
+    first_name: payload.first_name ?? payload.name ?? '',
+    last_name: payload.last_name ?? '',
+    email: payload.email ?? '',
+    phone: payload.phone ?? null,
+    bio: payload.bio ?? payload.about_me ?? '',
+    about_me: payload.about_me ?? payload.bio ?? '',
+    avatar_url: payload.avatar_url ?? payload.avatar ?? '',
+  };
 }

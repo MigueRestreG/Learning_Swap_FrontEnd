@@ -62,6 +62,24 @@ export async function registerUser(
   return handleResponse(response);
 }
 
+/** Save onboarding skills after registration */
+export async function saveOnboardingSkills(
+  user_id,
+  learn_skills = [],
+  teach_skills = []
+) {
+  const response = await fetch(`${API_URL}/onboarding/skills`, {
+    method: 'POST',
+    headers: buildHeaders(),
+    body: JSON.stringify({
+      user_id,
+      learn_skills,
+      teach_skills,
+    }),
+  });
+  return handleResponse(response);
+}
+
 // ================================================
 // PROFILE
 // ================================================
@@ -75,6 +93,15 @@ export async function getUserProfile() {
   return handleResponse(response);
 }
 
+/** Get profile data by user id from database */
+export async function getUserById(userId) {
+  const response = await fetch(`${API_URL}/users/${userId}`, {
+    method: 'GET',
+    headers: buildHeaders(),
+  });
+  return handleResponse(response);
+}
+
 /** Update the current authenticated user's profile */
 export async function updateUserProfile(profileData) {
   const response = await fetch(`${API_URL}/profile`, {
@@ -82,5 +109,54 @@ export async function updateUserProfile(profileData) {
     headers: buildHeaders(true),
     body: JSON.stringify(profileData),
   });
+  return handleResponse(response);
+}
+
+/** Update profile by user id with strict JSON payload */
+export async function updateUserById(userId, profileData = {}) {
+  const body = {
+    first_name: profileData.first_name ?? '',
+    last_name: profileData.last_name ?? '',
+    bio: profileData.bio ?? '',
+    avatar_url: profileData.avatar_url ?? '',
+    phone: profileData.phone ?? '',
+  };
+
+  const response = await fetch(`${API_URL}/users/${userId}`, {
+    method: 'PUT',
+    headers: buildHeaders(),
+    body: JSON.stringify(body),
+  });
+
+  return handleResponse(response);
+}
+
+/** Update profile by user id with FormData (supports local avatar file upload) */
+export async function updateUserByIdFormData(
+  userId,
+  profileData = {},
+  avatarFile = null
+) {
+  const formData = new FormData();
+
+  const first_name = profileData.first_name;
+  const last_name = profileData.last_name;
+  const phone = profileData.phone;
+  const bio = profileData.bio;
+
+  if (first_name) formData.append('first_name', first_name);
+  if (last_name) formData.append('last_name', last_name);
+  if (phone) formData.append('phone', phone);
+  if (bio) formData.append('bio', bio);
+
+  if (avatarFile) {
+    formData.append('foto', avatarFile, avatarFile.name);
+  }
+
+  const response = await fetch(`${API_URL}/users/${userId}`, {
+    method: 'PUT',
+    body: formData,
+  });
+
   return handleResponse(response);
 }

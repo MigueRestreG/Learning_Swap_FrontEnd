@@ -22,6 +22,10 @@
   margin: 40px 0;
 }
 
+.container.toggle {
+  height: 530px;
+}
+
 .container-form {
   width: 100%;
   position: relative;
@@ -41,6 +45,12 @@
   justify-content: center;
   align-items: center;
   transition: transform 0.5s ease-in;
+}
+
+#form-sign-up {
+  justify-content: flex-start;
+  padding: 12px 0 14px;
+  gap: 4px;
 }
 
 .container-form h2 {
