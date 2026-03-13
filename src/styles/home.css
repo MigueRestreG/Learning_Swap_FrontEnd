@@ -12,21 +12,6 @@
   margin: 0 auto 2.2rem;
 }
 
-.logo-banner{
-  max-width: 80px;
-  height: 100px;
-  border-radius: 15px;
-}
-
-
-
-.logo-navbar{
-  width: 480px;
-  height: 270px;
-  border-radius: 18px;
-  
-  box-shadow: 10px 0 20px rgba(0,0,0,0.2);
-}
 .hero-actions {
   display: flex;
   justify-content: center;
@@ -44,7 +29,7 @@
   padding: 0.75rem 1rem;
   min-width: 120px;
   border-radius: 16px;
-  background: rgba(255, 255, 255, 0.8);
+  background: rgba(255, 255, 255, 0.66);
   border: 1px solid var(--line-soft);
 }
 
@@ -57,11 +42,6 @@
 .hero-stats span {
   font-size: 0.83rem;
   color: var(--text-muted);
-}
-
-.nav-logo{
-  width: 40px;
-  height: 50%;
 }
 
 .why,
@@ -114,7 +94,7 @@
 .features-list li {
   padding: 0.9rem 1rem;
   border-radius: 14px;
-  background: rgba(255, 255, 255, 0.86);
+  background: rgba(255, 255, 255, 0.74);
   border: 1px solid var(--line-soft);
   font-weight: 500;
 }
@@ -122,8 +102,8 @@
 .cta {
   margin: 0 8%;
   border-radius: var(--radius-xl);
-  background: linear-gradient(145deg, #d9f4ff, #e8ddff);
-  border: 1px solid rgba(99, 102, 241, 0.25);
+  background: linear-gradient(145deg, #e7f5ff, #ece7ff);
+  border: 1px solid #d9ddff;
   box-shadow: var(--shadow-soft);
 }
 

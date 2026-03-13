@@ -15,7 +15,9 @@
   justify-content: center;
   opacity: 0;
   transform: translateY(80px) scale(0.98);
-  transition:opacity 0.75s ease, transform 0.75s ease;
+  transition:
+    opacity 0.75s ease,
+    transform 0.75s ease;
   pointer-events: none;
 }
 
@@ -73,12 +75,12 @@ p {
 
 .btn.primary {
   background: linear-gradient(135deg, var(--primary-a), var(--primary-b));
-  color: #10203f;
-  box-shadow: 0 10px 24px rgba(122, 110, 240, 0.32);
+  color: var(--text-main);
+  box-shadow: 0 8px 24px rgba(166, 183, 255, 0.34);
 }
 
 .btn.secondary {
   background: transparent;
-  border: 1.5px solid rgba(99, 102, 241, 0.38);
+  border: 1.5px solid #b9c8ff;
   color: var(--text-main);
 }

@@ -11,31 +11,24 @@
 
 .container {
   width: 100%;
-  max-width: 840px; /* slightly wider */
+  max-width: 800px;
   height: 500px;
   display: flex;
   position: relative;
   background-color: white;
   border-radius: 18px;
   overflow: hidden;
-  box-shadow: 0 18px 42px rgba(34, 47, 99, 0.24);
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
   margin: 40px 0;
 }
 
 .container-form {
   width: 100%;
-  position: relative;
-  z-index: 1;
-  background-color: white;
   overflow: hidden;
-  padding: 0 30px; /* add horizontal padding so content doesn't touch edges */
-  box-sizing: border-box;
 }
 
-/* allow vertical scrolling if fields exceed available height */
 .container-form form {
   height: 100%;
-  width: 100%;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -59,6 +52,7 @@
   padding: 8px;
   cursor: pointer;
 }
+
 .container-form span {
   font-size: 12px;
   margin-bottom: 15px;
@@ -73,7 +67,7 @@
   align-items: center;
   gap: 8px;
   padding: 0 15px;
-  background-color: #f1f4ff;
+  background-color: #eeeeee;
 }
 
 .container-input input {
@@ -99,10 +93,9 @@
   border-radius: 22px;
   cursor: pointer;
   margin-top: 10px;
-  background: linear-gradient(135deg, #f472b6, #fb7185);
+  background-color: #e4c2da;
   color: white;
   font-weight: 600;
-  box-shadow: 0 10px 22px rgba(244, 114, 182, 0.35);
 }
 
 .button-logIn:hover {
@@ -112,36 +105,8 @@
 /* Animation for sign-in form */
 .sign-in {
   transform: translateX(0);
-  opacity: 1;
-  pointer-events: auto;
 }
 
 .container.toggle .sign-in {
   transform: translateX(100%);
-  opacity: 0;
-  pointer-events: none;
-}
-
-.sign-up {
-  opacity: 0;
-  pointer-events: none;
-}
-
-.container.toggle .sign-up {
-  opacity: 1;
-  pointer-events: auto;
-}
-
-/* ── Inline form errors ─────────────────────── */
-/* ── Inline form errors ─────────────────────── */
-.form-error {
-  color: #b4234b;
-  font-size: 0.78rem;
-  background: rgba(255, 240, 246, 0.92);
-  border: 1px solid rgba(244, 114, 182, 0.35);
-  border-radius: 8px;
-  padding: 6px 12px;
-  display: none;
-  text-align: center;
-  margin-bottom: 6px;
 }
