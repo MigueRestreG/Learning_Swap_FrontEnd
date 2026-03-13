@@ -1,449 +1,347 @@
-:root {
-  --bg-main: #f5f8ff;}
+/* prices.css — estilos de la escena de planes */
 
-*{
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: 'montserrat', sans-serif;
-}
-/*body*/
-
-body{
-    width: 100%;
-    height: 100vh;
-    background:
-    radial-gradient(circle at 20% 10%, #e9f4ff 0%, transparent 38%),
-    radial-gradient(circle at 80% 80%, #ece9ff 0%, transparent 36%),
-    var(--bg-main);
-   /*background: linear-gradient(135deg, #f4f4f4, #b689db);*/
-   display: flex;
-   flex-direction: column;
-   justify-content: center;
-   align-items: center;
+.prices {
+  display: flex !important;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
 }
 
+.prices-grid {
+  width: min(1180px, 96vw);
+  height: min(460px, calc(100vh - 11rem));
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-rows: minmax(0, 1fr);
+  gap: clamp(10px, 1vw, 14px);
+}
 
-.prices-title{
+@media (max-width: 1100px) {
+  .prices-grid {
+    width: min(760px, 94vw);
+    height: min(620px, calc(100vh - 12rem));
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-rows: repeat(2, minmax(0, 1fr));
+    gap: clamp(8px, 1.4vw, 16px);
+  }
+}
+
+.card-content-free,
+.card-content-emerald,
+.card-content-ruby,
+.card-content-diamond {
+  position: relative;
+  min-height: 0;
+  height: 100%;
+  border-radius: 14px;
+  padding: 0.72rem 0.68rem 0.62rem;
+  display: grid;
+  grid-template-rows: auto auto 1fr auto;
+  align-items: start;
+  overflow: hidden;
+  box-shadow: 0 8px 20px rgba(16, 32, 63, 0.12);
+  transition:
+    transform 0.22s ease,
+    box-shadow 0.22s ease;
+}
+
+.card-content-free {
+  background: linear-gradient(135deg, #fffefa 0%, #fff5d1 60%, #ffeb99 100%);
+}
+
+.card-content-emerald {
+  background: linear-gradient(135deg, #ebfdf6 0%, #d4f5e9 60%, #7fcfa1 100%);
+}
+
+.card-content-ruby {
+  background: linear-gradient(135deg, #fff5f5 0%, #f7d1d1 60%, #ff8a8a 100%);
+}
+
+.card-content-diamond {
+  background: linear-gradient(135deg, #e7f9ff 0%, #e0f2ff 60%, #c4affe 100%);
+}
+
+.card-content-free:hover,
+.card-content-emerald:hover,
+.card-content-ruby:hover,
+.card-content-diamond:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 22px rgba(16, 32, 63, 0.16);
+}
+
+.card-logo {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  outline: 2px solid #0d1b3e;
+}
+
+.card-logo img {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 30px;
+}
+
+.card-price-box {
+  width: 100%;
+  position: relative;
   text-align: center;
-  margin-bottom: 50px;
-  font-size: 2rem;
+  padding-top: 1rem;
+  padding-bottom: 0.35rem;
+}
+
+.card-price-box::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  transform: translateX(-50%);
+  width: 92%;
+  height: 1px;
+  background-color: #1f2a44;
+}
+
+.card-tittle-free {
+  color: #1f2a44;
+  background-color: #ffea84;
+}
+
+.card-tittle-emerald {
+  color: #ffffff;
+  background-color: #009c6a;
+}
+
+.card-tittle-ruby {
+  color: #ffffff;
+  background-color: #ff4946;
+}
+
+.card-tittle-diamond {
+  color: #1f2a44;
+  background-color: var(--primary-b);
+}
+
+.card-tittle-free,
+.card-tittle-emerald,
+.card-tittle-ruby,
+.card-tittle-diamond {
+  font-size: clamp(0.86rem, 1.15vw, 1.03rem);
+  line-height: 1.1;
+  margin: 0 auto 0.4rem;
+  width: min(130px, 84%);
+  border-radius: 20px;
+  padding: 0.12rem 0.35rem;
+  text-align: center;
   font-weight: 700;
 }
 
-/*main*/
-.card{
-    position: relative;
-    width: 100%;
-    display: grid;
-    place-content: center;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 0fr));
-    gap: 80px;
+.card-price {
+  margin: 0;
+  color: #111111;
+  line-height: 1;
+  font-size: clamp(1.3rem, 2vw, 1.7rem);
 }
 
-/*free card*/
-
-.card-content-free{
-    position:relative;
-    width: 320px;
-    height: 480px;
-    display: flex;
-    /* pastel warm yellow */
-    background: linear-gradient(135deg, #fffefa 0%, #fff5d1 60%, #FFEB99 100%);
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
-    outline: transparent;
-    border-radius: 13px;
-    transition: 0.3s ease-in-out;
-    font-size: 13px;
+.card-price sup {
+  font-size: 0.56em;
+  margin-left: 0.2rem;
 }
 
-.card-content-free:hover{
-    box-shadow: 0 0 44px 3px #FFEA84;
-    transform: scale(1.1);
-}
-/*card content emerald*/
-
-.card-content-emerald{
-    position:relative;
-    width: 320px;
-    height: 480px;
-    display: flex;
-    /* pastel green */
-    background: linear-gradient(135deg, #ebfdf6 0%, #d4f5e9 60%, #7FCFA1 100%);
-
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
-    outline: transparent;
-    border-radius: 13px;
-    transition: 0.3s ease-in-out;
-    font-size: 13px;
+.card-price-description {
+  margin: 0.26rem 0 0;
+  color: #2f2f2f;
+  font-size: clamp(0.72rem, 0.95vw, 0.86rem);
 }
 
-.card-content-emerald:hover{
-    box-shadow: 0 0 44px 3px #009C6A;
-    transform: scale(1.1);
+.card-bennefits-box {
+  width: 100%;
+  min-height: 0;
+  flex: 1;
+  margin-top: 0.4rem;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
-/*card content ruby*/
-.card-content-ruby{
-    position:relative;
-    width: 320px;
-    height: 480px;
-    display: flex;
-    /* pastel red */
-    background: linear-gradient(135deg, #fff5f5 0%, #f7d1d1 60%, #FF8A8A 100%);
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
-    outline: transparent;
-    border-radius: 13px;
-    transition: 0.3s ease-in-out;
-    font-size: 13px;
+.card-list {
+  list-style: none;
+  margin: 0;
+  padding: 0 0.2rem 0 0;
+  min-height: 0;
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(31, 42, 68, 0.45) transparent;
+  scrollbar-gutter: stable;
+  -webkit-overflow-scrolling: touch;
 }
 
-.card-content-ruby:hover{
-    box-shadow: 0 0 44px 3px #FF4946;
-    transform: scale(1.1);
+.card-list::-webkit-scrollbar {
+  width: 6px;
 }
 
-/*card content diamond*/
-.card-content-diamond{
-    position:relative;
-    width: 320px;
-    height: 480px;
-    display: flex;
-    /* pastel blue */
-    background: linear-gradient(135deg, #e7f9ff 0%, #e0f2ff 60%, #c4affe 100%);
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
-    outline: transparent;
-    border-radius: 13px;
-    transition: 0.3s ease-in-out;
-    font-size: 13px;
+.card-list::-webkit-scrollbar-track {
+  background: transparent;
 }
 
-.card-content-diamond:hover{
-    box-shadow: 0 0 44px 3px #7FD4FF;
-    transform: scale(1.1);
+.card-list::-webkit-scrollbar-thumb {
+  background-color: rgba(31, 42, 68, 0.35);
+  border-radius: 10px;
 }
 
-.card-logo{
-    position: absolute;
-    top: 12px;
-    left: 230px;
-    
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
-    outline: 2px solid #000120;
-    background-color: linear-gradient(135deg, #f4f4f4, #b689db) ;
+.card-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.28rem;
+  margin-top: 0.26rem;
+  line-height: 1.2;
 }
 
-.card-logo img{
-    position: absolute;
-    top:2px ;
-    left: 2px;
-    width: 45px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+.card-list li ion-icon {
+  margin-top: 0.1rem;
+  color: #243451;
+  font-size: 0.86rem;
 }
 
-.card-price-box{
-    position: relative;
-    margin-top: 40px;
-    text-align: center;
+.card-list li p {
+  margin: 0;
+  max-width: none;
+  color: #222222;
+  line-height: 1.2;
+  font-size: clamp(0.72rem, 0.95vw, 0.84rem);
 }
 
-.card-price-box::before{
-    content: "";
-    position: absolute;
-    bottom: 0;
-    left: -40px;
-    width: 280px ;
-    height: 1px;
-    background-color: black
-
+.card-button-free,
+.card-button-emerald,
+.card-button-ruby,
+.card-button-diamond {
+  width: 90%;
+  min-height: 28px;
+  margin: 0.5rem auto 0;
+  border: 1.5px solid #1f2a44;
+  border-radius: 20px;
+  background: transparent;
+  color: #1f2a44;
+  font-weight: 600;
+  font-size: clamp(0.72rem, 0.9vw, 0.84rem);
+  cursor: pointer;
+  transition:
+    transform 0.2s ease,
+    background-color 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
-.card-tittle-free{
-    font-size: 1.2rem;
-    
-    letter-spacing: 1px;
-    color: var(--text-main);
-    background-color: #FFEA84; /* same warm yellow */
-    border-radius: 20px;
-    margin-bottom: 10px;
-    width: 200px;
-    
+.card-button-free:hover,
+.card-button-emerald:hover,
+.card-button-ruby:hover,
+.card-button-diamond:hover {
+  transform: translateY(-1px);
+  background-color: rgba(255, 255, 255, 0.75);
+  box-shadow: 0 4px 12px rgba(16, 32, 63, 0.2);
 }
 
-.card-tittle-emerald{
-    font-size: 1.2rem;
-    
-    letter-spacing: 1px;
-    color: white;
-    background-color: #009C6A;
-    border-radius: 20px;
-    margin-bottom: 10px;
-    width: 200px;
+.card-button-free:active,
+.card-button-emerald:active,
+.card-button-ruby:active,
+.card-button-diamond:active {
+  transform: scale(0.98);
 }
 
-.card-tittle-ruby{
-    font-size: 1.2rem;
-    
-    letter-spacing: 1px;
-    color: white;
-    background-color: #FF4946;
-    border-radius: 20px;
-    margin-bottom: 10px;
-    width: 200px;
+@media (max-width: 700px) {
+  .prices-grid {
+    width: min(680px, 95vw);
+    height: calc(100vh - 12rem);
+    gap: 8px;
+  }
+
+  .card-content-free,
+  .card-content-emerald,
+  .card-content-ruby,
+  .card-content-diamond {
+    padding: 0.64rem 0.5rem 0.5rem;
+  }
+
+  .card-logo {
+    width: 30px;
+    height: 30px;
+    top: 6px;
+    right: 6px;
+  }
+
+  .card-logo img {
+    width: 26px;
+  }
+
+  .card-tittle-free,
+  .card-tittle-emerald,
+  .card-tittle-ruby,
+  .card-tittle-diamond {
+    width: min(120px, 88%);
+  }
+
+  .card-list li p {
+    font-size: 0.74rem;
+  }
 }
 
-.card-tittle-diamond{
-    font-size: 1.2rem;
-    
-    letter-spacing: 1px;
-    color: var(--text-main);
-    background-color: var(--primary-b);
-    border-radius: 20px;
-    margin-bottom: 10px;
-    width: 200px;
+@media (max-width: 430px) {
+  .prices-grid {
+    width: 96vw;
+    height: calc(100vh - 11.4rem);
+    gap: 7px;
+  }
+
+  .card-tittle-free,
+  .card-tittle-emerald,
+  .card-tittle-ruby,
+  .card-tittle-diamond {
+    width: 90%;
+    font-size: 0.82rem;
+  }
+
+  .card-price {
+    font-size: 1.05rem;
+  }
+
+  .card-price-description {
+    font-size: 0.68rem;
+  }
+
+  .card-list li {
+    margin-top: 0.2rem;
+  }
+
+  .card-list li p {
+    font-size: 0.68rem;
+    line-height: 1.15;
+  }
+
+  .card-button-free,
+  .card-button-emerald,
+  .card-button-ruby,
+  .card-button-diamond {
+    width: 94%;
+    min-height: 24px;
+    margin-top: 0.35rem;
+    font-size: 0.68rem;
+  }
 }
 
-.card-price{
-    font-size: 20px;
-    color: black;
-    margin-bottom: 10px;
-}
-
-.card-price sup{
-    font-size: 0.7em;
-    margin-left: 10px;
-
-}
-
-.card-price-description{
-    color: black;
-    margin-bottom: 20px;
-}
-
-.card-bennefits-box{
-    width: 300px;
-    display: flex;
-    align-items: center;
-    flex-direction: column;
-    padding: 10px;
-    margin-top: 15px;
-}
-
-.card-list{
-    list-style: none;
-}
-
-.card-list li{
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    margin-top: 5px;
-}
-
-.card-list li p{
-    color: black;
-    font-size: 10px;
-}
-
-
-
-/*card buttom Free*/
-
-.card-button-free{
-    margin-top: 30px;
-    width: 50%;
-    background-color: transparent;
-    border: 2px solid black;
-    border-radius: 22px;
-    color: black;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1,1em;
-    cursor: pointer;
-    transition: 0.3s ease-in-out;
-    overflow: hidden;
-    position: relative;
-    padding: 5px;
-    
-}
-
-.card-button-free::before{
-    content: "";
-    position: absolute;
-    top: -50%;
-    left: -50%;
-    width: -50%;
-    height: 200%;
-    background: radial-gradient(circle, rgba(255,255,255,0.3), rgba(0, 255, 255, 0) 70%);
-    transition: 0.4s;
-    transform: scale(0);
-}
-
-.card-button-free:hover::before{
-    transform: scale(1);
-}
-
-.card-button-free:hover{
-    color: black;
-    background: #ffffff ;
-    box-shadow: 0 0 15px #ffffff, 0 0 60px #ffffff, 0 0 120px #ffffff;
-}
-
-.card-button-free:active{
-    transform: scale(0.95);
-}
-
-/*buttom card emerald*/
-
-.card-button-emerald{
-    margin-top: 30px;
-    width: 50%;
-    background-color: transparent;
-    border: 2px solid black;
-    border-radius: 22px;
-    color: black;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1,1em;
-    cursor: pointer;
-    transition: 0.3s ease-in-out;
-    overflow: hidden;
-    position: relative;
-    padding: 5px;
-    
-}
-
-.card-button-emerald::before{
-    content: "";
-    position: absolute;
-    top: -50%;
-    left: -50%;
-    width: -50%;
-    height: 200%;
-    background: radial-gradient(circle, rgba(255,255,255,0.3), rgba(0, 255, 255, 0) 70%);
-    transition: 0.4s;
-    transform: scale(0);
-}
-
-.card-button-emerald:hover::before{
-    transform: scale(1);
-}
-
-.card-button-emerald:hover{
-    color: black;
-    background: #ffffff ;
-    box-shadow: 0 0 15px #ffffff, 0 0 60px #ffffff, 0 0 120px #ffffff;
-}
-
-.card-button-emerald:active{
-    transform: scale(0.95);
-}
-
-
-/*buttom card ruby*/
-
-.card-button-ruby{
-    margin-top: 30px;
-    width: 50%;
-    background-color: transparent;
-    border: 2px solid black;
-    border-radius: 22px;
-    color: black;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1,1em;
-    cursor: pointer;
-    transition: 0.3s ease-in-out;
-    overflow: hidden;
-    position: relative;
-    padding: 5px;
-    
-}
-
-.card-button-ruby::before{
-    content: "";
-    position: absolute;
-    top: -50%;
-    left: -50%;
-    width: -50%;
-    height: 200%;
-    background: radial-gradient(circle, rgba(255,255,255,0.3), rgba(0, 255, 255, 0) 70%);
-    transition: 0.4s;
-    transform: scale(0);
-}
-
-.card-button-ruby:hover::before{
-    transform: scale(1);
-}
-
-.card-button-ruby:hover{
-    color: black;
-    background: #ffffff ;
-    box-shadow: 0 0 15px #ffffff, 0 0 60px #ffffff, 0 0 120px #ffffff;
-}
-
-.card-button-ruby:active{
-    transform: scale(0.95);
-}
-
-/*buttom card diamond*/
-
-.card-button-diamond{
-    margin-top: 30px;
-    width: 50%;
-    background-color: transparent;
-    border: 2px solid black;
-    border-radius: 22px;
-    color: black;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1,1em;
-    cursor: pointer;
-    transition: 0.3s ease-in-out;
-    overflow: hidden;
-    position: relative;
-    padding: 5px;
-    
-}
-
-.card-button-diamond::before{
-    content: "";
-    position: absolute;
-    top: -50%;
-    left: -50%;
-    width: -50%;
-    height: 200%;
-    background: radial-gradient(circle, rgba(255,255,255,0.3), rgba(0, 255, 255, 0) 70%);
-    transition: 0.4s;
-    transform: scale(0);
-}
-
-.card-button-diamond:hover::before{
-    transform: scale(1);
-}
-
-.card-button-diamond:hover{
-    color: black;
-    background: #ffffff ;
-    box-shadow: 0 0 15px #ffffff, 0 0 60px #ffffff, 0 0 120px #ffffff;
-}
-
-.card-button-diamond:active{
-    transform: scale(0.95);
+@media (hover: none) {
+  .card-content-free:hover,
+  .card-content-emerald:hover,
+  .card-content-ruby:hover,
+  .card-content-diamond:hover,
+  .card-button-free:hover,
+  .card-button-emerald:hover,
+  .card-button-ruby:hover,
+  .card-button-diamond:hover {
+    transform: none;
+    box-shadow: none;
+  }
 }

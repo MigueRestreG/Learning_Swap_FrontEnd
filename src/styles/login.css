@@ -155,3 +155,73 @@
   text-align: center;
   margin-bottom: 6px;
 }
+
+@media (max-width: 900px) {
+  .auth-wrapper {
+    height: auto;
+    min-height: 100vh;
+    justify-content: flex-start;
+    padding: 92px 14px 16px;
+  }
+
+  .container,
+  .container.toggle {
+    width: min(640px, 96vw);
+    height: auto;
+    min-height: 560px;
+    margin: 0;
+    border-radius: 20px;
+  }
+
+  .container-welcome {
+    display: none !important;
+  }
+
+  .container-form {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    padding: 0 18px;
+    overflow-y: auto;
+  }
+
+  .container-form:nth-child(1) {
+    display: block;
+  }
+
+  .container-form:nth-child(2) {
+    display: none;
+  }
+
+  .container.toggle .container-form:nth-child(1) {
+    display: none;
+  }
+
+  .container.toggle .container-form:nth-child(2) {
+    display: block;
+  }
+
+  .container-form form,
+  .sign-in,
+  .sign-up,
+  .container.toggle .sign-in,
+  .container.toggle .sign-up {
+    transform: none;
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .container-form h2 {
+    font-size: clamp(1.9rem, 7vw, 2.2rem);
+    margin-bottom: 0.75rem;
+  }
+
+  .container-input {
+    width: 100%;
+  }
+
+  #form-sign-up {
+    padding: 0.85rem 0 1rem;
+    gap: 0.45rem;
+  }
+}

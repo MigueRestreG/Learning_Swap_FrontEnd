@@ -63,6 +63,11 @@
   color: #52607a;
 }
 
+#form-sign-up .container-input {
+  width: 100%;
+  margin-bottom: 0;
+}
+
 #register-step-account.register-step--active,
 #register-step-skills.register-step--active {
   display: grid;
@@ -435,12 +440,8 @@
 
 /* Extra small devices (< 480px) */
 @media (max-width: 479px) {
-  .container-welcome {
-    display: none !important;
-  }
-
   .container {
-    max-width: 95vw !important;
+    min-height: 580px;
   }
 
   .button-register,
@@ -473,27 +474,76 @@
 
 /* Small devices/tablets (480px - 768px) */
 @media (min-width: 480px) and (max-width: 768px) {
-  .container-welcome {
-    width: 45%;
+  .register-skills-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 900px) {
+  #form-sign-up {
+    align-items: stretch;
+  }
+
+  #form-sign-up > h2,
+  #form-sign-up .social-networks,
+  #form-sign-up > span {
+    align-self: center;
+    text-align: center;
+  }
+
+  #register-step-account.register-step--active,
+  #register-step-skills.register-step--active,
+  .register-actions {
+    width: min(100%, 460px);
+    margin-inline: auto;
+  }
+
+  .register-fields-grid {
+    grid-template-columns: 1fr;
+    gap: 0.55rem;
+  }
+
+  .register-fields-grid .container-input:nth-child(3),
+  .register-fields-grid .container-input:nth-child(4),
+  .register-fields-grid .container-input:nth-child(5) {
+    grid-column: auto;
+  }
+
+  .register-fields-grid .container-input {
+    height: 42px;
+    min-height: 42px;
   }
 
   .register-skills-grid {
     grid-template-columns: 1fr;
+    gap: 0.75rem;
   }
 
-  .container-welcome .welcome {
-    padding: clamp(1.5rem, 3vw, 2.5rem);
+  .skill-group {
+    padding: 0.75rem;
   }
 
-  .container-welcome h3 {
-    font-size: clamp(1.5rem, 4vw, 2rem);
+  .skills-chip-list {
+    height: 74px;
+  }
+
+  .register-actions {
+    margin-top: 0.2rem;
+  }
+
+  .register-actions .button-register {
+    flex: 1 1 170px;
+  }
+
+  .register-step-note {
+    font-size: 0.72rem;
   }
 }
 
 /* Tablets/Laptops (768px - 1024px) */
 @media (min-width: 768px) and (max-width: 1024px) {
-  .container-welcome {
-    width: 48%;
+  .register-skills-grid {
+    grid-template-columns: 1fr;
   }
 }
 

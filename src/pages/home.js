@@ -6,9 +6,17 @@ import {
 
 export function HomePage(initialSectionId = null) {
   const app = document.getElementById('app');
+  const homeHash = initialSectionId ? `#${initialSectionId}` : '#home';
+
+  window.history.replaceState(null, '', homeHash);
 
   // Remove auth-page class from body
-  document.body.classList.remove('auth-page', 'register-mode');
+  document.body.classList.remove(
+    'auth-page',
+    'register-mode',
+    'profile-page',
+    'swaps-page'
+  );
 
   // Limpieza SPA: evita duplicar listeners al re-render
   if (window.__homeCleanup) {
@@ -19,6 +27,11 @@ export function HomePage(initialSectionId = null) {
   if (window.__homeScrollHandler) {
     window.removeEventListener('scroll', window.__homeScrollHandler);
     window.__homeScrollHandler = null;
+  }
+
+  if (window.__swapsCleanup) {
+    window.__swapsCleanup();
+    window.__swapsCleanup = null;
   }
 
   app.innerHTML = `
@@ -127,9 +140,10 @@ export function HomePage(initialSectionId = null) {
 
       
       <!-- PRICING/ MEMbERSHIPS SECTION -->
-      <section class="prices card" id="prices">
+      <section class="prices" id="prices">
       <!--<h2 class="prices-title">Learning Swap Membresias</h2>-->
     <!--CARDS CONTAINERr-->
+        <div class="prices-grid">
         
         <article class="card-content-free">
             <div class="card-logo">
@@ -289,16 +303,16 @@ export function HomePage(initialSectionId = null) {
                         <ion-icon name="checkmark-circle-outline"></ion-icon>
                         <p>Recomendaciones inteligentes de intercambios.</p>
                     </li>
-                        <li>
+                    <li>
                         <ion-icon name="checkmark-circle-outline"></ion-icon>
                         <p>Posibilidad de monetizar su contenido a futuro.</p>
-                    </li>
                     </li>
                 </ul>
                 <button class="card-button-diamond">Escoger Plan</button>
                 
             </div>
         </article>
+              </div>
     </section>
 
       <!-- ESCENA 5 -->

@@ -12,6 +12,7 @@ export function getNavbar(isAuthPage = false) {
 
   const desktopActions = authenticated
     ? `
+      <a class="btn secondary navbar-swap-link" href="#swaps">Swaps</a>
       <button class="btn secondary" id="btnProfile">${profileLabel}</button>
       <button class="btn primary" id="btnLogoutNav">Cerrar sesión</button>
     `
@@ -22,6 +23,7 @@ export function getNavbar(isAuthPage = false) {
 
   const mobileActions = authenticated
     ? `
+      <a class="btn secondary navbar-swap-link" href="#swaps">Swaps</a>
       <button class="btn secondary" id="btnProfileMobile">${profileLabel}</button>
       <button class="btn primary" id="btnLogoutMobile">Cerrar sesión</button>
     `

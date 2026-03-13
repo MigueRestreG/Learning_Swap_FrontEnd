@@ -8,11 +8,17 @@ body.profile-page {
   background: #eef4ff;
   min-height: 100vh;
   overflow-x: hidden;
+  --profile-navbar-height: 84px;
 }
 
 body.profile-page #scroll-space {
   height: 0 !important;
   display: none !important;
+}
+
+body.profile-page .navbar {
+  position: fixed;
+  top: 0;
 }
 
 /* ── Loading Spinner ─────────────────────────── */
@@ -47,7 +53,7 @@ body.profile-page #scroll-space {
 .profile-main {
   max-width: 1000px;
   margin: 0 auto;
-  padding: 132px 24px 80px;
+  padding: calc(var(--profile-navbar-height) + 32px) 24px 10px;
 }
 
 /* ── Hero Section ────────────────────────────── */
@@ -784,8 +790,12 @@ body.profile-page #scroll-space {
 
 /* ── Responsive ──────────────────────────────── */
 @media (max-width: 768px) {
+  body.profile-page {
+    --profile-navbar-height: 74px;
+  }
+
   .profile-main {
-    padding: 108px 16px 60px;
+    padding: calc(var(--profile-navbar-height) + 24px) 16px 60px;
   }
 
   .profile-hero-content {

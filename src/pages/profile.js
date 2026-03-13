@@ -31,8 +31,15 @@ export async function ProfilePage() {
     window.__homeScrollHandler = null;
   }
 
-  document.body.classList.remove('auth-page', 'register-mode');
+  if (window.__swapsCleanup) {
+    window.__swapsCleanup();
+    window.__swapsCleanup = null;
+  }
+
+  document.body.classList.remove('auth-page', 'register-mode', 'swaps-page');
   document.body.classList.add('profile-page');
+  document.body.style.overflow = '';
+  window.history.replaceState(null, '', '#profile');
   window.scrollTo({ top: 0, behavior: 'auto' });
 
   // Show skeleton while loading
