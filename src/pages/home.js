@@ -72,7 +72,7 @@ export function HomePage(initialSectionId = null) {
           </div>
         </div>
       <div class="hero-banner">
-          <img class="logo-navbar" src="./assets/homeBanner.png" alt="portada" />
+          <img class="logo-navbar" src="/assets/homeBanner.png" alt="portada" />
           </div>
       </section>
 
@@ -147,7 +147,7 @@ export function HomePage(initialSectionId = null) {
         
         <article class="card-content-free">
             <div class="card-logo">
-              <img src="./assets/logos/free.png" alt="logo de plan">
+              <img src="/assets/logos/free.png" alt="logo de plan">
             </div>
 
               <!--free suscription-->
@@ -182,7 +182,7 @@ export function HomePage(initialSectionId = null) {
         <!--emerald suscription-->
         <article class="card-content-emerald">
             <div class="card-logo">
-                <img src="./assets/logos/emerald.png" alt="">
+                <img src="/assets/logos/emerald.png" alt="">
             </div>
             <div class="card-price-box">
                 <h3 class="card-tittle-emerald">Emerald</h3>
@@ -217,7 +217,7 @@ export function HomePage(initialSectionId = null) {
                 <!--ruby suscription-->
         <article class="card-content-ruby">
             <div class="card-logo">
-                <img src="./assets/logos/ruby.png" alt="logo">
+                <img src="/assets/logos/ruby.png" alt="logo">
             </div>
             <div class="card-price-box">
                 <h3 class="card-tittle-ruby">Ruby</h3>
@@ -261,7 +261,7 @@ export function HomePage(initialSectionId = null) {
                         <!--diamod suscription-->
         <article class="card-content-diamond">
             <div class="card-logo">
-              <img src="./assets/logos/diamond.png" alt="logo de plan">
+              <img src="/assets/logos/diamond.png" alt="logo de plan">
             </div>
             <div class="card-price-box">
                 <h3 class="card-tittle-diamond">Diamond</h3>
