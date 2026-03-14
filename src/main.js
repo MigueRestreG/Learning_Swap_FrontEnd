@@ -55,8 +55,8 @@ async function initializeApp() {
   }
 
   if (path === '#chats' && isAuthenticated()) {
-    const { SwapsPage } = await import('./pages/swaps.js');
-    SwapsPage('chats');
+    const { ChatsPage } = await import('./pages/chats.js');
+    ChatsPage();
     return;
   }
 

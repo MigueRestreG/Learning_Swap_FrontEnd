@@ -13,6 +13,7 @@ export function getNavbar() {
   const desktopActions = authenticated
     ? `
       <a class="btn secondary navbar-swap-link" href="#swaps">Swaps</a>
+      <a class="btn secondary navbar-swap-link" href="#chats">Chats</a>
       <button class="btn secondary" id="btnProfile">${profileLabel}</button>
       <button class="btn primary" id="btnLogoutNav">Cerrar sesión</button>
     `
@@ -24,6 +25,7 @@ export function getNavbar() {
   const mobileActions = authenticated
     ? `
       <a class="btn secondary navbar-swap-link" href="#swaps">Swaps</a>
+      <a class="btn secondary navbar-swap-link" href="#chats">Chats</a>
       <button class="btn secondary" id="btnProfileMobile">${profileLabel}</button>
       <button class="btn primary" id="btnLogoutMobile">Cerrar sesión</button>
     `

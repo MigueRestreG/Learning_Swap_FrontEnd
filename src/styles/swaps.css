@@ -184,6 +184,8 @@ body.swaps-page #app {
   padding: 0.7rem 1.25rem;
   margin-bottom: 1.5rem;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  position: relative;
+  overflow: visible;
 }
 
 .swaps-dashboard .user-actions {
@@ -220,6 +222,157 @@ body.swaps-page #app {
 .swaps-dashboard .icon-action:hover {
   transform: translateY(-1px);
   box-shadow: 0 10px 20px rgba(26, 36, 64, 0.08);
+}
+
+.swaps-dashboard .notifications-btn {
+  position: relative;
+}
+
+.swaps-dashboard .notifications-badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 4px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #ef4444, #f97316);
+  color: #fff;
+  font-size: 0.62rem;
+  font-weight: 800;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid #fff;
+}
+
+.swaps-dashboard .notifications-panel {
+  position: absolute;
+  top: calc(100% + 12px);
+  right: 1.25rem;
+  width: min(360px, calc(100vw - 32px));
+  max-height: 420px;
+  overflow: hidden;
+  border: 1px solid #dbe5f5;
+  border-radius: 16px;
+  background: #fff;
+  box-shadow: 0 18px 45px rgba(15, 23, 42, 0.2);
+  padding: 0.9rem;
+  z-index: 80;
+  display: grid;
+  gap: 0.7rem;
+}
+
+.swaps-dashboard .notifications-panel[hidden] {
+  display: none !important;
+}
+
+.swaps-dashboard .notifications-panel-header h3 {
+  margin: 0;
+  font-size: 0.96rem;
+  color: var(--text-main);
+}
+
+.swaps-dashboard .notifications-empty-state {
+  margin: 0;
+  font-size: 0.78rem;
+  color: #64748b;
+  line-height: 1.45;
+  border: 1px dashed #cbd8ef;
+  border-radius: 12px;
+  padding: 0.68rem;
+  background: #fbfdff;
+}
+
+.swaps-dashboard .notifications-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.55rem;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.swaps-dashboard .notifications-item {
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  background: #f8fbff;
+  padding: 0.58rem 0.65rem;
+  display: grid;
+  gap: 0.3rem;
+}
+
+.swaps-dashboard .notifications-item-title {
+  margin: 0;
+  color: #1e293b;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.swaps-dashboard .notifications-item-detail {
+  margin: 0;
+  color: #475569;
+  font-size: 0.72rem;
+  line-height: 1.45;
+}
+
+.swaps-dashboard .notifications-item-time {
+  color: #64748b;
+  font-size: 0.66rem;
+  font-weight: 600;
+}
+
+.swaps-dashboard .notifications-toast-stack {
+  position: fixed;
+  top: 22px;
+  right: 20px;
+  width: min(360px, calc(100vw - 32px));
+  display: grid;
+  gap: 0.62rem;
+  z-index: 1200;
+  pointer-events: none;
+}
+
+.swaps-dashboard .notification-toast {
+  border: 1px solid #c6d8f8;
+  border-radius: 14px;
+  background: #fff;
+  box-shadow: 0 16px 36px rgba(30, 64, 175, 0.22);
+  padding: 0.68rem 0.74rem;
+  display: grid;
+  gap: 0.32rem;
+  pointer-events: auto;
+  opacity: 1;
+  transform: translateY(0);
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease;
+}
+
+.swaps-dashboard .notification-toast.is-leaving {
+  opacity: 0;
+  transform: translateY(-8px);
+}
+
+.swaps-dashboard .notification-toast h4 {
+  margin: 0;
+  color: #1e3a8a;
+  font-size: 0.8rem;
+  font-weight: 800;
+}
+
+.swaps-dashboard .notification-toast p {
+  margin: 0;
+  color: #334155;
+  font-size: 0.74rem;
+  line-height: 1.42;
+}
+
+.swaps-dashboard .notification-toast-time {
+  color: #64748b;
+  font-size: 0.68rem;
+  font-weight: 600;
 }
 
 .swaps-dashboard .user-chip {
@@ -440,12 +593,42 @@ body.swaps-page #app {
   background: #fff;
 }
 
+.swaps-dashboard .chat-shortcut-panel {
+  border: 1px solid #dbe5f5;
+  border-radius: 20px;
+  background: #fbfdff;
+  box-shadow: 0 12px 26px rgba(23, 40, 77, 0.08);
+  padding: 1.1rem;
+  display: grid;
+  gap: 0.7rem;
+  margin-bottom: 26px;
+}
+
+.swaps-dashboard .chat-shortcut-panel h3 {
+  margin: 0;
+  font-size: 1rem;
+  color: var(--text-main);
+}
+
+.swaps-dashboard .chat-shortcut-panel p {
+  margin: 0;
+  font-size: 0.82rem;
+  line-height: 1.55;
+  color: var(--text-muted);
+}
+
+.swaps-dashboard .chat-shortcut-panel .matches-refresh-btn {
+  justify-self: start;
+}
+
 .swaps-dashboard .matches-chat-section {
   display: grid;
-  grid-template-columns: minmax(260px, 320px) minmax(0, 1fr);
+  grid-template-columns: minmax(280px, 340px) minmax(0, 1fr);
+  grid-template-areas: 'list content';
   gap: 1rem;
   margin-bottom: 26px;
-  align-items: start;
+  align-items: stretch;
+  min-height: clamp(500px, 68vh, 760px);
 }
 
 .swaps-dashboard .matches-panel,
@@ -458,7 +641,10 @@ body.swaps-page #app {
 }
 
 .swaps-dashboard .matches-panel {
+  grid-area: list;
   padding: 1rem;
+  max-height: 100%;
+  overflow-y: auto;
 }
 
 .swaps-dashboard .matches-panel-header {
@@ -604,12 +790,14 @@ body.swaps-page #app {
 }
 
 .swaps-dashboard .chat-empty-state {
+  grid-area: content;
   padding: 1.1rem;
   text-align: center;
   display: grid;
   gap: 0.45rem;
   align-self: stretch;
   place-content: center;
+  min-height: clamp(500px, 68vh, 760px);
 }
 
 .swaps-dashboard .chat-empty-state h3 {
@@ -626,11 +814,16 @@ body.swaps-page #app {
 }
 
 .swaps-dashboard .chat-panel {
+  grid-area: content;
   padding: 1rem;
   display: flex;
   flex-direction: column;
   gap: 0.8rem;
-  min-height: 390px;
+  min-height: clamp(500px, 68vh, 760px);
+}
+
+.swaps-dashboard .chat-panel[hidden] {
+  display: none !important;
 }
 
 .swaps-dashboard .chat-panel-header {
@@ -670,8 +863,7 @@ body.swaps-page #app {
 
 .swaps-dashboard .chat-messages {
   flex: 1;
-  min-height: 240px;
-  max-height: 360px;
+  min-height: 340px;
   border: 1px solid #dbe5f5;
   border-radius: 14px;
   background: #f8fbff;
@@ -1026,6 +1218,10 @@ body.swaps-page #app {
 
   .swaps-dashboard .matches-chat-section {
     grid-template-columns: 1fr;
+    grid-template-areas:
+      'list'
+      'content';
+    min-height: auto;
   }
 
   .swaps-dashboard .chat-messages {
@@ -1102,6 +1298,20 @@ body.swaps-page #app {
     justify-content: space-between;
   }
 
+  .swaps-dashboard .notifications-panel {
+    left: 1rem;
+    right: 1rem;
+    width: auto;
+    max-height: 360px;
+  }
+
+  .swaps-dashboard .notifications-toast-stack {
+    top: 10px;
+    right: 10px;
+    left: 10px;
+    width: auto;
+  }
+
   .swaps-dashboard .welcome-banner {
     border-radius: 28px;
     flex-direction: column;
@@ -1131,7 +1341,7 @@ body.swaps-page #app {
   }
 
   .swaps-dashboard .chat-panel {
-    min-height: 340px;
+    min-height: 380px;
   }
 
   .swaps-dashboard .feed-card-footer {
@@ -1185,6 +1395,11 @@ body.swaps-page #app {
 
   .swaps-dashboard .user-actions {
     gap: 0.65rem;
+  }
+
+  .swaps-dashboard .notifications-panel {
+    left: 0.75rem;
+    right: 0.75rem;
   }
 
   .swaps-dashboard .user-chip {

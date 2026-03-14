@@ -8,6 +8,12 @@ import {
 import { getCurrentUser, getCurrentUserId, isAuthenticated } from '../utils/auth.js';
 
 const DEFAULT_MATCH_AVATAR = '/assets/users-cards-icons/user2.jpg';
+const MAX_CHAT_NOTIFICATIONS = 20;
+const CHAT_NOTIFICATION_STORE = {
+  items: [],
+  unreadCount: 0,
+  nextId: 1,
+};
 
 const SWAP_SECTIONS = [
   {
@@ -276,14 +282,39 @@ export async function SwapsPage(view = 'matches') {
               <button class="icon-action" type="button" aria-label="Idioma">
                 <ion-icon name="earth-outline"></ion-icon>
               </button>
-              <button class="icon-action" type="button" aria-label="Notificaciones">
+              <button
+                class="icon-action notifications-btn"
+                type="button"
+                data-notifications-toggle
+                aria-label="Notificaciones"
+                aria-expanded="false"
+                aria-controls="notifications-panel"
+              >
                 <ion-icon name="notifications-outline"></ion-icon>
+                <span class="notifications-badge" data-notifications-badge hidden>
+                  0
+                </span>
               </button>
               <button class="icon-action" type="button" data-nav-profile aria-label="Ir al perfil">
                 <ion-icon name="person-circle-outline"></ion-icon>
               </button>
               <span class="user-chip">${escapeHtml(profileLabel)}</span>
             </div>
+
+            <section
+              id="notifications-panel"
+              class="notifications-panel"
+              aria-label="Notificaciones recientes"
+              hidden
+            >
+              <header class="notifications-panel-header">
+                <h3>Notificaciones</h3>
+              </header>
+              <p id="notifications-empty" class="notifications-empty-state">
+                Aún no tienes mensajes nuevos.
+              </p>
+              <ul id="notifications-list" class="notifications-list"></ul>
+            </section>
           </header>
 
           <section class="dashboard-body">
@@ -301,68 +332,84 @@ export async function SwapsPage(view = 'matches') {
                     ${
                       isChatsView
                         ? `Bienvenido ${escapeHtml(profileLabel)}, aquí podrás continuar tus conversaciones y abrir nuevas salas de chat con tus matches.`
-                        : `Bienvenido ${escapeHtml(profileLabel)}, aquí podrás descubrir personas y experiencias maravillosas haciendo match entre ellas.`
+                        : `Bienvenido ${escapeHtml(profileLabel)}, aquí podrás descubrir personas y experiencias maravillosas haciendo match entre ellas. Tus conversaciones estarán siempre en la vista de chats.`
                     }
                   </p>
                 </div>
-                <button type="button">Planes</button>
+                <button type="button" ${isChatsView ? '' : 'data-nav-chats'}>
+                  ${isChatsView ? 'Planes' : 'Ir a chats'}
+                </button>
               </div>
 
-              <section class="matches-chat-section" aria-label="Mis matches y chat">
-                <div class="matches-panel">
-                  <div class="matches-panel-header">
-                    <h3>${isChatsView ? 'Conversaciones' : 'Mis Matches'}</h3>
-                    <button id="btn-refresh-matches" class="matches-refresh-btn" type="button">
-                      Actualizar
-                    </button>
-                  </div>
-                  <p class="matches-panel-helper">
-                    ${
-                      isChatsView
-                        ? 'Selecciona un chat para cargar historial y recibir mensajes nuevos en tiempo real.'
-                        : 'Abre una conversación para ver historial y mensajes en tiempo real.'
-                    }
-                  </p>
-                  <div id="matches-status" class="matches-status is-muted" role="status"></div>
-                  <div id="matches-list" class="matches-list" aria-live="polite"></div>
-                </div>
+              ${
+                isChatsView
+                  ? `<section class="matches-chat-section" aria-label="Mis matches y chat">
+                      <div class="matches-panel">
+                        <div class="matches-panel-header">
+                          <h3>Conversaciones</h3>
+                          <button id="btn-refresh-matches" class="matches-refresh-btn" type="button">
+                            Actualizar
+                          </button>
+                        </div>
+                        <p class="matches-panel-helper">
+                          Selecciona un chat para cargar historial y recibir mensajes nuevos en tiempo real.
+                        </p>
+                        <div id="matches-status" class="matches-status is-muted" role="status"></div>
+                        <div id="matches-list" class="matches-list" aria-live="polite"></div>
+                      </div>
 
-                <div id="chat-empty" class="chat-empty-state">
-                  <h3>Selecciona un match</h3>
-                  <p>
-                    El historial de la sala y los mensajes nuevos aparecerán aquí.
-                  </p>
-                </div>
+                      <div id="chat-empty" class="chat-empty-state">
+                        <h3>Selecciona un match</h3>
+                        <p>
+                          El historial de la sala y los mensajes nuevos aparecerán aquí.
+                        </p>
+                      </div>
 
-                <section id="chat-container" class="chat-panel" hidden aria-label="Ventana de chat">
-                  <header class="chat-panel-header">
-                    <div>
-                      <h3 id="chat-header">Chat</h3>
-                      <p id="chat-room-helper">Selecciona una conversación para empezar.</p>
-                    </div>
-                    <button id="chat-close-btn" type="button" class="chat-close-btn">
-                      Cerrar
-                    </button>
-                  </header>
+                      <section id="chat-container" class="chat-panel" hidden aria-label="Ventana de chat">
+                        <header class="chat-panel-header">
+                          <div>
+                            <h3 id="chat-header">Chat</h3>
+                            <p id="chat-room-helper">Selecciona una conversación para empezar.</p>
+                          </div>
+                          <button id="chat-close-btn" type="button" class="chat-close-btn">
+                            Cerrar
+                          </button>
+                        </header>
 
-                  <div id="chat-messages" class="chat-messages" aria-live="polite"></div>
+                        <div id="chat-messages" class="chat-messages" aria-live="polite"></div>
 
-                  <form id="chat-form" class="chat-input-row">
-                    <input
-                      id="chat-input"
-                      type="text"
-                      placeholder="Escribe tu mensaje..."
-                      maxlength="800"
-                      autocomplete="off"
-                    />
-                    <button id="btn-enviar" type="submit">Enviar</button>
-                  </form>
-                </section>
-              </section>
+                        <form id="chat-form" class="chat-input-row">
+                          <input
+                            id="chat-input"
+                            type="text"
+                            placeholder="Escribe tu mensaje..."
+                            maxlength="800"
+                            autocomplete="off"
+                          />
+                          <button id="btn-enviar" type="submit">Enviar</button>
+                        </form>
+                      </section>
+                    </section>`
+                  : `<section class="chat-shortcut-panel" aria-label="Acceso a chats">
+                      <h3>Tus chats están en una vista dedicada</h3>
+                      <p>
+                        Para mantener el tablero de swaps limpio, las conversaciones se gestionan ahora en la sección de chats.
+                      </p>
+                      <button class="matches-refresh-btn" type="button" data-nav-chats>
+                        Abrir chats
+                      </button>
+                    </section>`
+              }
             </div>
           </section>
 
           ${isChatsView ? '' : SWAP_SECTIONS.map((section) => renderSection(section)).join('')}
+
+          <div
+            id="notifications-toast-stack"
+            class="notifications-toast-stack"
+            aria-live="polite"
+          ></div>
         </section>
       </div>
     </main>
@@ -685,25 +732,44 @@ function setupMatchesChat(state, options = {}) {
   const chatForm = document.getElementById('chat-form');
   const chatInput = document.getElementById('chat-input');
   const closeChatButton = document.getElementById('chat-close-btn');
-
-  if (
-    !matchesList ||
-    !matchesStatus ||
-    !refreshMatchesButton ||
-    !chatContainer ||
-    !chatEmptyState ||
-    !chatHeader ||
-    !chatRoomHelper ||
-    !chatMessages ||
-    !chatForm ||
-    !chatInput ||
-    !closeChatButton
-  ) {
-    return () => {};
-  }
+  const notificationsButton = document.querySelector(
+    '[data-notifications-toggle]'
+  );
+  const notificationsPanel = document.getElementById('notifications-panel');
+  const notificationsList = document.getElementById('notifications-list');
+  const notificationsEmpty = document.getElementById('notifications-empty');
+  const notificationsBadge = document.querySelector(
+    '[data-notifications-badge]'
+  );
+  const notificationsToastStack = document.getElementById(
+    'notifications-toast-stack'
+  );
 
   const hasFeedCarousel =
     Boolean(refreshFeedButton) && Boolean(feedStatus) && Boolean(feedCardWrapper);
+  const hasChatPanel =
+    Boolean(matchesList) &&
+    Boolean(matchesStatus) &&
+    Boolean(refreshMatchesButton) &&
+    Boolean(chatContainer) &&
+    Boolean(chatEmptyState) &&
+    Boolean(chatHeader) &&
+    Boolean(chatRoomHelper) &&
+    Boolean(chatMessages) &&
+    Boolean(chatForm) &&
+    Boolean(chatInput) &&
+    Boolean(closeChatButton);
+  const hasNotificationUI =
+    Boolean(notificationsButton) &&
+    Boolean(notificationsPanel) &&
+    Boolean(notificationsList) &&
+    Boolean(notificationsEmpty) &&
+    Boolean(notificationsBadge) &&
+    Boolean(notificationsToastStack);
+
+  if (!hasFeedCarousel && !hasChatPanel && !hasNotificationUI) {
+    return () => {};
+  }
 
   const cleanups = [];
   let disposed = false;
@@ -714,9 +780,12 @@ function setupMatchesChat(state, options = {}) {
   let feedActionCleanups = [];
   let feedQueue = [];
   let swipeInProgress = false;
+  let notificationsOpen = false;
   const avatarCache = new Map();
 
   const setMatchesStatus = (text, tone = 'muted') => {
+    if (!hasChatPanel) return;
+
     matchesStatus.textContent = text;
     matchesStatus.classList.remove('is-muted', 'is-success', 'is-error');
     matchesStatus.classList.add(`is-${tone}`);
@@ -738,6 +807,164 @@ function setupMatchesChat(state, options = {}) {
       button.disabled = disabled || !hasTarget;
     });
   };
+
+  const renderNotificationsBadge = () => {
+    if (!hasNotificationUI) return;
+
+    const unreadCount = CHAT_NOTIFICATION_STORE.unreadCount;
+    notificationsBadge.hidden = unreadCount <= 0;
+    notificationsBadge.textContent = unreadCount > 99 ? '99+' : String(unreadCount);
+  };
+
+  const renderNotificationsList = () => {
+    if (!hasNotificationUI) return;
+
+    notificationsList.innerHTML = '';
+    const visibleItems = CHAT_NOTIFICATION_STORE.items.slice(0, 8);
+    notificationsEmpty.hidden = visibleItems.length > 0;
+
+    visibleItems.forEach((item) => {
+      const notificationItem = document.createElement('li');
+      notificationItem.className = 'notifications-item';
+
+      const title = document.createElement('p');
+      title.className = 'notifications-item-title';
+      title.textContent = item.title;
+
+      const detail = document.createElement('p');
+      detail.className = 'notifications-item-detail';
+      detail.textContent = item.body;
+
+      const time = document.createElement('span');
+      time.className = 'notifications-item-time';
+      time.textContent = item.timeLabel;
+
+      notificationItem.appendChild(title);
+      notificationItem.appendChild(detail);
+      notificationItem.appendChild(time);
+      notificationsList.appendChild(notificationItem);
+    });
+  };
+
+  const setNotificationsOpen = (open) => {
+    if (!hasNotificationUI) return;
+
+    notificationsOpen = open;
+    notificationsPanel.hidden = !open;
+    notificationsButton.setAttribute('aria-expanded', open ? 'true' : 'false');
+
+    if (open && CHAT_NOTIFICATION_STORE.unreadCount > 0) {
+      CHAT_NOTIFICATION_STORE.unreadCount = 0;
+      renderNotificationsBadge();
+    }
+  };
+
+  const requestBrowserNotificationsPermission = async () => {
+    if (typeof window === 'undefined' || !('Notification' in window)) {
+      return 'unsupported';
+    }
+
+    if (Notification.permission === 'default') {
+      try {
+        return await Notification.requestPermission();
+      } catch {
+        return 'denied';
+      }
+    }
+
+    return Notification.permission;
+  };
+
+  const showBrowserNotification = (item) => {
+    if (typeof window === 'undefined' || !('Notification' in window)) return;
+    if (Notification.permission !== 'granted') return;
+
+    try {
+      const browserNotification = new Notification(item.title, {
+        body: item.body,
+        tag: item.roomId ? `chat-room-${item.roomId}` : 'chat-general',
+      });
+
+      window.setTimeout(() => {
+        browserNotification.close();
+      }, 4500);
+    } catch {
+      // Ignore browser notification errors.
+    }
+  };
+
+  const showToastNotification = (item) => {
+    if (!hasNotificationUI) return;
+
+    const toast = document.createElement('article');
+    toast.className = 'notification-toast';
+
+    const title = document.createElement('h4');
+    title.textContent = item.title;
+
+    const detail = document.createElement('p');
+    detail.textContent = item.body;
+
+    const time = document.createElement('span');
+    time.className = 'notification-toast-time';
+    time.textContent = item.timeLabel;
+
+    toast.appendChild(title);
+    toast.appendChild(detail);
+    toast.appendChild(time);
+
+    notificationsToastStack.prepend(toast);
+
+    window.setTimeout(() => {
+      toast.classList.add('is-leaving');
+      window.setTimeout(() => {
+        toast.remove();
+      }, 220);
+    }, 4500);
+  };
+
+  const pushIncomingMessageNotification = ({ senderName, message, roomId }) => {
+    if (!hasNotificationUI) return;
+
+    const sender = String(senderName || 'Tu match').trim() || 'Tu match';
+    const messageText = String(message || '').trim();
+    const body = messageText
+      ? `${sender}: ${messageText}`
+      : `${sender} te envió un mensaje nuevo.`;
+
+    const notification = {
+      id: CHAT_NOTIFICATION_STORE.nextId,
+      title: 'Nuevo mensaje',
+      body,
+      roomId: roomId ? String(roomId) : null,
+      timeLabel: formatNotificationTime(new Date()),
+    };
+
+    CHAT_NOTIFICATION_STORE.nextId += 1;
+    CHAT_NOTIFICATION_STORE.items.unshift(notification);
+    CHAT_NOTIFICATION_STORE.items = CHAT_NOTIFICATION_STORE.items.slice(
+      0,
+      MAX_CHAT_NOTIFICATIONS
+    );
+    if (notificationsOpen) {
+      CHAT_NOTIFICATION_STORE.unreadCount = 0;
+    } else {
+      CHAT_NOTIFICATION_STORE.unreadCount += 1;
+    }
+
+    renderNotificationsList();
+    renderNotificationsBadge();
+    showToastNotification(notification);
+
+    if (document.visibilityState !== 'visible') {
+      showBrowserNotification(notification);
+    }
+  };
+
+  if (hasNotificationUI) {
+    renderNotificationsList();
+    renderNotificationsBadge();
+  }
 
   const cleanupFeedActions = () => {
     feedActionCleanups.forEach((cleanup) => cleanup());
@@ -804,6 +1031,8 @@ function setupMatchesChat(state, options = {}) {
   };
 
   const cleanupRows = () => {
+    if (!hasChatPanel) return;
+
     rowCleanups.forEach((cleanup) => cleanup());
     rowCleanups = [];
     matchesList.innerHTML = '';
@@ -820,11 +1049,15 @@ function setupMatchesChat(state, options = {}) {
   };
 
   const showChat = (show) => {
+    if (!hasChatPanel) return;
+
     chatContainer.hidden = !show;
     chatEmptyState.hidden = show;
   };
 
   const markActiveMatch = (roomId) => {
+    if (!hasChatPanel) return;
+
     document.querySelectorAll('.match-item').forEach((item) => {
       const isActive = item.getAttribute('data-room-id') === String(roomId);
       item.classList.toggle('is-active', isActive);
@@ -832,6 +1065,8 @@ function setupMatchesChat(state, options = {}) {
   };
 
   const paintMessage = (msg = {}) => {
+    if (!hasChatPanel) return;
+
     const text = String(msg.message || '').trim();
     if (!text) return;
 
@@ -852,6 +1087,8 @@ function setupMatchesChat(state, options = {}) {
   };
 
   const sendMessage = () => {
+    if (!hasChatPanel) return;
+
     const text = chatInput.value.trim();
     if (!text) return;
 
@@ -871,6 +1108,8 @@ function setupMatchesChat(state, options = {}) {
   };
 
   const clearChat = () => {
+    if (!hasChatPanel) return;
+
     state.activeRoomId = null;
     closeSocket();
     markActiveMatch(null);
@@ -881,6 +1120,8 @@ function setupMatchesChat(state, options = {}) {
   };
 
   const openChat = async (match) => {
+    if (!hasChatPanel) return;
+
     const roomId = match?.room_id;
     if (!roomId) {
       chatRoomHelper.textContent = 'Este match todavía no tiene sala disponible.';
@@ -943,7 +1184,19 @@ function setupMatchesChat(state, options = {}) {
 
         try {
           const message = JSON.parse(event.data);
+          const senderId =
+            message?.user_id !== undefined ? String(message.user_id) : null;
+          const isMine = state.userId !== null && senderId === String(state.userId);
+
           paintMessage(message);
+
+          if (!isMine) {
+            pushIncomingMessageNotification({
+              senderName: fullName || 'Tu match',
+              message: message?.message,
+              roomId,
+            });
+          }
         } catch {
           // Ignore malformed websocket events.
         }
@@ -966,6 +1219,8 @@ function setupMatchesChat(state, options = {}) {
   };
 
   const loadMatches = async () => {
+    if (!hasChatPanel) return;
+
     latestMatchesRequest += 1;
     const requestId = latestMatchesRequest;
 
@@ -1178,7 +1433,7 @@ function setupMatchesChat(state, options = {}) {
         setFeedStatus('No hay más perfiles en el feed. Usa actualizar feed.', 'muted');
       }
 
-      if (action === 'like') {
+      if (action === 'like' && hasChatPanel) {
         await loadMatches();
       }
     } catch (error) {
@@ -1226,9 +1481,45 @@ function setupMatchesChat(state, options = {}) {
     clearChat();
   };
 
-  refreshMatchesButton.addEventListener('click', onRefreshMatches);
-  chatForm.addEventListener('submit', onChatSubmit);
-  closeChatButton.addEventListener('click', onCloseChat);
+  const onNotificationsToggle = () => {
+    const nextState = !notificationsOpen;
+    setNotificationsOpen(nextState);
+
+    if (nextState) {
+      requestBrowserNotificationsPermission();
+    }
+  };
+
+  const onNotificationsOutsideClick = (event) => {
+    if (!hasNotificationUI || !notificationsOpen) return;
+
+    if (
+      notificationsPanel.contains(event.target) ||
+      notificationsButton.contains(event.target)
+    ) {
+      return;
+    }
+
+    setNotificationsOpen(false);
+  };
+
+  const onNotificationsEsc = (event) => {
+    if (!hasNotificationUI) return;
+    if (event.key !== 'Escape' || !notificationsOpen) return;
+    setNotificationsOpen(false);
+  };
+
+  if (hasChatPanel) {
+    refreshMatchesButton.addEventListener('click', onRefreshMatches);
+    chatForm.addEventListener('submit', onChatSubmit);
+    closeChatButton.addEventListener('click', onCloseChat);
+  }
+
+  if (hasNotificationUI) {
+    notificationsButton.addEventListener('click', onNotificationsToggle);
+    document.addEventListener('click', onNotificationsOutsideClick);
+    document.addEventListener('keydown', onNotificationsEsc);
+  }
 
   if (hasFeedCarousel) {
     refreshFeedButton.addEventListener('click', onRefreshFeed);
@@ -1239,12 +1530,24 @@ function setupMatchesChat(state, options = {}) {
   }
 
   cleanups.push(() => {
-    refreshMatchesButton.removeEventListener('click', onRefreshMatches);
-    chatForm.removeEventListener('submit', onChatSubmit);
-    closeChatButton.removeEventListener('click', onCloseChat);
+    if (hasChatPanel) {
+      refreshMatchesButton.removeEventListener('click', onRefreshMatches);
+      chatForm.removeEventListener('submit', onChatSubmit);
+      closeChatButton.removeEventListener('click', onCloseChat);
+    }
+
+    if (hasNotificationUI) {
+      notificationsButton.removeEventListener('click', onNotificationsToggle);
+      document.removeEventListener('click', onNotificationsOutsideClick);
+      document.removeEventListener('keydown', onNotificationsEsc);
+      setNotificationsOpen(false);
+      notificationsToastStack.innerHTML = '';
+    }
   });
 
-  loadMatches();
+  if (hasChatPanel) {
+    loadMatches();
+  }
 
   if (hasFeedCarousel) {
     loadFeed();
@@ -1452,6 +1755,17 @@ function buildChatSocketUrl(roomId) {
   }
 
   return `wss://learning-swap-backend.onrender.com/ws/chat/${roomId}`;
+}
+
+function formatNotificationTime(dateValue) {
+  try {
+    return new Date(dateValue).toLocaleTimeString('es-CO', {
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+  } catch {
+    return 'Ahora';
+  }
 }
 
 function escapeHtml(value = '') {
