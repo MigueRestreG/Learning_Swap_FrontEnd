@@ -122,3 +122,72 @@ export async function updateUserByIdFormData(
 
   return handleResponse(response);
 }
+
+// ================================================
+// MATCHES / CHAT
+// ================================================
+
+/** Get discovery feed for a user id */
+export async function getFeed(userId) {
+  if (!userId) {
+    throw new Error('No se encontró el usuario para cargar el feed');
+  }
+
+  const response = await fetch(`${API_URL}/feed/${userId}`, {
+    method: 'GET',
+    headers: buildHeaders(true),
+  });
+
+  return handleResponse(response);
+}
+
+/** Record swipe decision to potentially create a match */
+export async function sendSwipe(userFromId, userToId, action) {
+  if (!userFromId || !userToId) {
+    throw new Error('No se pudo registrar el swipe por datos incompletos');
+  }
+
+  if (action !== 'like' && action !== 'pass') {
+    throw new Error('La acción del swipe debe ser like o pass');
+  }
+
+  const response = await fetch(`${API_URL}/swipe`, {
+    method: 'POST',
+    headers: buildHeaders(true),
+    body: JSON.stringify({
+      user_from_id: Number(userFromId),
+      user_to_id: Number(userToId),
+      action,
+    }),
+  });
+
+  return handleResponse(response);
+}
+
+/** Get matches list for a user id */
+export async function getMatches(userId) {
+  if (!userId) {
+    throw new Error('No se encontró el usuario para cargar matches');
+  }
+
+  const response = await fetch(`${API_URL}/matches/${userId}`, {
+    method: 'GET',
+    headers: buildHeaders(true),
+  });
+
+  return handleResponse(response);
+}
+
+/** Get chat history by room id */
+export async function getMessages(roomId) {
+  if (!roomId) {
+    throw new Error('No se encontró la sala del chat');
+  }
+
+  const response = await fetch(`${API_URL}/messages/${roomId}`, {
+    method: 'GET',
+    headers: buildHeaders(true),
+  });
+
+  return handleResponse(response);
+}
