@@ -44,7 +44,7 @@ export async function ProfilePage() {
 
   // Show skeleton while loading
   app.innerHTML = `
-    ${getNavbar(false)}
+    ${getNavbar()}
     <main class="profile-main">
       <div class="profile-loading">
         <div class="spinner"></div>
@@ -112,7 +112,7 @@ function renderProfile(app, user) {
   const learnSkills = getSkillList(user, 'learn');
 
   app.innerHTML = `
-    ${getNavbar(false)}
+    ${getNavbar()}
 
     <main class="profile-main">
       

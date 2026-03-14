@@ -1,11 +1,5 @@
 /* Login Page Styles */
 .auth-wrapper {
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 40px 20px;
   height: 90vh;
 }
 
@@ -143,7 +137,6 @@
 }
 
 /* ── Inline form errors ─────────────────────── */
-/* ── Inline form errors ─────────────────────── */
 .form-error {
   color: #b4234b;
   font-size: 0.78rem;
@@ -203,9 +196,7 @@
 
   .container-form form,
   .sign-in,
-  .sign-up,
-  .container.toggle .sign-in,
-  .container.toggle .sign-up {
+  .sign-up {
     transform: none;
     opacity: 1;
     pointer-events: auto;

@@ -5,7 +5,7 @@
 
 import { getCurrentUser, isAuthenticated, logout } from '../utils/auth.js';
 
-export function getNavbar(isAuthPage = false) {
+export function getNavbar() {
   const user = getCurrentUser();
   const authenticated = isAuthenticated();
   const profileLabel = user?.first_name || user?.name || 'Perfil';
@@ -42,10 +42,10 @@ export function getNavbar(isAuthPage = false) {
                 </a>
 
                 <nav class="navbar-links">
+                  <a href="#why" class="nav-link">Por qué nosotros</a>
                   <a href="#how" class="nav-link">Cómo funciona</a>
                   <a href="#features" class="nav-link">Funciones</a>
                   <a href="#prices" class="nav-link">Planes</a>
-                  <a href="#why" class="nav-link">Por qué nosotros</a>
                   <a href="#cta" class="nav-link">Comenzar</a>
                 </nav>
 
@@ -76,23 +76,6 @@ export function getNavbar(isAuthPage = false) {
             </div>
         </header>
     `;
-}
-
-/**
- * Setup navbar navigation for authentication pages
- * Redirects back to homepage when clicking the logo
- */
-export function setupAuthNavbar() {
-  const logoLink = document.querySelector('.navbar-brand');
-  if (logoLink) {
-    logoLink.addEventListener('click', (e) => {
-      e.preventDefault();
-      // Import HomePage to avoid circular dependency
-      import('../pages/home.js').then(({ HomePage }) => {
-        HomePage();
-      });
-    });
-  }
 }
 
 /**

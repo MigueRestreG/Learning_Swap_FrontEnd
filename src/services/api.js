@@ -84,50 +84,12 @@ export async function saveOnboardingSkills(
 // PROFILE
 // ================================================
 
-/** Get the current authenticated user's profile */
-export async function getUserProfile() {
-  const response = await fetch(`${API_URL}/profile`, {
-    method: 'GET',
-    headers: buildHeaders(true),
-  });
-  return handleResponse(response);
-}
-
 /** Get profile data by user id from database */
 export async function getUserById(userId) {
   const response = await fetch(`${API_URL}/users/${userId}`, {
     method: 'GET',
     headers: buildHeaders(true),
   });
-  return handleResponse(response);
-}
-
-/** Update the current authenticated user's profile */
-export async function updateUserProfile(profileData) {
-  const response = await fetch(`${API_URL}/profile`, {
-    method: 'PUT',
-    headers: buildHeaders(true),
-    body: JSON.stringify(profileData),
-  });
-  return handleResponse(response);
-}
-
-/** Update profile by user id with strict JSON payload */
-export async function updateUserById(userId, profileData = {}) {
-  const body = {
-    first_name: profileData.first_name ?? '',
-    last_name: profileData.last_name ?? '',
-    bio: profileData.bio ?? '',
-    avatar_url: profileData.avatar_url ?? '',
-    phone: profileData.phone ?? '',
-  };
-
-  const response = await fetch(`${API_URL}/users/${userId}`, {
-    method: 'PUT',
-    headers: buildHeaders(),
-    body: JSON.stringify(body),
-  });
-
   return handleResponse(response);
 }
 

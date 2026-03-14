@@ -52,7 +52,7 @@ export function LoginPage(mode = 'login') {
   window.scrollTo({ top: 0, behavior: 'auto' });
 
   const template = `
-    ${getNavbar(true)}
+    ${getNavbar()}
     <div class="auth-wrapper">
         <div class="container">
             <!-- Login Form -->

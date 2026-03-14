@@ -38,7 +38,7 @@ export function HomePage(initialSectionId = null) {
     <section class="home">
 
       <!-- NAVBAR -->
-      ${getNavbar(false)}
+      ${getNavbar()}
 
       <!-- ESCENA 1: HERO -->
       <section class="hero" id="hero">

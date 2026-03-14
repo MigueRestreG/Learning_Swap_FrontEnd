@@ -14,8 +14,7 @@ const PENDING_ONBOARDING_KEY = 'pendingOnboarding';
 export function isAuthenticated() {
   if (isOnboardingPending()) return false;
   const token = localStorage.getItem(TOKEN_KEY);
-  const user = getCurrentUser();
-  return !!token || !!user;
+  return !!token;
 }
 
 /**

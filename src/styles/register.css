@@ -375,31 +375,7 @@
   max-width: 85%;
 }
 
-.button-signup {
-  width: clamp(130px, 40%, 170px);
-  height: clamp(36px, 8vw, 45px);
-  font-size: clamp(0.85rem, 1.5vw, 1rem);
-  border: none;
-  border-radius: 22px;
-  cursor: pointer;
-  margin-top: clamp(0.8rem, 1.5vw, 1.2rem);
-  background: linear-gradient(135deg, #38bdf8, var(--primary-b));
-  color: #0f2f4f;
-  font-weight: 600;
-  transition: all 0.3s ease;
-  min-height: 44px;
-  white-space: nowrap;
-}
-
-.button-signup:hover {
-  opacity: 0.9;
-  box-shadow: 0 10px 22px rgba(56, 189, 248, 0.32);
-}
-
-.button-signup:active {
-  transform: scale(0.95);
-}
-
+.button-signup,
 .button-star {
   width: clamp(130px, 40%, 170px);
   height: clamp(36px, 8vw, 45px);
@@ -408,20 +384,37 @@
   border-radius: 22px;
   cursor: pointer;
   margin-top: clamp(0.8rem, 1.5vw, 1.2rem);
-  background: linear-gradient(135deg, #a78bfa, #f472b6);
-  color: white;
   font-weight: 600;
-  box-shadow: 0 10px 22px rgba(167, 139, 250, 0.32);
   transition: all 0.3s ease;
   min-height: 44px;
   white-space: nowrap;
 }
 
+.button-signup {
+  background: linear-gradient(135deg, #38bdf8, var(--primary-b));
+  color: #0f2f4f;
+}
+
+.button-star {
+  background: linear-gradient(135deg, #a78bfa, #f472b6);
+  color: white;
+  box-shadow: 0 10px 22px rgba(167, 139, 250, 0.32);
+}
+
+.button-signup:hover,
 .button-star:hover {
   opacity: 0.9;
+}
+
+.button-signup:hover {
+  box-shadow: 0 10px 22px rgba(56, 189, 248, 0.32);
+}
+
+.button-star:hover {
   box-shadow: 0 14px 28px rgba(167, 139, 250, 0.42);
 }
 
+.button-signup:active,
 .button-star:active {
   transform: scale(0.95);
 }
@@ -450,33 +443,6 @@
     width: 100%;
     max-width: 150px;
   }
-
-  .register-fields-grid,
-  .register-skills-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .register-fields-grid .container-input:nth-child(3),
-  .register-fields-grid .container-input:nth-child(5) {
-    grid-column: auto;
-  }
-
-  .register-step-header,
-  .skill-group,
-  .register-step-note {
-    width: 100%;
-  }
-
-  .skill-input-row {
-    flex-direction: column;
-  }
-}
-
-/* Small devices/tablets (480px - 768px) */
-@media (min-width: 480px) and (max-width: 768px) {
-  .register-skills-grid {
-    grid-template-columns: 1fr;
-  }
 }
 
 @media (max-width: 900px) {
@@ -501,12 +467,6 @@
   .register-fields-grid {
     grid-template-columns: 1fr;
     gap: 0.55rem;
-  }
-
-  .register-fields-grid .container-input:nth-child(3),
-  .register-fields-grid .container-input:nth-child(4),
-  .register-fields-grid .container-input:nth-child(5) {
-    grid-column: auto;
   }
 
   .register-fields-grid .container-input {
@@ -544,12 +504,5 @@
 @media (min-width: 768px) and (max-width: 1024px) {
   .register-skills-grid {
     grid-template-columns: 1fr;
-  }
-}
-
-/* Desktop (1024px+) */
-@media (min-width: 1024px) {
-  .container-welcome {
-    width: 50%;
   }
 }
