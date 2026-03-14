@@ -50,11 +50,17 @@ async function initializeApp() {
 
   if (path === '#swaps' && isAuthenticated()) {
     const { SwapsPage } = await import('./pages/swaps.js');
-    SwapsPage();
+    SwapsPage('matches');
     return;
   }
 
-  if (path === '#profile' || path === '#swaps') {
+  if (path === '#chats' && isAuthenticated()) {
+    const { ChatsPage } = await import('./pages/chats.js');
+    ChatsPage();
+    return;
+  }
+
+  if (path === '#profile' || path === '#swaps' || path === '#chats') {
     window.history.replaceState(null, '', '#home');
     HomePage();
     return;
