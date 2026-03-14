@@ -1,4 +1,4 @@
-const API_URL = 'https://learning-swap-backend.onrender.com';
+const API_URL = import.meta.env.VITE_API_URL;
 
 /** -----------------------------------------------
  * Internal: parse response and throw on error
