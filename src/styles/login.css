@@ -1,12 +1,13 @@
 /* Login Page Styles */
 .auth-wrapper {
-  height: 90vh;
+  min-height: calc(100vh - 96px);
+  height: auto;
 }
 
 .container {
   width: 100%;
   max-width: 840px; /* slightly wider */
-  height: 500px;
+  height: 520px;
   display: flex;
   position: relative;
   background-color: white;
@@ -17,7 +18,7 @@
 }
 
 .container.toggle {
-  height: 530px;
+  height: 640px;
 }
 
 .container-form {
@@ -43,8 +44,26 @@
 
 #form-sign-up {
   justify-content: flex-start;
-  padding: 12px 0 14px;
+  padding: 12px 4px 22px 0;
   gap: 4px;
+  max-height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: thin;
+  scrollbar-gutter: stable;
+}
+
+#form-sign-up::-webkit-scrollbar {
+  width: 8px;
+}
+
+#form-sign-up::-webkit-scrollbar-thumb {
+  background: rgba(99, 102, 241, 0.35);
+  border-radius: 999px;
+}
+
+#form-sign-up::-webkit-scrollbar-track {
+  background: rgba(226, 232, 240, 0.5);
 }
 
 .container-form h2 {

@@ -846,6 +846,14 @@ body.swaps-page #app {
   font-weight: 600;
 }
 
+.swaps-dashboard .chat-panel-actions {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
 .swaps-dashboard .chat-close-btn {
   border: 1px solid #dbe5f5;
   background: #fff;
@@ -859,6 +867,21 @@ body.swaps-page #app {
 
 .swaps-dashboard .chat-close-btn:hover {
   background: #eff6ff;
+}
+
+.swaps-dashboard .chat-finish-btn {
+  border: 1px solid #fecdd3;
+  background: #fff1f2;
+  color: #be123c;
+  border-radius: 10px;
+  padding: 0.42rem 0.68rem;
+  font-size: 0.74rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.swaps-dashboard .chat-finish-btn:hover {
+  background: #ffe4e6;
 }
 
 .swaps-dashboard .chat-messages {
@@ -1342,6 +1365,16 @@ body.swaps-page #app {
 
   .swaps-dashboard .chat-panel {
     min-height: 380px;
+  }
+
+  .swaps-dashboard .chat-panel-actions {
+    width: 100%;
+    justify-content: stretch;
+  }
+
+  .swaps-dashboard .chat-panel-actions .chat-close-btn,
+  .swaps-dashboard .chat-panel-actions .chat-finish-btn {
+    flex: 1 1 140px;
   }
 
   .swaps-dashboard .feed-card-footer {

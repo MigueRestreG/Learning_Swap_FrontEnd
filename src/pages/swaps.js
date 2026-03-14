@@ -336,7 +336,7 @@ export async function SwapsPage(view = 'matches') {
                     }
                   </p>
                 </div>
-                <button type="button" ${isChatsView ? '' : 'data-nav-chats'}>
+                <button type="button" ${isChatsView ? 'data-nav-prices' : 'data-nav-chats'}>
                   ${isChatsView ? 'Planes' : 'Ir a chats'}
                 </button>
               </div>
@@ -371,9 +371,14 @@ export async function SwapsPage(view = 'matches') {
                             <h3 id="chat-header">Chat</h3>
                             <p id="chat-room-helper">Selecciona una conversación para empezar.</p>
                           </div>
-                          <button id="chat-close-btn" type="button" class="chat-close-btn">
-                            Cerrar
-                          </button>
+                          <div class="chat-panel-actions">
+                            <button id="chat-close-btn" type="button" class="chat-close-btn">
+                              Cerrar
+                            </button>
+                            <button id="chat-finish-btn" type="button" class="chat-finish-btn">
+                              Cerrar swap
+                            </button>
+                          </div>
                         </header>
 
                         <div id="chat-messages" class="chat-messages" aria-live="polite"></div>
@@ -638,6 +643,7 @@ function setupSwapsInteractions(currentUserId, options = {}) {
   registerNavigation('[data-nav-profile]', '#profile');
   registerNavigation('[data-nav-matches]', '#swaps');
   registerNavigation('[data-nav-chats]', '#chats');
+  registerNavigation('[data-nav-prices]', '#prices');
 
   if (!options.isChatsView) {
     cleanups.push(setupSwapsCarousels());
@@ -732,6 +738,7 @@ function setupMatchesChat(state, options = {}) {
   const chatForm = document.getElementById('chat-form');
   const chatInput = document.getElementById('chat-input');
   const closeChatButton = document.getElementById('chat-close-btn');
+  const finishSwapButton = document.getElementById('chat-finish-btn');
   const notificationsButton = document.querySelector(
     '[data-notifications-toggle]'
   );
@@ -758,7 +765,8 @@ function setupMatchesChat(state, options = {}) {
     Boolean(chatMessages) &&
     Boolean(chatForm) &&
     Boolean(chatInput) &&
-    Boolean(closeChatButton);
+    Boolean(closeChatButton) &&
+    Boolean(finishSwapButton);
   const hasNotificationUI =
     Boolean(notificationsButton) &&
     Boolean(notificationsPanel) &&
@@ -771,6 +779,11 @@ function setupMatchesChat(state, options = {}) {
     return () => {};
   }
 
+  const closedSwapsStorageKey = state.userId
+    ? `learning-swap:closed-swaps:${state.userId}`
+    : 'learning-swap:closed-swaps:guest';
+  const closedRoomIds = readClosedSwapRooms(closedSwapsStorageKey);
+
   const cleanups = [];
   let disposed = false;
   let latestMatchesRequest = 0;
@@ -782,6 +795,21 @@ function setupMatchesChat(state, options = {}) {
   let swipeInProgress = false;
   let notificationsOpen = false;
   const avatarCache = new Map();
+
+  const persistClosedSwaps = () => {
+    persistClosedSwapRooms(closedSwapsStorageKey, closedRoomIds);
+  };
+
+  const isClosedSwapRoom = (roomId) => {
+    if (!roomId) return false;
+    return closedRoomIds.has(String(roomId));
+  };
+
+  const closeSwapRoom = (roomId) => {
+    if (!roomId) return;
+    closedRoomIds.add(String(roomId));
+    persistClosedSwaps();
+  };
 
   const setMatchesStatus = (text, tone = 'muted') => {
     if (!hasChatPanel) return;
@@ -1122,13 +1150,13 @@ function setupMatchesChat(state, options = {}) {
   const openChat = async (match) => {
     if (!hasChatPanel) return;
 
-    const roomId = match?.room_id;
+    const roomId = getMatchRoomId(match);
     if (!roomId) {
       chatRoomHelper.textContent = 'Este match todavía no tiene sala disponible.';
       return;
     }
 
-    state.activeRoomId = String(roomId);
+    state.activeRoomId = roomId;
     latestHistoryRequest += 1;
     const historyRequestId = latestHistoryRequest;
 
@@ -1237,14 +1265,26 @@ function setupMatchesChat(state, options = {}) {
       const payload = await getMatches(state.userId);
       if (disposed || requestId !== latestMatchesRequest) return;
 
-      const matches = normalizeMatchesPayload(payload);
+      const allMatches = normalizeMatchesPayload(payload);
+      const matches = allMatches.filter((match) => {
+        const roomId = getMatchRoomId(match);
+        return !isClosedSwapRoom(roomId);
+      });
+
       if (matches.length === 0) {
-        setMatchesStatus('Aún no tienes matches disponibles.', 'muted');
+        const noActiveSwaps = allMatches.length > 0;
+        setMatchesStatus(
+          noActiveSwaps
+            ? 'No tienes swaps activos. Los swaps cerrados no se muestran aquí.'
+            : 'Aún no tienes matches disponibles.',
+          'muted'
+        );
 
         const emptyMatches = document.createElement('p');
         emptyMatches.className = 'matches-empty-state';
-        emptyMatches.textContent =
-          'Cuando haya coincidencias nuevas, aparecerán aquí para iniciar chat.';
+        emptyMatches.textContent = noActiveSwaps
+          ? 'Cuando recibas nuevas coincidencias, aparecerán aquí para iniciar chat.'
+          : 'Cuando haya coincidencias nuevas, aparecerán aquí para iniciar chat.';
         matchesList.appendChild(emptyMatches);
         return;
       }
@@ -1255,7 +1295,7 @@ function setupMatchesChat(state, options = {}) {
       );
 
       matches.forEach((match) => {
-        const roomId = match?.room_id;
+        const roomId = getMatchRoomId(match);
         const fullName = [match?.first_name, match?.last_name]
           .filter(Boolean)
           .join(' ')
@@ -1263,8 +1303,8 @@ function setupMatchesChat(state, options = {}) {
 
         const wrapper = document.createElement('article');
         wrapper.className = 'match-item';
-        if (roomId !== undefined && roomId !== null) {
-          wrapper.setAttribute('data-room-id', String(roomId));
+        if (roomId) {
+          wrapper.setAttribute('data-room-id', roomId);
         }
 
         const avatar = document.createElement('img');
@@ -1320,8 +1360,7 @@ function setupMatchesChat(state, options = {}) {
 
       if (options.autoOpenFirstMatch && !autoOpenDone && !state.activeRoomId) {
         const firstRoomMatch = matches.find((match) => {
-          const roomId = match?.room_id;
-          return roomId !== undefined && roomId !== null && roomId !== '';
+          return Boolean(getMatchRoomId(match));
         });
 
         if (firstRoomMatch) {
@@ -1481,6 +1520,27 @@ function setupMatchesChat(state, options = {}) {
     clearChat();
   };
 
+  const onFinishSwap = async () => {
+    if (!hasChatPanel) return;
+
+    if (!state.activeRoomId) {
+      chatRoomHelper.textContent = 'Abre una conversación para cerrar el swap.';
+      return;
+    }
+
+    const activeRoomId = String(state.activeRoomId);
+    const shouldCloseSwap = window.confirm(
+      '¿Deseas cerrar este swap y darlo por terminado? Esta conversación dejará de mostrarse en tu lista activa.'
+    );
+
+    if (!shouldCloseSwap) return;
+
+    closeSwapRoom(activeRoomId);
+    clearChat();
+    setMatchesStatus(`Swap #${activeRoomId} cerrado correctamente.`, 'success');
+    await loadMatches();
+  };
+
   const onNotificationsToggle = () => {
     const nextState = !notificationsOpen;
     setNotificationsOpen(nextState);
@@ -1513,6 +1573,7 @@ function setupMatchesChat(state, options = {}) {
     refreshMatchesButton.addEventListener('click', onRefreshMatches);
     chatForm.addEventListener('submit', onChatSubmit);
     closeChatButton.addEventListener('click', onCloseChat);
+    finishSwapButton.addEventListener('click', onFinishSwap);
   }
 
   if (hasNotificationUI) {
@@ -1534,6 +1595,7 @@ function setupMatchesChat(state, options = {}) {
       refreshMatchesButton.removeEventListener('click', onRefreshMatches);
       chatForm.removeEventListener('submit', onChatSubmit);
       closeChatButton.removeEventListener('click', onCloseChat);
+      finishSwapButton.removeEventListener('click', onFinishSwap);
     }
 
     if (hasNotificationUI) {
@@ -1667,6 +1729,42 @@ function getEntityUserId(entity = {}) {
   }
 
   return String(candidateId);
+}
+
+function getMatchRoomId(match = {}) {
+  const roomId = match?.room_id ?? match?.roomId ?? match?.chat_room_id ?? null;
+
+  if (roomId === null || roomId === undefined || String(roomId).trim() === '') {
+    return null;
+  }
+
+  return String(roomId);
+}
+
+function readClosedSwapRooms(storageKey) {
+  try {
+    const raw = localStorage.getItem(storageKey);
+    if (!raw) return new Set();
+
+    const parsed = JSON.parse(raw);
+    if (!Array.isArray(parsed)) return new Set();
+
+    return new Set(
+      parsed
+        .map((roomId) => String(roomId || '').trim())
+        .filter(Boolean)
+    );
+  } catch {
+    return new Set();
+  }
+}
+
+function persistClosedSwapRooms(storageKey, closedRoomIdsSet) {
+  try {
+    localStorage.setItem(storageKey, JSON.stringify(Array.from(closedRoomIdsSet)));
+  } catch {
+    // Ignore storage errors (private mode, quota, etc.).
+  }
 }
 
 function normalizeMatchesPayload(payload) {

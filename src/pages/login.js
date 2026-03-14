@@ -17,6 +17,7 @@ import {
 import {
   getCurrentUser,
   getCurrentUserId,
+  getToken,
   saveCurrentUserId,
   setOnboardingPending,
   saveUserData,
@@ -27,6 +28,8 @@ const createRegisterState = () => ({
   userId: null,
   learnSkills: [],
   teachSkills: [],
+  email: '',
+  password: '',
 });
 
 let registerState = createRegisterState();
@@ -378,6 +381,10 @@ async function handleRegister() {
       phone
     );
     saveUserData(data);
+    registerState.email = email;
+    registerState.password = password;
+
+    await ensureSessionAfterRegister(email, password);
 
     const userId = getUserIdFromResponse(data);
 
@@ -421,6 +428,8 @@ async function handleRegister() {
 async function handleSkillsSubmit() {
   const errorEl = document.getElementById('register-error');
   const btn = document.getElementById('register-submit');
+  const registerEmail = registerState.email || getRegisterEmail();
+  const registerPassword = registerState.password || getRegisterPassword();
 
   if (!registerState.userId) {
     registerState.userId = getCurrentUserId() || registerState.userId;
@@ -444,6 +453,17 @@ async function handleSkillsSubmit() {
       registerState.learnSkills,
       registerState.teachSkills
     );
+
+    const hasSession = await ensureSessionAfterRegister(
+      registerEmail,
+      registerPassword
+    );
+
+    if (!hasSession) {
+      throw new Error(
+        'Tu cuenta fue creada, pero no se pudo iniciar sesión automáticamente. Inicia sesión para continuar.'
+      );
+    }
 
     setOnboardingPending(false);
 
@@ -633,6 +653,28 @@ function getUserIdFromResponse(data) {
   );
 
   return found ?? null;
+}
+
+async function ensureSessionAfterRegister(email, password) {
+  if (getToken()) return true;
+
+  if (!email || !password) return false;
+
+  try {
+    const loginData = await loginUser(email, password);
+    saveUserData(loginData);
+    return Boolean(getToken());
+  } catch {
+    return false;
+  }
+}
+
+function getRegisterEmail() {
+  return document.getElementById('register-email')?.value.trim() || '';
+}
+
+function getRegisterPassword() {
+  return document.getElementById('register-password')?.value || '';
 }
 
 function normalizeSkill(value) {
