@@ -139,181 +139,105 @@ export function HomePage(initialSectionId = null) {
       </section>
 
       
-      <!-- PRICING/ MEMbERSHIPS SECTION -->
-      <section class="prices" id="prices">
-      <!--<h2 class="prices-title">Learning Swap Membresias</h2>-->
-    <!--CARDS CONTAINERr-->
-        <div class="prices-grid">
-        
-        <article class="card-content-free">
-            <div class="card-logo">
-              <img src="/assets/logos/free.png" alt="logo de plan">
-            </div>
+     <!-- PRICING / MEMBERSHIPS SECTION -->
+<section class="prices" id="prices">
+  <div class="prices-cards-grid prices-cards-grid--4">
 
-              <!--free suscription-->
-            <div class="card-price-box">
-                <h3 class="card-tittle-free">Gratis</h3>
-                <p class="card-price">$0</p>
-                <p class="card-price-description">Plan gratuito</p>
-            </div>
-            <div class="card-bennefits-box">
-                <ul class="card-list">
-                   
-                     <li>
-                        <ion-icon name="checkmark-circle-outline"></ion-icon>
-                        <p>1 intercambio por mes.</p>
-                    </li>
-                     <li>
-                        <ion-icon name="checkmark-circle-outline"></ion-icon>
-                        <p>Apoyo de IA limitado.</p>
-                    </li>
-                     <li>
-                        <ion-icon name="checkmark-circle-outline"></ion-icon>
-                        <p>Quiz semipersonalizado.</p>
-                    </li>
-                     
-                </ul>
-                <button class="card-button-free">Escoger Plan</button>
-                
-            </div>
-        </article>
+    <!-- Free plan -->
+    <article class="prices-card">
+      <div class="prices-card-top">
+        <div class="prices-card-icon prices-card-icon--free">
+          <ion-icon name="leaf-outline"></ion-icon>
+        </div>
+        <h3 class="prices-card-name">Gratis</h3>
+        <p class="prices-card-desc">Empieza a conectar sin costo.</p>
+      </div>
+      <div class="prices-card-price-wrap">
+        <span class="prices-amount">$0</span>
+        <span class="prices-period">/ mes</span>
+      </div>
+      <ul class="prices-features">
+        <li><ion-icon name="checkmark-circle-outline"></ion-icon> 2 intercambio por mes</li>
+        <li><ion-icon name="checkmark-circle-outline"></ion-icon> Apoyo de IA limitado</li>
+        <li><ion-icon name="checkmark-circle-outline"></ion-icon> Quiz semipersonalizado</li>
+        <li class="prices-feature--off"><ion-icon name="close-circle-outline"></ion-icon> Salas exclusivas</li>
+        <li class="prices-feature--off"><ion-icon name="close-circle-outline"></ion-icon> Soporte prioritario</li>
+      </ul>
+      <button class="prices-cta-btn prices-cta-btn--ghost" type="button">Registrate para iniciar</button>
+    </article>
 
+    <!-- Emerald plan -->
+    <article class="prices-card">
+      <div class="prices-card-top">
+        <div class="prices-card-icon prices-card-icon--emerald">
+          <ion-icon name="flower-outline"></ion-icon>
+        </div>
+        <h3 class="prices-card-name">Emerald</h3>
+        <p class="prices-card-desc">Da el primer paso hacia más conexiones.</p>
+      </div>
+      <div class="prices-card-price-wrap">
+        <span class="prices-amount">$12.000</span>
+        <span class="prices-period">/ mes</span>
+      </div>
+      <ul class="prices-features">
+        <li><ion-icon name="checkmark-circle-outline"></ion-icon> 3 intercambios por mes</li>
+        <li><ion-icon name="checkmark-circle-outline"></ion-icon> Ayuda de IA ilimitada</li>
+        <li><ion-icon name="checkmark-circle-outline"></ion-icon> Quiz personalizado</li>
+        <li><ion-icon name="checkmark-circle-outline"></ion-icon> Historial de aprendizaje</li>
+        <li class="prices-feature--off"><ion-icon name="close-circle-outline"></ion-icon> Soporte prioritario</li>
+      </ul>
+      <button class="prices-cta-btn prices-cta-btn--emerald home-plan-btn" type="button" data-plan="Emerald">Registrate para iniciar</button>
+    </article>
 
-        <!--emerald suscription-->
-        <article class="card-content-emerald">
-            <div class="card-logo">
-                <img src="/assets/logos/emerald.png" alt="">
-            </div>
-            <div class="card-price-box">
-                <h3 class="card-tittle-emerald">Emerald</h3>
-                <p class="card-price">$12.000<sup>/ mes</sup></p>
-                <p class="card-price-description">Plan básico</p>
-            </div>
-            <div class="card-bennefits-box">
-                <ul class="card-list">
-                   
-                     <li>
-                        <ion-icon name="checkmark-circle-outline"></ion-icon>
-                        <p>3 intercambios por mes.</p>
-                    </li>
-                     <li>
-                        <ion-icon name="checkmark-circle-outline"></ion-icon>
-                        <p>Ayuda de IA ilimitada.</p>
-                    </li>
-                     <li>
-                        <ion-icon name="checkmark-circle-outline"></ion-icon>
-                        <p>Quiz personalizado.</p>
-                    </li>
-                     <li>
-                        <ion-icon name="checkmark-circle-outline"></ion-icon>
-                        <p>Historial de aprendizaje. </p>
-                    </li>
-                </ul>
-                <button class="card-button-emerald">Escoger plan</button>
-                
-            </div>
-        </article>
+    <!-- Ruby plan (featured) -->
+    <article class="prices-card prices-card--featured">
+      <div class="prices-card-badge">Más popular</div>
+      <div class="prices-card-top">
+        <div class="prices-card-icon prices-card-icon--ruby">
+          <ion-icon name="rose-outline"></ion-icon>
+        </div>
+        <h3 class="prices-card-name">Ruby</h3>
+        <p class="prices-card-desc">Para quienes quieren crecer más rápido.</p>
+      </div>
+      <div class="prices-card-price-wrap">
+        <span class="prices-amount">$25.000</span>
+        <span class="prices-period">/ mes</span>
+      </div>
+      <ul class="prices-features">
+        <li><ion-icon name="checkmark-circle-outline"></ion-icon> 7 intercambios por mes</li>
+        <li><ion-icon name="checkmark-circle-outline"></ion-icon> Ayuda de IA ilimitada</li>
+        <li><ion-icon name="checkmark-circle-outline"></ion-icon> Recomendaciones inteligentes</li>
+        <li><ion-icon name="checkmark-circle-outline"></ion-icon> Grupos privados de aprendizaje</li>
+        <li><ion-icon name="checkmark-circle-outline"></ion-icon> Insignia de reputación</li>
+      </ul>
+      <button class="prices-cta-btn prices-cta-btn--primary home-plan-btn" type="button" data-plan="Ruby">Registrate para iniciar</button>
+    </article>
 
-                <!--ruby suscription-->
-        <article class="card-content-ruby">
-            <div class="card-logo">
-                <img src="/assets/logos/ruby.png" alt="logo">
-            </div>
-            <div class="card-price-box">
-                <h3 class="card-tittle-ruby">Ruby</h3>
-                <p class="card-price">$25.000<sup>/ mes</sup></p>
-                <p class="card-price-description">Plan mejorado</p>
-            </div>
-            <div class="card-bennefits-box">
-                <ul class="card-list">
-                 
-                     <li>
-                        <ion-icon name="checkmark-circle-outline"></ion-icon>
-                        <p>7 intercambios por mes</p>
-                    </li>
-                     <li>
-                        <ion-icon name="checkmark-circle-outline"></ion-icon>
-                        <p>Ayuda de IA ilimitada</p>
-                    </li>
-                     <li>
-                        <ion-icon name="checkmark-circle-outline"></ion-icon>
-                        <p>Quiz personalizado</p>
-                    </li>
-                     <li>
-                        <ion-icon name="checkmark-circle-outline"></ion-icon>
-                        <p>Recomendaciones inteligentes y personalizadas.</p>
-                    </li>
-                    <li>
-                        <ion-icon name="checkmark-circle-outline"></ion-icon>
-                        <p>Acceso a grupos privados de aprendizaje.</p>
-                    </li>
-                    <li>
-                        <ion-icon name="checkmark-circle-outline"></ion-icon>
-                        <p>Insignia de reputación.</p>
-                    </li>
-                </ul>
-                <button class="card-button-ruby">Escoger Plan</button>
-                
-            </div>
-        </article>
+    <!-- Diamond plan (elite) -->
+    <article class="prices-card prices-card--elite">
+      <div class="prices-card-top">
+        <div class="prices-card-icon prices-card-icon--elite">
+          <ion-icon name="diamond-outline"></ion-icon>
+        </div>
+        <h3 class="prices-card-name">Diamond</h3>
+        <p class="prices-card-desc">La experiencia completa, sin límites.</p>
+      </div>
+      <div class="prices-card-price-wrap">
+        <span class="prices-amount">$35.000</span>
+        <span class="prices-period">/ mes</span>
+      </div>
+      <ul class="prices-features">
+        <li><ion-icon name="checkmark-circle-outline"></ion-icon> Matches ilimitadoss</li>
+        <li><ion-icon name="checkmark-circle-outline"></ion-icon> Ayuda de IA ilimitada</li>
+        <li><ion-icon name="checkmark-circle-outline"></ion-icon> Certificado digital</li>
+        <li><ion-icon name="checkmark-circle-outline"></ion-icon> soporte prioritario 24/7</li>
+        <li><ion-icon name="checkmark-circle-outline"></ion-icon> Monetización de contenido</li>
+      </ul>
+      <button class="prices-cta-btn prices-cta-btn--elite home-plan-btn" type="button" data-plan="Diamond">Registrate para iniciar</button>
+    </article>
 
-
-                        <!--diamod suscription-->
-        <article class="card-content-diamond">
-            <div class="card-logo">
-              <img src="/assets/logos/diamond.png" alt="logo de plan">
-            </div>
-            <div class="card-price-box">
-                <h3 class="card-tittle-diamond">Diamond</h3>
-                <p class="card-price">$35.000<sup>/ mes</sup></p>
-                <p class="card-price-description">Plan completo</p>
-            </div>
-            <div class="card-bennefits-box">
-                <ul class="card-list">
-                   
-                     <li>
-                        <ion-icon name="checkmark-circle-outline"></ion-icon>
-                        <p>12 intercambios por mes.</p>
-                    </li>
-                     <li>
-                        <ion-icon name="checkmark-circle-outline"></ion-icon>
-                        <p>Ayuda de IA ilimitada.</p>
-                    </li>
-                     <li>
-                        <ion-icon name="checkmark-circle-outline"></ion-icon>
-                        <p>Quiz personalizado.</p>
-                    </li>
-                     <li>
-                        <ion-icon name="checkmark-circle-outline"></ion-icon>
-                        <p>Recomendaciones inteligentes y personalizadas.</p>
-                    </li>
-                    <li>
-                        <ion-icon name="checkmark-circle-outline"></ion-icon>
-                        <p>Acceso a grupos privados de aprendizaje.</p>
-                    </li>
-                    <li>
-                        <ion-icon name="checkmark-circle-outline"></ion-icon>
-                        <p>Insignia de reputación.</p>
-                    </li>
-                    <li>
-                        <ion-icon name="checkmark-circle-outline"></ion-icon>
-                        <p>Certificado digital de aprendizaje.</p>
-                    </li>
-                    <li>
-                        <ion-icon name="checkmark-circle-outline"></ion-icon>
-                        <p>Recomendaciones inteligentes de intercambios.</p>
-                    </li>
-                    <li>
-                        <ion-icon name="checkmark-circle-outline"></ion-icon>
-                        <p>Posibilidad de monetizar su contenido a futuro.</p>
-                    </li>
-                </ul>
-                <button class="card-button-diamond">Escoger Plan</button>
-                
-            </div>
-        </article>
-              </div>
-    </section>
+  </div>
+</section>
 
       <!-- ESCENA 5 -->
       <section class="cta" id="cta">
@@ -542,5 +466,16 @@ export function HomePage(initialSectionId = null) {
     navLinks.forEach((link) => {
       link.removeEventListener('click', onNavLinkClick);
     });
-  };
+  // ── Plan buttons in home → redirect to checkout ──
+document.querySelectorAll('.home-plan-btn[data-plan]').forEach((btn) => {
+  btn.addEventListener('click', () => {
+    const plan = btn.getAttribute('data-plan');
+    const prices = { Emerald: '$12.000', Ruby: '$25.000', Diamond: '$35.000' };
+    sessionStorage.setItem('checkout-plan',  plan);
+    sessionStorage.setItem('checkout-price', prices[plan] || '');
+    sessionStorage.setItem('checkout-billing', 'monthly');
+    window.location.hash = '#checkout';
+  });
+});
+};
 }
