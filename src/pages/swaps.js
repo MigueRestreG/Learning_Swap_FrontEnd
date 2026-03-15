@@ -15,6 +15,12 @@ const CHAT_NOTIFICATION_STORE = {
   nextId: 1,
 };
 
+const WEBRTC_ICE_SERVERS = [{ urls: 'stun:stun.l.google.com:19302' }];
+const WEBRTC_MEDIA_CONSTRAINTS = {
+  video: true,
+  audio: true,
+};
+
 const FEED_CATEGORY_RULES = [
   {
     key: 'programacion',
@@ -369,6 +375,12 @@ export async function SwapsPage(view = 'matches') {
                             <p id="chat-room-helper">Selecciona una conversación para empezar.</p>
                           </div>
                           <div class="chat-panel-actions">
+                            <button id="chat-call-btn" type="button" class="chat-call-btn">
+                              Llamar
+                            </button>
+                            <button id="chat-hangup-btn" type="button" class="chat-hangup-btn" hidden>
+                              Colgar llamada
+                            </button>
                             <button id="chat-close-btn" type="button" class="chat-close-btn">
                               Cerrar
                             </button>
@@ -377,6 +389,21 @@ export async function SwapsPage(view = 'matches') {
                             </button>
                           </div>
                         </header>
+
+                        <section id="call-panel" class="call-panel" hidden aria-label="Panel de videollamada">
+                          <div class="call-videos-grid">
+                            <article class="call-video-card">
+                              <video id="remote-video" autoplay playsinline></video>
+                              <p>Participante</p>
+                            </article>
+
+                            <article class="call-video-card call-video-card--local">
+                              <video id="local-video" autoplay playsinline muted></video>
+                              <p>Tú</p>
+                            </article>
+                          </div>
+                          <p id="call-status" class="call-status is-muted">Listo para iniciar llamada.</p>
+                        </section>
 
                         <div id="chat-messages" class="chat-messages" aria-live="polite"></div>
 
@@ -852,6 +879,12 @@ function setupMatchesChat(state, options = {}) {
   const chatInput = document.getElementById('chat-input');
   const closeChatButton = document.getElementById('chat-close-btn');
   const finishSwapButton = document.getElementById('chat-finish-btn');
+  const callPanel = document.getElementById('call-panel');
+  const callStatus = document.getElementById('call-status');
+  const localVideo = document.getElementById('local-video');
+  const remoteVideo = document.getElementById('remote-video');
+  const callStartButton = document.getElementById('chat-call-btn');
+  const callHangupButton = document.getElementById('chat-hangup-btn');
   const notificationsButton = document.querySelector(
     '[data-notifications-toggle]'
   );
@@ -880,6 +913,14 @@ function setupMatchesChat(state, options = {}) {
     Boolean(chatInput) &&
     Boolean(closeChatButton) &&
     Boolean(finishSwapButton);
+  const hasCallUI =
+    hasChatPanel &&
+    Boolean(callPanel) &&
+    Boolean(callStatus) &&
+    Boolean(localVideo) &&
+    Boolean(remoteVideo) &&
+    Boolean(callStartButton) &&
+    Boolean(callHangupButton);
   const hasNotificationUI =
     Boolean(notificationsButton) &&
     Boolean(notificationsPanel) &&
@@ -909,6 +950,16 @@ function setupMatchesChat(state, options = {}) {
   let swipeInProgress = false;
   let notificationsOpen = false;
   const avatarCache = new Map();
+  const callState = {
+    roomId: null,
+    active: false,
+    signalSocket: null,
+    signalClosing: false,
+    peerConnection: null,
+    localStream: null,
+    pendingCandidates: [],
+    remoteDescriptionReady: false,
+  };
 
   const persistClosedSwaps = () => {
     persistClosedSwapRooms(closedSwapsStorageKey, closedRoomIds);
@@ -949,6 +1000,502 @@ function setupMatchesChat(state, options = {}) {
       button.disabled = disabled || !hasTarget;
     });
   };
+
+  const setCallPanelVisible = (show) => {
+    if (!hasCallUI) return;
+    callPanel.hidden = !show;
+  };
+
+  const setCallStatus = (text, tone = 'muted') => {
+    if (!hasCallUI) return;
+
+    callStatus.textContent = text;
+    callStatus.classList.remove('is-muted', 'is-success', 'is-error');
+    callStatus.classList.add(`is-${tone}`);
+  };
+
+  const setCallButtons = () => {
+    if (!hasCallUI) return;
+
+    const hasActiveRoom = Boolean(state.activeRoomId);
+    callStartButton.disabled = !hasActiveRoom || callState.active;
+    callHangupButton.hidden = !callState.active;
+    callHangupButton.disabled = !callState.active;
+  };
+
+  const clearVideoElements = () => {
+    if (!hasCallUI) return;
+    localVideo.srcObject = null;
+    remoteVideo.srcObject = null;
+  };
+
+  const stopLocalStream = () => {
+    if (!callState.localStream) return;
+
+    callState.localStream.getTracks().forEach((track) => {
+      try {
+        track.stop();
+      } catch {
+        // Ignore track stop errors on cleanup.
+      }
+    });
+
+    callState.localStream = null;
+  };
+
+  const closePeerConnection = () => {
+    if (!callState.peerConnection) return;
+
+    try {
+      callState.peerConnection.ontrack = null;
+      callState.peerConnection.onicecandidate = null;
+      callState.peerConnection.onconnectionstatechange = null;
+      callState.peerConnection.close();
+    } catch {
+      // Ignore close errors.
+    }
+
+    callState.peerConnection = null;
+    callState.pendingCandidates = [];
+    callState.remoteDescriptionReady = false;
+  };
+
+  const closeSignalSocket = () => {
+    if (!callState.signalSocket) return;
+
+    const activeSocket = callState.signalSocket;
+    callState.signalClosing = true;
+    callState.signalSocket = null;
+
+    try {
+      activeSocket.onmessage = null;
+      activeSocket.onopen = null;
+      activeSocket.onerror = null;
+      activeSocket.onclose = null;
+      activeSocket.close();
+    } catch {
+      // Ignore close errors.
+    }
+  };
+
+  const sendSignalMessage = (payload = {}) => {
+    const socket = callState.signalSocket;
+    if (!socket || socket.readyState !== WebSocket.OPEN) {
+      setCallStatus('La señalización no está conectada.', 'error');
+      return false;
+    }
+
+    try {
+      socket.send(JSON.stringify(payload));
+      return true;
+    } catch {
+      setCallStatus('No fue posible enviar señalización.', 'error');
+      return false;
+    }
+  };
+
+  const closeCallSession = ({
+    notifyHangUp = false,
+    closeSignal = false,
+    keepStatus = false,
+  } = {}) => {
+    if (notifyHangUp && callState.active) {
+      sendSignalMessage({ type: 'hang-up' });
+    }
+
+    callState.active = false;
+    closePeerConnection();
+    stopLocalStream();
+    clearVideoElements();
+
+    if (closeSignal) {
+      closeSignalSocket();
+      callState.roomId = null;
+    }
+
+    if (!keepStatus) {
+      setCallStatus('Llamada finalizada.', 'muted');
+    }
+
+    setCallButtons();
+  };
+
+  const attachLocalTracks = (peerConnection, stream) => {
+    if (!peerConnection || !stream) return;
+
+    const senderKinds = new Set(
+      peerConnection
+        .getSenders()
+        .map((sender) => sender.track?.kind)
+        .filter(Boolean)
+    );
+
+    stream.getTracks().forEach((track) => {
+      if (senderKinds.has(track.kind)) return;
+      peerConnection.addTrack(track, stream);
+    });
+  };
+
+  const createPeerConnection = () => {
+    if (callState.peerConnection) {
+      return callState.peerConnection;
+    }
+
+    const peerConnection = new RTCPeerConnection({
+      iceServers: WEBRTC_ICE_SERVERS,
+    });
+
+    callState.peerConnection = peerConnection;
+    callState.pendingCandidates = [];
+    callState.remoteDescriptionReady = false;
+
+    if (callState.localStream) {
+      attachLocalTracks(peerConnection, callState.localStream);
+    }
+
+    peerConnection.ontrack = (event) => {
+      if (!hasCallUI) return;
+
+      const [remoteStream] = event.streams || [];
+      if (remoteStream) {
+        remoteVideo.srcObject = remoteStream;
+      }
+
+      callState.active = true;
+      setCallPanelVisible(true);
+      setCallStatus('Llamada conectada.', 'success');
+      setCallButtons();
+    };
+
+    peerConnection.onicecandidate = (event) => {
+      if (!event.candidate) return;
+      sendSignalMessage({ type: 'candidate', candidate: event.candidate });
+    };
+
+    peerConnection.onconnectionstatechange = () => {
+      const currentState = peerConnection.connectionState;
+
+      if (currentState === 'connected') {
+        callState.active = true;
+        setCallStatus('Llamada conectada.', 'success');
+      }
+
+      if (currentState === 'failed' || currentState === 'disconnected') {
+        setCallStatus('La conexión de la llamada se interrumpió.', 'error');
+      }
+
+      if (currentState === 'closed') {
+        callState.active = false;
+      }
+
+      setCallButtons();
+    };
+
+    return peerConnection;
+  };
+
+  const flushPendingCandidates = async () => {
+    if (!callState.peerConnection || !callState.remoteDescriptionReady) return;
+
+    if (callState.pendingCandidates.length === 0) return;
+
+    const queuedCandidates = [...callState.pendingCandidates];
+    callState.pendingCandidates = [];
+
+    for (const candidate of queuedCandidates) {
+      try {
+        await callState.peerConnection.addIceCandidate(candidate);
+      } catch {
+        // Ignore invalid queued ICE candidates.
+      }
+    }
+  };
+
+  const ensureLocalStream = async () => {
+    if (callState.localStream) {
+      return callState.localStream;
+    }
+
+    if (!navigator?.mediaDevices?.getUserMedia) {
+      throw new Error('Tu navegador no soporta getUserMedia.');
+    }
+
+    const stream = await navigator.mediaDevices.getUserMedia(
+      WEBRTC_MEDIA_CONSTRAINTS
+    );
+
+    callState.localStream = stream;
+
+    if (hasCallUI) {
+      localVideo.srcObject = stream;
+      localVideo.muted = true;
+      localVideo.volume = 0;
+    }
+
+    if (callState.peerConnection) {
+      attachLocalTracks(callState.peerConnection, stream);
+    }
+
+    return stream;
+  };
+
+  const waitForSocketOpen = (socket, timeoutMs = 6000) => {
+    return new Promise((resolve, reject) => {
+      if (!socket) {
+        reject(new Error('No hay socket de señalización disponible.'));
+        return;
+      }
+
+      if (socket.readyState === WebSocket.OPEN) {
+        resolve(socket);
+        return;
+      }
+
+      if (socket.readyState !== WebSocket.CONNECTING) {
+        reject(new Error('No se pudo abrir el socket de señalización.'));
+        return;
+      }
+
+      const timeoutId = window.setTimeout(() => {
+        cleanup();
+        reject(new Error('La señalización tardó demasiado en conectar.'));
+      }, timeoutMs);
+
+      const onOpen = () => {
+        cleanup();
+        resolve(socket);
+      };
+
+      const onClose = () => {
+        cleanup();
+        reject(new Error('La señalización se cerró antes de conectar.'));
+      };
+
+      const onError = () => {
+        cleanup();
+        reject(new Error('La señalización reportó un error.'));
+      };
+
+      const cleanup = () => {
+        window.clearTimeout(timeoutId);
+        socket.removeEventListener('open', onOpen);
+        socket.removeEventListener('close', onClose);
+        socket.removeEventListener('error', onError);
+      };
+
+      socket.addEventListener('open', onOpen);
+      socket.addEventListener('close', onClose);
+      socket.addEventListener('error', onError);
+    });
+  };
+
+  const handleSignalMessage = async (data = {}) => {
+    if (!hasCallUI || !data || typeof data !== 'object') return;
+
+    const signalType = String(data.type || '').trim().toLowerCase();
+    if (!signalType) return;
+
+    try {
+      if (signalType === 'offer' && data.sdp) {
+        setCallPanelVisible(true);
+        setCallStatus('Recibiendo llamada...', 'muted');
+
+        await ensureLocalStream();
+        const peerConnection = createPeerConnection();
+
+        await peerConnection.setRemoteDescription(
+          new RTCSessionDescription(data.sdp)
+        );
+
+        callState.remoteDescriptionReady = true;
+        await flushPendingCandidates();
+
+        const answer = await peerConnection.createAnswer();
+        await peerConnection.setLocalDescription(answer);
+
+        sendSignalMessage({ type: 'answer', sdp: answer });
+        callState.active = true;
+        setCallStatus('Respuesta enviada. Conectando llamada...', 'muted');
+        setCallButtons();
+        return;
+      }
+
+      if (signalType === 'answer' && data.sdp) {
+        if (!callState.peerConnection) return;
+
+        await callState.peerConnection.setRemoteDescription(
+          new RTCSessionDescription(data.sdp)
+        );
+
+        callState.remoteDescriptionReady = true;
+        await flushPendingCandidates();
+        setCallStatus('Llamada aceptada. Estableciendo conexión...', 'muted');
+        return;
+      }
+
+      if (signalType === 'candidate' && data.candidate) {
+        const peerConnection = createPeerConnection();
+        const candidate = new RTCIceCandidate(data.candidate);
+
+        if (callState.remoteDescriptionReady && peerConnection.remoteDescription) {
+          await peerConnection.addIceCandidate(candidate);
+        } else {
+          callState.pendingCandidates.push(candidate);
+        }
+        return;
+      }
+
+      if (signalType === 'hang-up') {
+        closeCallSession({
+          notifyHangUp: false,
+          closeSignal: false,
+          keepStatus: true,
+        });
+        setCallStatus('La otra persona finalizó la llamada.', 'muted');
+      }
+    } catch (error) {
+      setCallStatus(
+        error?.message || 'No fue posible procesar la señal de llamada.',
+        'error'
+      );
+    }
+  };
+
+  const ensureSignalSocket = async (roomId) => {
+    if (!hasCallUI) return null;
+
+    const normalizedRoomId = String(roomId || '').trim();
+    if (!normalizedRoomId) return null;
+
+    if (callState.signalSocket && callState.roomId === normalizedRoomId) {
+      if (callState.signalSocket.readyState === WebSocket.OPEN) {
+        return callState.signalSocket;
+      }
+
+      if (callState.signalSocket.readyState === WebSocket.CONNECTING) {
+        await waitForSocketOpen(callState.signalSocket);
+        return callState.signalSocket;
+      }
+    }
+
+    closeCallSession({
+      notifyHangUp: false,
+      closeSignal: true,
+      keepStatus: true,
+    });
+
+    const wsUrl = buildSignalSocketUrl(normalizedRoomId);
+    const signalSocket = new WebSocket(wsUrl);
+
+    callState.signalSocket = signalSocket;
+    callState.signalClosing = false;
+    callState.roomId = normalizedRoomId;
+
+    signalSocket.onmessage = async (event) => {
+      if (disposed || callState.signalSocket !== signalSocket) return;
+
+      try {
+        const signalData = JSON.parse(event.data);
+        await handleSignalMessage(signalData);
+      } catch {
+        // Ignore malformed signaling payloads.
+      }
+    };
+
+    signalSocket.onerror = () => {
+      if (disposed || callState.signalSocket !== signalSocket) return;
+      setCallStatus('La señalización de llamada reportó un error.', 'error');
+    };
+
+    signalSocket.onclose = async (event) => {
+      if (callState.signalSocket === signalSocket) {
+        callState.signalSocket = null;
+      }
+
+      if (callState.signalClosing) {
+        callState.signalClosing = false;
+        setCallButtons();
+        return;
+      }
+
+      if (event?.code === 4001) {
+        setCallStatus('Token inválido para señalización.', 'error');
+        window.alert('Token inválido');
+        return;
+      }
+
+      if (event?.code === 4002) {
+        setCallStatus('No se puede abrir llamada: sala llena.', 'error');
+        window.alert('Sala llena');
+        return;
+      }
+
+      setCallStatus('Se perdió la señalización de la llamada.', 'error');
+      closeCallSession({
+        notifyHangUp: false,
+        closeSignal: false,
+        keepStatus: true,
+      });
+      setCallButtons();
+    };
+
+    setCallPanelVisible(true);
+    setCallStatus(`Conectando señalización de sala ${normalizedRoomId}...`, 'muted');
+    await waitForSocketOpen(signalSocket);
+    if (disposed || callState.signalSocket !== signalSocket) {
+      return null;
+    }
+
+    setCallStatus(`Señalización lista en sala ${normalizedRoomId}.`, 'muted');
+    setCallButtons();
+
+    return signalSocket;
+  };
+
+  const startCall = async () => {
+    if (!hasCallUI) return;
+
+    if (!state.activeRoomId) {
+      setCallStatus('Abre una sala antes de iniciar llamada.', 'error');
+      return;
+    }
+
+    try {
+      setCallPanelVisible(true);
+      await ensureSignalSocket(state.activeRoomId);
+      await ensureLocalStream();
+
+      const peerConnection = createPeerConnection();
+      const offer = await peerConnection.createOffer();
+      await peerConnection.setLocalDescription(offer);
+
+      sendSignalMessage({ type: 'offer', sdp: offer });
+      callState.active = true;
+      setCallStatus('Llamando... esperando respuesta.', 'muted');
+      setCallButtons();
+    } catch (error) {
+      setCallStatus(
+        error?.message || 'No se pudo iniciar la videollamada.',
+        'error'
+      );
+    }
+  };
+
+  const hangUpCall = () => {
+    if (!hasCallUI) return;
+
+    closeCallSession({
+      notifyHangUp: true,
+      closeSignal: false,
+      keepStatus: true,
+    });
+    setCallStatus('Llamada finalizada.', 'muted');
+  };
+
+  if (hasCallUI) {
+    setCallPanelVisible(false);
+    setCallButtons();
+  }
 
   const renderNotificationsBadge = () => {
     if (!hasNotificationUI) return;
@@ -1268,6 +1815,12 @@ function setupMatchesChat(state, options = {}) {
   const clearChat = () => {
     if (!hasChatPanel) return;
 
+    closeCallSession({
+      notifyHangUp: callState.active,
+      closeSignal: true,
+      keepStatus: true,
+    });
+
     state.activeRoomId = null;
     closeSocket();
     markActiveMatch(null);
@@ -1275,6 +1828,12 @@ function setupMatchesChat(state, options = {}) {
     chatMessages.innerHTML = '';
     chatHeader.textContent = 'Chat';
     chatRoomHelper.textContent = 'Selecciona una conversación para empezar.';
+
+    if (hasCallUI) {
+      setCallPanelVisible(false);
+      setCallStatus('Listo para iniciar llamada.', 'muted');
+      setCallButtons();
+    }
   };
 
   const openChat = async (match) => {
@@ -1286,6 +1845,14 @@ function setupMatchesChat(state, options = {}) {
       return;
     }
 
+    if (callState.roomId && callState.roomId !== String(roomId)) {
+      closeCallSession({
+        notifyHangUp: callState.active,
+        closeSignal: true,
+        keepStatus: true,
+      });
+    }
+
     state.activeRoomId = roomId;
     latestHistoryRequest += 1;
     const historyRequestId = latestHistoryRequest;
@@ -1294,6 +1861,20 @@ function setupMatchesChat(state, options = {}) {
     markActiveMatch(roomId);
     showChat(true);
     chatMessages.innerHTML = '';
+
+    if (hasCallUI) {
+      setCallPanelVisible(true);
+      setCallStatus('Preparando señalización de llamada...', 'muted');
+      setCallButtons();
+      try {
+        await ensureSignalSocket(roomId);
+      } catch (error) {
+        setCallStatus(
+          error?.message || 'No se pudo conectar la señalización de llamada.',
+          'error'
+        );
+      }
+    }
 
     const fullName = [match.first_name, match.last_name].filter(Boolean).join(' ');
     chatHeader.textContent = `Chat con ${fullName || 'tu match'}`;
@@ -1342,6 +1923,8 @@ function setupMatchesChat(state, options = {}) {
 
         try {
           const message = JSON.parse(event.data);
+          if (isSignalingMessageType(message?.type)) return;
+
           const aiMessage = isAiMessage(message);
           const senderId =
             message?.user_id !== undefined ? String(message.user_id) : null;
@@ -1375,6 +1958,11 @@ function setupMatchesChat(state, options = {}) {
 
         if (event?.code === 4001) {
           state.socket = null;
+          closeCallSession({
+            notifyHangUp: false,
+            closeSignal: true,
+            keepStatus: true,
+          });
           localStorage.removeItem('token');
           localStorage.removeItem('userData');
           localStorage.removeItem('currentUser');
@@ -1659,6 +2247,14 @@ function setupMatchesChat(state, options = {}) {
     clearChat();
   };
 
+  const onStartCall = async () => {
+    await startCall();
+  };
+
+  const onHangupCall = () => {
+    hangUpCall();
+  };
+
   const onFinishSwap = async () => {
     if (!hasChatPanel) return;
 
@@ -1713,6 +2309,11 @@ function setupMatchesChat(state, options = {}) {
     chatForm.addEventListener('submit', onChatSubmit);
     closeChatButton.addEventListener('click', onCloseChat);
     finishSwapButton.addEventListener('click', onFinishSwap);
+
+    if (hasCallUI) {
+      callStartButton.addEventListener('click', onStartCall);
+      callHangupButton.addEventListener('click', onHangupCall);
+    }
   }
 
   if (hasNotificationUI) {
@@ -1735,6 +2336,11 @@ function setupMatchesChat(state, options = {}) {
       chatForm.removeEventListener('submit', onChatSubmit);
       closeChatButton.removeEventListener('click', onCloseChat);
       finishSwapButton.removeEventListener('click', onFinishSwap);
+
+      if (hasCallUI) {
+        callStartButton.removeEventListener('click', onStartCall);
+        callHangupButton.removeEventListener('click', onHangupCall);
+      }
     }
 
     if (hasNotificationUI) {
@@ -1759,6 +2365,11 @@ function setupMatchesChat(state, options = {}) {
     cleanupRows();
     cleanupFeedActions();
     feedCarouselControlsCleanup();
+    closeCallSession({
+      notifyHangUp: callState.active,
+      closeSignal: true,
+      keepStatus: true,
+    });
     closeSocket();
     cleanups.forEach((cleanup) => cleanup());
   };
@@ -1936,6 +2547,18 @@ function isAiMessage(message = {}) {
   return false;
 }
 
+function isSignalingMessageType(type = '') {
+  const normalizedType = String(type || '').trim().toLowerCase();
+
+  return (
+    normalizedType === 'offer' ||
+    normalizedType === 'answer' ||
+    normalizedType === 'candidate' ||
+    normalizedType === 'hang-up' ||
+    normalizedType === 'hangup'
+  );
+}
+
 function normalizeFeedPayload(payload) {
   if (Array.isArray(payload)) return payload;
   if (Array.isArray(payload?.feed)) return payload.feed;
@@ -2036,6 +2659,51 @@ function buildChatSocketUrl(roomId) {
   }
 
   return `wss://learning-swap-backend.onrender.com/ws/chat/${roomId}${authQuery}`;
+}
+
+function buildSignalSocketUrl(roomId) {
+  const token = localStorage.getItem('token') || '';
+  const authQuery = `?token=${encodeURIComponent(token)}`;
+
+  const configuredSignalBase =
+    import.meta.env.VITE_WS_SIGNAL_URL || import.meta.env.VITE_WS_URL;
+
+  if (configuredSignalBase) {
+    const trimmedBase = String(configuredSignalBase).replace(/\/$/, '');
+
+    if (trimmedBase.includes('{roomId}') || trimmedBase.includes('{token}')) {
+      return trimmedBase
+        .replace('{roomId}', encodeURIComponent(String(roomId)))
+        .replace('{token}', encodeURIComponent(token));
+    }
+
+    if (trimmedBase.includes('/ws/chat/')) {
+      return `${trimmedBase.replace('/ws/chat/', '/ws/signal/')}${authQuery}`;
+    }
+
+    if (trimmedBase.endsWith('/ws/chat')) {
+      return `${trimmedBase.replace('/ws/chat', '/ws/signal')}/${roomId}${authQuery}`;
+    }
+
+    if (trimmedBase.includes('/ws/signal')) {
+      return `${trimmedBase}/${roomId}${authQuery}`;
+    }
+
+    return `${trimmedBase}/ws/signal/${roomId}${authQuery}`;
+  }
+
+  const apiUrl = import.meta.env.VITE_API_URL;
+  if (apiUrl) {
+    try {
+      const parsed = new URL(apiUrl);
+      const protocol = parsed.protocol === 'https:' ? 'wss:' : 'ws:';
+      return `${protocol}//${parsed.host}/ws/signal/${roomId}${authQuery}`;
+    } catch {
+      // Fall through to default websocket URL.
+    }
+  }
+
+  return `wss://learning-swap-backend.onrender.com/ws/signal/${roomId}${authQuery}`;
 }
 
 function formatNotificationTime(dateValue) {
