@@ -3,17 +3,31 @@
  * Returns the navbar HTML structure
  */
 
-import { getCurrentUser, isAuthenticated, logout } from '../utils/auth.js';
+import {
+  getCurrentUser,
+  getCurrentUserRole,
+  isAuthenticated,
+  logout,
+} from '../utils/auth.js';
 
 export function getNavbar() {
   const user = getCurrentUser();
   const authenticated = isAuthenticated();
   const profileLabel = user?.first_name || user?.name || 'Perfil';
+  const role = getCurrentUserRole();
+  const isAdmin = role === 'admin';
+  const adminDesktopAction = isAdmin
+    ? '<a class="btn secondary navbar-swap-link" href="#admin">Admin</a>'
+    : '';
+  const adminMobileAction = isAdmin
+    ? '<a class="btn secondary navbar-swap-link" href="#admin">Admin</a>'
+    : '';
 
   const desktopActions = authenticated
     ? `
       <a class="btn secondary navbar-swap-link" href="#swaps">Swaps</a>
       <a class="btn secondary navbar-swap-link" href="#chats">Chats</a>
+      ${adminDesktopAction}
       <button class="btn secondary" id="btnProfile">${profileLabel}</button>
       <button class="btn primary" id="btnLogoutNav">Cerrar sesión</button>
     `
@@ -26,6 +40,7 @@ export function getNavbar() {
     ? `
       <a class="btn secondary navbar-swap-link" href="#swaps">Swaps</a>
       <a class="btn secondary navbar-swap-link" href="#chats">Chats</a>
+      ${adminMobileAction}
       <button class="btn secondary" id="btnProfileMobile">${profileLabel}</button>
       <button class="btn primary" id="btnLogoutMobile">Cerrar sesión</button>
     `

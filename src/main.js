@@ -1,5 +1,5 @@
 import { HomePage } from './pages/home.js';
-import { isAuthenticated } from './utils/auth.js';
+import { getCurrentUserRole, isAuthenticated } from './utils/auth.js';
 
 const HOME_HASHES = new Set([
   '',
@@ -60,24 +60,45 @@ async function initializeApp() {
     return;
   }
 
-  if (path === '#memberships' && isAuthenticated()) {
-  const { MembershipsPage } = await import('./pages/memberships.js');
-  MembershipsPage();
-  return;
-}
+  if (path === '#admin' && isAuthenticated()) {
+    if (getCurrentUserRole() === 'admin') {
+      const { AdminPage } = await import('./pages/admin.js');
+      AdminPage();
+      return;
+    }
 
-  if (path === '#profile' || path === '#swaps' || path === '#chats') {
+    const { ProfilePage } = await import('./pages/profile.js');
+    ProfilePage();
+    return;
+  }
+
+  if (path === '#memberships' && isAuthenticated()) {
+    const { MembershipsPage } = await import('./pages/memberships.js');
+    MembershipsPage();
+    return;
+  }
+
+  if (path === '#checkout' && isAuthenticated()) {
+    const { CheckoutPage } = await import('./pages/checkout.js');
+    CheckoutPage();
+    return;
+  }
+
+  if (
+    path === '#profile' ||
+    path === '#swaps' ||
+    path === '#chats' ||
+    path === '#memberships' ||
+    path === '#checkout' ||
+    path === '#admin'
+  ) {
     window.history.replaceState(null, '', '#home');
     HomePage();
     return;
   }
 
-  if (path === '#checkout' && isAuthenticated()) {
-  const { CheckoutPage } = await import('./pages/checkout.js');
-  CheckoutPage();
-  return;
-}
-
+  window.history.replaceState(null, '', '#home');
+  HomePage();
 
 }
 

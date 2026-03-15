@@ -1,34 +1,168 @@
 const API_URL = import.meta.env.VITE_API_URL;
+let handlingUnauthorized = false;
+
+function extractServerMessage(data, fallbackMessage) {
+  if (!data) return fallbackMessage;
+
+  if (typeof data === 'string') {
+    return data;
+  }
+
+  if (typeof data?.message === 'string' && data.message.trim()) {
+    return data.message;
+  }
+
+  if (typeof data?.error === 'string' && data.error.trim()) {
+    return data.error;
+  }
+
+  if (typeof data?.detail === 'string' && data.detail.trim()) {
+    return data.detail;
+  }
+
+  if (Array.isArray(data?.detail) && data.detail.length > 0) {
+    const details = data.detail
+      .map((item) => {
+        if (typeof item === 'string') return item.trim();
+        if (item && typeof item === 'object' && typeof item.msg === 'string') {
+          return item.msg.trim();
+        }
+        return '';
+      })
+      .filter(Boolean);
+
+    if (details.length > 0) {
+      return details.join('. ');
+    }
+  }
+
+  return fallbackMessage;
+}
+
+function persistAccessToken(data) {
+  const token =
+    data?.access_token ||
+    data?.token ||
+    data?.accessToken ||
+    data?.data?.access_token ||
+    data?.data?.token ||
+    data?.data?.accessToken;
+
+  if (token && typeof token === 'string') {
+    localStorage.setItem('token', token);
+  }
+
+  const role =
+    data?.role ||
+    data?.user?.role ||
+    data?.data?.role ||
+    data?.data?.user?.role;
+  if (role && typeof role === 'string') {
+    localStorage.setItem('role', role.trim().toLowerCase());
+  }
+
+  const userId =
+    data?.user_id ||
+    data?.user?.id ||
+    data?.user?.user_id ||
+    data?.data?.user_id ||
+    data?.data?.user?.id ||
+    data?.data?.user?.user_id ||
+    data?.id;
+
+  if (userId !== undefined && userId !== null && userId !== '') {
+    const normalizedUserId = String(userId);
+    localStorage.setItem('currentUser', normalizedUserId);
+    localStorage.setItem('user_id', normalizedUserId);
+  }
+}
+
+function redirectToLogin() {
+  if (typeof window === 'undefined' || handlingUnauthorized) {
+    return;
+  }
+
+  handlingUnauthorized = true;
+
+  localStorage.removeItem('token');
+  localStorage.removeItem('userData');
+  localStorage.removeItem('currentUser');
+  localStorage.removeItem('user_id');
+  localStorage.removeItem('role');
+  localStorage.removeItem('pendingOnboarding');
+
+  window.history.replaceState(null, '', '#home');
+
+  import('../pages/login.js')
+    .then(({ LoginPage }) => {
+      LoginPage('login');
+    })
+    .catch(() => {
+      window.location.href = '/';
+    })
+    .finally(() => {
+      handlingUnauthorized = false;
+    });
+}
 
 /** -----------------------------------------------
  * Internal: parse response and throw on error
  * -----------------------------------------------*/
-async function handleResponse(response) {
-  let data;
-  try {
-    data = await response.json();
-  } catch {
-    throw new Error('Respuesta del servidor no válida');
+async function handleResponse(response, options = {}) {
+  const { skipAuthRedirect = false } = options;
+  let data = null;
+
+  const contentType = response.headers.get('content-type') || '';
+  const hasBody = response.status !== 204;
+
+  if (hasBody && contentType.includes('application/json')) {
+    try {
+      data = await response.json();
+    } catch {
+      data = null;
+    }
+  } else if (hasBody) {
+    try {
+      const text = await response.text();
+      data = text ? { message: text } : null;
+    } catch {
+      data = null;
+    }
   }
 
   if (!response.ok) {
-    // Use server message when available
-    throw new Error(
-      data.message || data.error || data.detail || `HTTP ${response.status}`
-    );
+    if (response.status === 401 && !skipAuthRedirect) {
+      redirectToLogin();
+    }
+
+    if (response.status === 403 && typeof window !== 'undefined') {
+      window.alert('No tienes permiso para hacer esto');
+    }
+
+    throw new Error(extractServerMessage(data, `HTTP ${response.status}`));
   }
-  return data;
+
+  return data ?? {};
 }
 
 /** -----------------------------------------------
  * Internal: build headers with optional auth token
  * -----------------------------------------------*/
-function buildHeaders(withAuth = false) {
-  const headers = { 'Content-Type': 'application/json' };
+function buildHeaders({
+  withAuth = false,
+  includeJsonContentType = true,
+} = {}) {
+  const headers = {};
+
+  if (includeJsonContentType) {
+    headers['Content-Type'] = 'application/json';
+  }
+
   if (withAuth) {
     const token = localStorage.getItem('token');
     if (token) headers['Authorization'] = `Bearer ${token}`;
   }
+
   return headers;
 }
 
@@ -43,7 +177,10 @@ export async function loginUser(email, password) {
     headers: buildHeaders(),
     body: JSON.stringify({ email, password }),
   });
-  return handleResponse(response);
+
+  const data = await handleResponse(response, { skipAuthRedirect: true });
+  persistAccessToken(data);
+  return data;
 }
 
 /** Register - returns { token, user } (or just success) */
@@ -59,24 +196,23 @@ export async function registerUser(
     headers: buildHeaders(),
     body: JSON.stringify({ first_name, last_name, email, password, phone }),
   });
-  return handleResponse(response);
+
+  const data = await handleResponse(response, { skipAuthRedirect: true });
+  persistAccessToken(data);
+  return data;
 }
 
 /** Save onboarding skills after registration */
-export async function saveOnboardingSkills(
-  user_id,
-  learn_skills = [],
-  teach_skills = []
-) {
+export async function saveOnboardingSkills(learn_skills = [], teach_skills = []) {
   const response = await fetch(`${API_URL}/onboarding/skills`, {
     method: 'POST',
-    headers: buildHeaders(),
+    headers: buildHeaders({ withAuth: true }),
     body: JSON.stringify({
-      user_id,
       learn_skills,
       teach_skills,
     }),
   });
+
   return handleResponse(response);
 }
 
@@ -88,8 +224,19 @@ export async function saveOnboardingSkills(
 export async function getUserById(userId) {
   const response = await fetch(`${API_URL}/users/${userId}`, {
     method: 'GET',
-    headers: buildHeaders(true),
+    headers: buildHeaders({ withAuth: true }),
   });
+
+  return handleResponse(response);
+}
+
+/** Get profile data from authenticated user */
+export async function getMyProfile() {
+  const response = await fetch(`${API_URL}/me`, {
+    method: 'GET',
+    headers: buildHeaders({ withAuth: true }),
+  });
+
   return handleResponse(response);
 }
 
@@ -117,6 +264,7 @@ export async function updateUserByIdFormData(
 
   const response = await fetch(`${API_URL}/users/${userId}`, {
     method: 'PUT',
+    headers: buildHeaders({ withAuth: true, includeJsonContentType: false }),
     body: formData,
   });
 
@@ -127,36 +275,36 @@ export async function updateUserByIdFormData(
 // MATCHES / CHAT
 // ================================================
 
-/** Get discovery feed for a user id */
-export async function getFeed(userId) {
-  if (!userId) {
-    throw new Error('No se encontró el usuario para cargar el feed');
-  }
-
-  const response = await fetch(`${API_URL}/feed/${userId}`, {
+/** Get discovery feed for current authenticated user */
+export async function getFeed() {
+  const response = await fetch(`${API_URL}/feed`, {
     method: 'GET',
-    headers: buildHeaders(true),
+    headers: buildHeaders({ withAuth: true }),
   });
 
   return handleResponse(response);
 }
 
 /** Record swipe decision to potentially create a match */
-export async function sendSwipe(userFromId, userToId, action) {
-  if (!userFromId || !userToId) {
+export async function sendSwipe(userToId, action) {
+  if (!userToId) {
     throw new Error('No se pudo registrar el swipe por datos incompletos');
   }
 
   if (action !== 'like' && action !== 'pass') {
-    throw new Error('La acción del swipe debe ser like o pass');
+    throw new Error('La accion del swipe debe ser like o pass');
+  }
+
+  const parsedUserToId = Number.parseInt(userToId, 10);
+  if (Number.isNaN(parsedUserToId)) {
+    throw new Error('No se pudo identificar el perfil destino del swipe');
   }
 
   const response = await fetch(`${API_URL}/swipe`, {
     method: 'POST',
-    headers: buildHeaders(true),
+    headers: buildHeaders({ withAuth: true }),
     body: JSON.stringify({
-      user_from_id: Number(userFromId),
-      user_to_id: Number(userToId),
+      user_to_id: parsedUserToId,
       action,
     }),
   });
@@ -164,15 +312,11 @@ export async function sendSwipe(userFromId, userToId, action) {
   return handleResponse(response);
 }
 
-/** Get matches list for a user id */
-export async function getMatches(userId) {
-  if (!userId) {
-    throw new Error('No se encontró el usuario para cargar matches');
-  }
-
-  const response = await fetch(`${API_URL}/matches/${userId}`, {
+/** Get matches list for current authenticated user */
+export async function getMatches() {
+  const response = await fetch(`${API_URL}/matches`, {
     method: 'GET',
-    headers: buildHeaders(true),
+    headers: buildHeaders({ withAuth: true }),
   });
 
   return handleResponse(response);
@@ -181,12 +325,12 @@ export async function getMatches(userId) {
 /** Get chat history by room id */
 export async function getMessages(roomId) {
   if (!roomId) {
-    throw new Error('No se encontró la sala del chat');
+    throw new Error('No se encontro la sala del chat');
   }
 
   const response = await fetch(`${API_URL}/messages/${roomId}`, {
     method: 'GET',
-    headers: buildHeaders(true),
+    headers: buildHeaders({ withAuth: true }),
   });
 
   return handleResponse(response);

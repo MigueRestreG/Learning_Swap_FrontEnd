@@ -17,7 +17,7 @@ import {
 } from '../utils/auth.js';
 import {
   getMatches,
-  getUserById,
+  getMyProfile,
   updateUserByIdFormData,
 } from '../services/api.js';
 import { saveUserData } from '../utils/auth.js';
@@ -69,17 +69,13 @@ export async function ProfilePage() {
     localUser?.id || localUser?.user_id || getCurrentUserId();
 
   try {
-    if (!currentUserId) {
-      throw new Error('No se encontró user_id para cargar el perfil.');
-    }
-
-    user = await getUserById(currentUserId);
+    user = await getMyProfile();
 
     user = normalizeUserResponse(getProfilePayload(user));
     // Update local cache with fresh data
     saveUserData({ user });
   } catch {
-    user = getCurrentUser();
+    user = localUser;
   }
 
   if (!user) {
@@ -90,8 +86,7 @@ export async function ProfilePage() {
     return;
   }
 
-  const resolvedUserId = user?.id || user?.user_id || currentUserId;
-  const profileStats = await getProfileStats(user, resolvedUserId);
+  const profileStats = await getProfileStats(user);
 
   renderProfile(app, user, profileStats);
 }
@@ -458,7 +453,7 @@ async function handleEditProfile() {
 
     const freshUser = normalizeUserResponse(getProfilePayload(updated));
     localStorage.setItem('userData', JSON.stringify(freshUser));
-    const updatedStats = await getProfileStats(freshUser, userId);
+    const updatedStats = await getProfileStats(freshUser);
     closeModal();
     // Re-render with updated data
     const app = document.getElementById('app');
@@ -531,20 +526,12 @@ function createEmptyProfileStats() {
   };
 }
 
-async function getProfileStats(user = {}, fallbackUserId = null) {
+async function getProfileStats(user = {}) {
   const teachSkills = getSkillList(user, 'teach');
   const offeredSkills = countUniqueSkills(teachSkills);
-  const userId = user?.id || user?.user_id || fallbackUserId;
-
-  if (!userId) {
-    return {
-      offeredSkills,
-      sessions: 0,
-    };
-  }
 
   try {
-    const matchesPayload = await getMatches(userId);
+    const matchesPayload = await getMatches();
     const matches = normalizeMatchesPayload(matchesPayload);
     const matchesWithRoom = matches.filter((match) => {
       return hasValidRoomId(match?.room_id ?? match?.roomId ?? match?.chat_room_id);
