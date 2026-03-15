@@ -17,6 +17,7 @@ import {
 import {
   getCurrentUser,
   getCurrentUserId,
+  getCurrentUserRole,
   getToken,
   saveCurrentUserId,
   setOnboardingPending,
@@ -334,9 +335,7 @@ async function handleLogin() {
       saveUserData({ user: { email } });
     }
 
-    // Navigate to profile
-    const { ProfilePage } = await import('./profile.js');
-    ProfilePage();
+    await navigateAfterAuthByRole();
   } catch (error) {
     showError(
       errorEl,
@@ -384,7 +383,13 @@ async function handleRegister() {
     registerState.email = email;
     registerState.password = password;
 
-    await ensureSessionAfterRegister(email, password);
+    const hasSession = await ensureSessionAfterRegister(email, password);
+
+    if (!hasSession) {
+      throw new Error(
+        'Tu cuenta fue creada, pero no se pudo iniciar sesión automáticamente. Inicia sesión para continuar.'
+      );
+    }
 
     const userId = getUserIdFromResponse(data);
 
@@ -408,12 +413,6 @@ async function handleRegister() {
     registerState.userId =
       userId || getCurrentUser()?.id || getCurrentUserId() || null;
 
-    if (!registerState.userId) {
-      throw new Error(
-        'No fue posible identificar el usuario registrado para guardar sus habilidades.'
-      );
-    }
-
     showRegisterStep(2);
   } catch (error) {
     showError(
@@ -432,28 +431,13 @@ async function handleSkillsSubmit() {
   const registerPassword = registerState.password || getRegisterPassword();
 
   if (!registerState.userId) {
-    registerState.userId = getCurrentUserId() || registerState.userId;
-  }
-
-  if (!registerState.userId) {
-    showError(
-      errorEl,
-      'Primero debes completar el registro antes de guardar las habilidades.'
-    );
-    showRegisterStep(1);
-    return;
+    registerState.userId = getCurrentUserId() || null;
   }
 
   setLoading(btn, true, 'Guardar habilidades');
   clearError(errorEl);
 
   try {
-    await saveOnboardingSkills(
-      registerState.userId,
-      registerState.learnSkills,
-      registerState.teachSkills
-    );
-
     const hasSession = await ensureSessionAfterRegister(
       registerEmail,
       registerPassword
@@ -465,20 +449,28 @@ async function handleSkillsSubmit() {
       );
     }
 
+    await saveOnboardingSkills(registerState.learnSkills, registerState.teachSkills);
+
     setOnboardingPending(false);
 
     const currentUser = getCurrentUser() || {};
+    const resolvedUserId =
+      registerState.userId ||
+      currentUser?.id ||
+      currentUser?.user_id ||
+      getCurrentUserId() ||
+      null;
+
     saveUserData({
       user: {
         ...currentUser,
-        id: registerState.userId,
+        ...(resolvedUserId ? { id: resolvedUserId } : {}),
         learn_skills: [...registerState.learnSkills],
         teach_skills: [...registerState.teachSkills],
       },
     });
 
-    const { ProfilePage } = await import('./profile.js');
-    ProfilePage();
+    await navigateAfterAuthByRole();
   } catch (error) {
     showError(
       errorEl,
@@ -667,6 +659,19 @@ async function ensureSessionAfterRegister(email, password) {
   } catch {
     return false;
   }
+}
+
+async function navigateAfterAuthByRole() {
+  const role = getCurrentUserRole();
+
+  if (role === 'admin') {
+    const { AdminPage } = await import('./admin.js');
+    AdminPage();
+    return;
+  }
+
+  const { ProfilePage } = await import('./profile.js');
+  ProfilePage();
 }
 
 function getRegisterEmail() {

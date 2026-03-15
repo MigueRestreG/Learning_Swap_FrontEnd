@@ -6,6 +6,8 @@
 const TOKEN_KEY = 'token';
 const USER_KEY = 'userData';
 const CURRENT_USER_ID_KEY = 'currentUser';
+const LEGACY_USER_ID_KEY = 'user_id';
+const ROLE_KEY = 'role';
 const PENDING_ONBOARDING_KEY = 'pendingOnboarding';
 
 /**
@@ -32,6 +34,21 @@ export function saveUserData(data) {
     data?.data?.access_token;
   if (token) {
     localStorage.setItem(TOKEN_KEY, token);
+  }
+
+  const directRole =
+    data?.role ||
+    data?.user?.role ||
+    data?.data?.role ||
+    data?.data?.user?.role ||
+    data?.profile?.role;
+
+  if (
+    directRole !== undefined &&
+    directRole !== null &&
+    String(directRole).trim() !== ''
+  ) {
+    saveCurrentUserRole(directRole);
   }
 
   const directUserId =
@@ -82,6 +99,15 @@ export function saveUserData(data) {
   if (persistedId !== undefined && persistedId !== null && persistedId !== '') {
     saveCurrentUserId(persistedId);
   }
+
+  const persistedRole = user.role ?? user.user_role;
+  if (
+    persistedRole !== undefined &&
+    persistedRole !== null &&
+    String(persistedRole).trim() !== ''
+  ) {
+    saveCurrentUserRole(persistedRole);
+  }
 }
 
 /**
@@ -119,11 +145,18 @@ export function getToken() {
 
 export function saveCurrentUserId(userId) {
   localStorage.setItem(CURRENT_USER_ID_KEY, String(userId));
+  localStorage.setItem(LEGACY_USER_ID_KEY, String(userId));
 }
 
 export function getCurrentUserId() {
   const storedId = localStorage.getItem(CURRENT_USER_ID_KEY);
   if (storedId) return storedId;
+
+  const legacyStoredId = localStorage.getItem(LEGACY_USER_ID_KEY);
+  if (legacyStoredId) {
+    localStorage.setItem(CURRENT_USER_ID_KEY, legacyStoredId);
+    return legacyStoredId;
+  }
 
   const user = getCurrentUser();
   const userId = user?.id ?? user?.user_id ?? null;
@@ -140,6 +173,39 @@ export function getCurrentUserId() {
   }
 
   return null;
+}
+
+export function saveCurrentUserRole(role) {
+  if (role === undefined || role === null) return;
+
+  const normalizedRole = String(role).trim().toLowerCase();
+  if (!normalizedRole) return;
+
+  localStorage.setItem(ROLE_KEY, normalizedRole);
+}
+
+export function getCurrentUserRole() {
+  const storedRole = localStorage.getItem(ROLE_KEY);
+  if (storedRole && storedRole.trim()) {
+    return storedRole.trim().toLowerCase();
+  }
+
+  const user = getCurrentUser();
+  const candidateRole = user?.role ?? user?.user_role ?? null;
+  if (
+    candidateRole !== undefined &&
+    candidateRole !== null &&
+    String(candidateRole).trim() !== ''
+  ) {
+    saveCurrentUserRole(candidateRole);
+    return String(candidateRole).trim().toLowerCase();
+  }
+
+  return null;
+}
+
+export function isAdminRole() {
+  return getCurrentUserRole() === 'admin';
 }
 
 function extractUserIdFromToken(token) {
@@ -187,6 +253,8 @@ export function logout() {
   localStorage.removeItem(TOKEN_KEY);
   localStorage.removeItem(USER_KEY);
   localStorage.removeItem(CURRENT_USER_ID_KEY);
+  localStorage.removeItem(LEGACY_USER_ID_KEY);
+  localStorage.removeItem(ROLE_KEY);
   localStorage.removeItem(PENDING_ONBOARDING_KEY);
 
   // Remove auth classes from body

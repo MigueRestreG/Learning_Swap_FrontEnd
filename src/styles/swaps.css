@@ -929,6 +929,34 @@ body.swaps-page #app {
   border: 1px solid #dbe5f5;
 }
 
+.swaps-dashboard .mensaje-ai {
+  align-self: flex-start;
+  background: linear-gradient(135deg, #e6f7ff, #eef4ff);
+  color: #123a5a;
+  border: 1px solid #b6defd;
+}
+
+.swaps-dashboard .chat-ai-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin-bottom: 0.24rem;
+  font-size: 0.69rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #0f507f;
+}
+
+.swaps-dashboard .chat-ai-label::before {
+  content: '🤖';
+  line-height: 1;
+}
+
+.swaps-dashboard .chat-ai-text {
+  display: block;
+}
+
 .swaps-dashboard .chat-input-row {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
@@ -991,6 +1019,21 @@ body.swaps-page #app {
 .swaps-dashboard .feed-carousel-status {
   margin-top: -4px;
   margin-bottom: 12px;
+}
+
+.swaps-dashboard .feed-categories-root {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.swaps-dashboard .users-grid-section--feed-category {
+  margin-bottom: 0;
+}
+
+.swaps-dashboard .feed-category-subtitle {
+  margin: 0;
+  font-size: 0.78rem;
+  color: var(--text-muted);
 }
 
 .swaps-dashboard .section-header h2 {
