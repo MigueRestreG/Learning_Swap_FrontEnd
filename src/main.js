@@ -60,14 +60,25 @@ async function initializeApp() {
     return;
   }
 
+  if (path === '#memberships' && isAuthenticated()) {
+  const { MembershipsPage } = await import('./pages/memberships.js');
+  MembershipsPage();
+  return;
+}
+
   if (path === '#profile' || path === '#swaps' || path === '#chats') {
     window.history.replaceState(null, '', '#home');
     HomePage();
     return;
   }
 
-  window.history.replaceState(null, '', '#home');
-  HomePage();
+  if (path === '#checkout' && isAuthenticated()) {
+  const { CheckoutPage } = await import('./pages/checkout.js');
+  CheckoutPage();
+  return;
+}
+
+
 }
 
 document.addEventListener('DOMContentLoaded', initializeApp);

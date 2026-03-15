@@ -256,6 +256,12 @@ export async function SwapsPage(view = 'matches') {
                   <span>Matches</span>
                 </button>
               </li>
+              <li>
+  <button class="nav-menu-link" type="button" data-nav-memberships>
+    <ion-icon name="diamond-outline"></ion-icon>
+    <span>Membresías</span>
+  </button>
+</li>
             </ul>
           </nav>
 
@@ -644,10 +650,11 @@ function setupSwapsInteractions(currentUserId, options = {}) {
   registerNavigation('[data-nav-matches]', '#swaps');
   registerNavigation('[data-nav-chats]', '#chats');
   registerNavigation('[data-nav-prices]', '#prices');
-
+  registerNavigation('[data-nav-memberships]', '#memberships');
   if (!options.isChatsView) {
     cleanups.push(setupSwapsCarousels());
   }
+  
 
   cleanups.push(
     setupMatchesChat(state, {

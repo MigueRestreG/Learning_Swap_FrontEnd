@@ -1,0 +1,38 @@
+{
+  "payments": [
+    {
+      "id": "1",
+      "customerName": "Juan Perez",
+      "cardNumber": "1234 4534 1223 1234",
+      "plan": "Emerald",
+      "amount": "$12.000",
+      "date": "14 de marzo de 2026"
+    },
+    {
+      "id": "514e",
+      "customerName": "sara",
+      "plan": "Emerald",
+      "amount": "$12.000",
+      "date": "15 de marzo de 2026",
+      "cardType": "Mastercard"
+    },
+    {
+      "id": "5ce7",
+      "customerName": "migue",
+      "plan": "Emerald",
+      "amount": "$12.000",
+      "date": "15 de marzo de 2026",
+      "cardType": "Mastercard"
+    },
+    {
+      "id": "c1dd",
+      "customerName": "ana",
+      "plan": "Ruby",
+      "amount": "$25.000",
+      "date": "15 de marzo de 2026",
+      "cardType": "Mastercard"
+    }
+  ],
+  "users": [],
+  "$schema": "./node_modules/json-server/schema.json"
+}
