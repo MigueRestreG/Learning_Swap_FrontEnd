@@ -15,7 +15,11 @@ import {
   getUserInitials,
   logout,
 } from '../utils/auth.js';
-import { getUserById, updateUserByIdFormData } from '../services/api.js';
+import {
+  getMatches,
+  getMyProfile,
+  updateUserByIdFormData,
+} from '../services/api.js';
 import { saveUserData } from '../utils/auth.js';
 
 export async function ProfilePage() {
@@ -65,17 +69,13 @@ export async function ProfilePage() {
     localUser?.id || localUser?.user_id || getCurrentUserId();
 
   try {
-    if (!currentUserId) {
-      throw new Error('No se encontró user_id para cargar el perfil.');
-    }
-
-    user = await getUserById(currentUserId);
+    user = await getMyProfile();
 
     user = normalizeUserResponse(getProfilePayload(user));
     // Update local cache with fresh data
     saveUserData({ user });
   } catch {
-    user = getCurrentUser();
+    user = localUser;
   }
 
   if (!user) {
@@ -86,12 +86,14 @@ export async function ProfilePage() {
     return;
   }
 
-  renderProfile(app, user);
+  const profileStats = await getProfileStats(user);
+
+  renderProfile(app, user, profileStats);
 }
 
 // ─── Render ──────────────────────────────────────────────────────────────────
 
-function renderProfile(app, user) {
+function renderProfile(app, user, profileStats = createEmptyProfileStats()) {
   const avatarUrl = user.avatar_url || user.avatar || '';
   const initials = getUserInitials(
     user.first_name || user.name,
@@ -110,6 +112,9 @@ function renderProfile(app, user) {
     : 'Se unió recientemente';
   const teachSkills = getSkillList(user, 'teach');
   const learnSkills = getSkillList(user, 'learn');
+  const offeredSkillsCount =
+    profileStats.offeredSkills ?? countUniqueSkills(teachSkills);
+  const sessionsCount = profileStats.sessions ?? 0;
 
   app.innerHTML = `
     ${getNavbar()}
@@ -168,12 +173,12 @@ function renderProfile(app, user) {
       <!-- Stats Bar -->
       <section class="profile-stats">
         <div class="stat-card">
-          <span class="stat-number">0</span>
+          <span class="stat-number">${offeredSkillsCount}</span>
           <span class="stat-label">Habilidades ofrecidas</span>
           <ion-icon name="school-outline"></ion-icon>
         </div>
         <div class="stat-card">
-          <span class="stat-number">0</span>
+          <span class="stat-number">${sessionsCount}</span>
           <span class="stat-label">Sesiones realizadas</span>
           <ion-icon name="swap-horizontal-outline"></ion-icon>
         </div>
@@ -448,10 +453,11 @@ async function handleEditProfile() {
 
     const freshUser = normalizeUserResponse(getProfilePayload(updated));
     localStorage.setItem('userData', JSON.stringify(freshUser));
+    const updatedStats = await getProfileStats(freshUser);
     closeModal();
     // Re-render with updated data
     const app = document.getElementById('app');
-    renderProfile(app, freshUser);
+    renderProfile(app, freshUser, updatedStats);
   } catch (err) {
     errorEl.textContent =
       err.message || 'No se pudo guardar. Inténtalo de nuevo.';
@@ -511,6 +517,60 @@ function getProfilePayload(payload = {}) {
     payload.data ||
     payload
   );
+}
+
+function createEmptyProfileStats() {
+  return {
+    offeredSkills: 0,
+    sessions: 0,
+  };
+}
+
+async function getProfileStats(user = {}) {
+  const teachSkills = getSkillList(user, 'teach');
+  const offeredSkills = countUniqueSkills(teachSkills);
+
+  try {
+    const matchesPayload = await getMatches();
+    const matches = normalizeMatchesPayload(matchesPayload);
+    const matchesWithRoom = matches.filter((match) => {
+      return hasValidRoomId(match?.room_id ?? match?.roomId ?? match?.chat_room_id);
+    });
+    const sessions = matchesWithRoom.length > 0 ? matchesWithRoom.length : matches.length;
+
+    return {
+      offeredSkills,
+      sessions,
+    };
+  } catch {
+    return {
+      offeredSkills,
+      sessions: 0,
+    };
+  }
+}
+
+function countUniqueSkills(skills = []) {
+  if (!Array.isArray(skills) || skills.length === 0) return 0;
+
+  const uniqueSkills = new Set(
+    skills
+      .map((skill) => String(skill || '').trim().toLowerCase())
+      .filter(Boolean)
+  );
+
+  return uniqueSkills.size;
+}
+
+function normalizeMatchesPayload(payload) {
+  if (Array.isArray(payload)) return payload;
+  if (Array.isArray(payload?.matches)) return payload.matches;
+  if (Array.isArray(payload?.data?.matches)) return payload.data.matches;
+  return [];
+}
+
+function hasValidRoomId(roomId) {
+  return roomId !== undefined && roomId !== null && String(roomId).trim() !== '';
 }
 
 function getSkillList(user = {}, type = 'teach') {

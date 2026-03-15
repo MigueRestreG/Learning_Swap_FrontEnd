@@ -15,176 +15,167 @@ const CHAT_NOTIFICATION_STORE = {
   nextId: 1,
 };
 
-const SWAP_SECTIONS = [
+const FEED_CATEGORY_RULES = [
   {
-    id: 'carousel1',
-    heading: 'Perfiles populares',
-    subheading: 'programacion.',
-    cards: [
-      {
-        skillIcon: '/assets/programing-icons/c.png',
-        skillAlt: 'Skill icon de C#',
-        coverImage: '/assets/cards-img/first-card.jpg',
-        coverAlt: 'Perfil destacado de C#',
-        title: 'junior en C# con mas de 9 meses de experiencia',
-        avatar: '/assets/users-cards-icons/mclovin.jpg',
-        avatarAlt: 'Foto de Andres.F David',
-        name: 'Andres.F David',
-        role: 'Creator / backend',
-        projects: '27 proyectos',
-        match: '+16',
-      },
-      {
-        skillIcon: '/assets/programing-icons/frontend.png',
-        skillAlt: 'Skill icon de frontend',
-        coverImage: '/assets/cards-img/front.jpg',
-        coverAlt: 'Perfil destacado de frontend',
-        title: 'Semi-senior frontend con mas de 2 años de experiencia',
-        avatar: '/assets/users-cards-icons/user2.jpg',
-        avatarAlt: 'Foto de Sofia.L Aranzasa',
-        name: 'Sofia.L Aranzasa',
-        role: 'Creator / frontend',
-        projects: '12 proyectos',
-        match: '+13',
-      },
-      {
-        skillIcon: '/assets/programing-icons/python.png',
-        skillAlt: 'Skill icon de Python',
-        coverImage: '/assets/cards-img/python.card.jpg',
-        coverAlt: 'Perfil destacado de Python',
-        title: 'Aprendiz de Python desde hace 3 meses',
-        avatar: '/assets/users-cards-icons/user3.jpg',
-        avatarAlt: 'Foto de Jose.A Flores',
-        name: 'Jose.A Flores',
-        role: 'Creator / backend',
-        projects: '11 proyectos',
-        match: '+7',
-      },
-      {
-        skillIcon: '/assets/programing-icons/js.png',
-        skillAlt: 'Skill icon de JavaScript',
-        coverImage: '/assets/cards-img/card-img-4.jpg',
-        coverAlt: 'Perfil destacado de JavaScript',
-        title: 'Junior en desarollo Fullstack con JavaScript',
-        avatar: '/assets/users-cards-icons/user4.jpg',
-        avatarAlt: 'Foto de Juan.D David',
-        name: 'Juan.D David',
-        role: 'Creator / backend',
-        projects: '7 proyectos',
-        match: '+4',
-      },
-      {
-        skillIcon: '/assets/programing-icons/java.png',
-        skillAlt: 'Skill icon de Java',
-        coverImage: '/assets/cards-img/user-card-5.jpg',
-        coverAlt: 'Perfil destacado de Java',
-        title: 'Aprendiz de Java con 7 meses de estudio',
-        avatar: '/assets/users-cards-icons/user5.jpg',
-        avatarAlt: 'Foto de Liliana Henao',
-        name: 'Liliana Henao',
-        role: 'Creator / backend',
-        projects: '8 proyectos',
-        match: '+10',
-      },
-      {
-        skillIcon: '/assets/programing-icons/nodejs.png',
-        skillAlt: 'Skill icon de Node.js',
-        coverImage: '/assets/cards-img/card-img-6.jpg',
-        coverAlt: 'Perfil destacado de Node.js',
-        title: 'Backend Node.js con 1.5 años de experiencia',
-        avatar: '/assets/users-cards-icons/user6.jpg',
-        avatarAlt: 'Foto de Andres.F David',
-        name: 'Andres.F David',
-        role: 'Creator / backend',
-        projects: '30 proyectos',
-        match: '+19',
-      },
+    key: 'programacion',
+    title: 'Programacion',
+    subtitle: 'Perfiles de desarrollo y tecnologia',
+    keywords: [
+      'programacion',
+      'programar',
+      'desarrollo',
+      'developer',
+      'desarrollador',
+      'desarrolladora',
+      'frontend',
+      'backend',
+      'fullstack',
+      'full stack',
+      'javascript',
+      'js',
+      'typescript',
+      'ts',
+      'python',
+      'java',
+      'golang',
+      'go',
+      'node',
+      'nodejs',
+      'react',
+      'vue',
+      'angular',
+      'api',
+      'rest',
+      'graphql',
+      'sql',
+      'mongodb',
+      'postgres',
+      'postgresql',
+      'mysql',
+      'firebase',
+      'docker',
+      'kubernetes',
+      'devops',
+      'ci/cd',
+      'c#',
+      'c++',
+      'dotnet',
+      '.net',
+      'php',
+      'ruby',
+      'swift',
+      'kotlin',
+      'flask',
+      'django',
+      'laravel',
+      'spring',
+      'algoritmos',
+      'estructura de datos',
+      'software',
     ],
   },
   {
-    id: 'carousel2',
-    heading: '',
-    subheading: 'Idiomas.',
-    cards: [
-      {
-        skillIcon: '/assets/flags-cards-lenguajes/ingles-flag.png',
-        skillAlt: 'Skill icon de inglés',
-        coverImage: '/assets/card-lenguajes-img/ingles.jpg',
-        coverAlt: 'Perfil destacado de inglés',
-        title: 'Conocimientos en ingles nivel C1',
-        avatar: '/assets/user-cardslenguajes-icons/user1-lenguajes.jpg',
-        avatarAlt: 'Foto de Katerin.S Sanchez',
-        name: 'Katerin.S Sanchez',
-        role: 'Creator / Team Leader',
-        projects: '12 proyectos',
-        match: '+14',
-      },
-      {
-        skillIcon: '/assets/flags-cards-lenguajes/frances-flag.png',
-        skillAlt: 'Skill icon de francés',
-        coverImage: '/assets/card-lenguajes-img/frances.jpg',
-        coverAlt: 'Perfil destacado de francés',
-        title: 'Conocimientos en Frances nivel B2',
-        avatar: '/assets/user-cardslenguajes-icons/user2-lenguajes.jpg',
-        avatarAlt: 'Foto de Martin.A Giraldo',
-        name: 'Martin.A Giraldo',
-        role: 'Creator / Teacher',
-        projects: '11 proyectos',
-        match: '+9',
-      },
-      {
-        skillIcon: '/assets/flags-cards-lenguajes/portugues.flag.png',
-        skillAlt: 'Skill icon de portugués',
-        coverImage: '/assets/card-lenguajes-img/Gramática da Língua portuguesa.jpg',
-        coverAlt: 'Perfil destacado de portugués',
-        title: 'Estudiante de Portugues nivel A2',
-        avatar: '/assets/user-cardslenguajes-icons/user3-lenguajes.jpg',
-        avatarAlt: 'Foto de Maria.T Restrepo',
-        name: 'Maria.T Restrepo',
-        role: 'Creator / student',
-        projects: '6 proyectos',
-        match: '+5',
-      },
-      {
-        skillIcon: '/assets/flags-cards-lenguajes/aleman-flag.png',
-        skillAlt: 'Skill icon de alemán',
-        coverImage: '/assets/card-lenguajes-img/aleman.jpg',
-        coverAlt: 'Perfil destacado de alemán',
-        title: 'Aprendiz de Aleman y Ruso en proceso para enseñar a otros',
-        avatar: '/assets/user-cardslenguajes-icons/user4-lenguajes.jpg',
-        avatarAlt: 'Foto de Elizabeth Cifuentes',
-        name: 'Elizabeth Cifuentes',
-        role: 'Creator / amateur',
-        projects: '12 proyectos',
-        match: '+8',
-      },
-      {
-        skillIcon: '/assets/flags-cards-lenguajes/chino-flag.png',
-        skillAlt: 'Skill icon de chino',
-        coverImage: '/assets/card-lenguajes-img/chino.jpg',
-        coverAlt: 'Perfil destacado de chino',
-        title: 'Estudiante y maestra de Chino avanzado',
-        avatar: '/assets/user-cardslenguajes-icons/user5-lenguajes.jpg',
-        avatarAlt: 'Foto de Sofia.M Alvarez',
-        name: 'Sofia.M Alvarez',
-        role: 'Creator / Team Leader',
-        projects: '27 proyectos',
-        match: '+16',
-      },
-      {
-        skillIcon: '/assets/flags-cards-lenguajes/italiano-flag.png',
-        skillAlt: 'Skill icon de italiano',
-        coverImage: '/assets/card-lenguajes-img/Learning Italian!!.jpg',
-        coverAlt: 'Perfil destacado de italiano',
-        title: 'Estudiante de Italiano con nivel b1 en tercer semestre de idiomas',
-        avatar: '/assets/user-cardslenguajes-icons/user6-lenguajes.jpg',
-        avatarAlt: 'Foto de Emmanuel Santamaria',
-        name: 'Emmanuel Santamaria',
-        role: 'Creator / student',
-        projects: '27 proyectos',
-        match: '+16',
-      },
+    key: 'idiomas',
+    title: 'Idiomas',
+    subtitle: 'Perfiles para intercambio de idiomas',
+    keywords: [
+      'idioma',
+      'idiomas',
+      'language',
+      'languages',
+      'ingles',
+      'english',
+      'frances',
+      'french',
+      'portugues',
+      'portuguese',
+      'espanol',
+      'spanish',
+      'aleman',
+      'german',
+      'italiano',
+      'italian',
+      'chino',
+      'chinese',
+      'mandarin',
+      'japones',
+      'japanese',
+      'ruso',
+      'russian',
+      'coreano',
+      'korean',
+      'traduccion',
+      'translation',
+      'pronunciacion',
+      'gramatica',
+      'conversation',
+      'conversacion',
     ],
+  },
+  {
+    key: 'diseno',
+    title: 'Diseno',
+    subtitle: 'Perfiles creativos y visuales',
+    keywords: [
+      'diseno',
+      'design',
+      'graphic design',
+      'diseno grafico',
+      'ux',
+      'ui',
+      'ux/ui',
+      'figma',
+      'photoshop',
+      'illustrator',
+      'after effects',
+      'premiere',
+      'canva',
+      'branding',
+      'creatividad',
+      'animacion',
+      '3d',
+      'motion',
+      'prototipo',
+      'wireframe',
+      'product design',
+    ],
+  },
+  {
+    key: 'negocios',
+    title: 'Negocios y Productividad',
+    subtitle: 'Perfiles de liderazgo, gestion y crecimiento',
+    keywords: [
+      'negocio',
+      'negocios',
+      'business',
+      'marketing',
+      'marketing digital',
+      'ventas',
+      'sales',
+      'liderazgo',
+      'management',
+      'gestion',
+      'finanzas',
+      'finance',
+      'emprendimiento',
+      'startup',
+      'productividad',
+      'comunicacion',
+      'scrum',
+      'agile',
+      'project management',
+      'product manager',
+      'negociacion',
+      'oratoria',
+      'excel',
+      'power bi',
+    ],
+  },
+  {
+    key: 'otros',
+    title: 'Otras habilidades',
+    subtitle: 'Perfiles con intereses diversos',
+    keywords: [],
   },
 ];
 
@@ -256,6 +247,12 @@ export async function SwapsPage(view = 'matches') {
                   <span>Matches</span>
                 </button>
               </li>
+              <li>
+  <button class="nav-menu-link" type="button" data-nav-memberships>
+    <ion-icon name="diamond-outline"></ion-icon>
+    <span>Membresías</span>
+  </button>
+</li>
             </ul>
           </nav>
 
@@ -336,7 +333,7 @@ export async function SwapsPage(view = 'matches') {
                     }
                   </p>
                 </div>
-                <button type="button" ${isChatsView ? '' : 'data-nav-chats'}>
+                <button type="button" ${isChatsView ? 'data-nav-prices' : 'data-nav-chats'}>
                   ${isChatsView ? 'Planes' : 'Ir a chats'}
                 </button>
               </div>
@@ -371,9 +368,14 @@ export async function SwapsPage(view = 'matches') {
                             <h3 id="chat-header">Chat</h3>
                             <p id="chat-room-helper">Selecciona una conversación para empezar.</p>
                           </div>
-                          <button id="chat-close-btn" type="button" class="chat-close-btn">
-                            Cerrar
-                          </button>
+                          <div class="chat-panel-actions">
+                            <button id="chat-close-btn" type="button" class="chat-close-btn">
+                              Cerrar
+                            </button>
+                            <button id="chat-finish-btn" type="button" class="chat-finish-btn">
+                              Cerrar swap
+                            </button>
+                          </div>
                         </header>
 
                         <div id="chat-messages" class="chat-messages" aria-live="polite"></div>
@@ -403,7 +405,28 @@ export async function SwapsPage(view = 'matches') {
             </div>
           </section>
 
-          ${isChatsView ? '' : SWAP_SECTIONS.map((section) => renderSection(section)).join('')}
+          ${
+            isChatsView
+              ? ''
+              : `
+                <section class="users-grid-section users-grid-section--feed-board">
+                  <div class="section-header section-header--feed">
+                    <div class="section-header-copy">
+                      <h2>Perfiles sugeridos</h2>
+                      <h3>Carruseles filtrados por categoria</h3>
+                    </div>
+                    <button id="btn-refresh-feed" class="matches-refresh-btn" type="button">
+                      Actualizar feed
+                    </button>
+                  </div>
+
+                  <div id="feed-status" class="matches-status feed-carousel-status is-muted" role="status"></div>
+                  <div id="feed-categories-root" class="feed-categories-root">
+                    ${renderFeedLoadingState()}
+                  </div>
+                </section>
+              `
+          }
 
           <div
             id="notifications-toast-stack"
@@ -437,43 +460,42 @@ function cleanupSwapView() {
   }
 }
 
-function renderSection(section) {
-  const isFeedSection = section.id === 'carousel1';
-  const sectionHeading = section.heading
-    ? `<h2>${escapeHtml(section.heading)}</h2>`
-    : '';
-  const cardsMarkup = isFeedSection
-    ? renderFeedLoadingCard()
-    : section.cards.map((card) => renderCard(card)).join('');
+function renderFeedLoadingState() {
+  return `
+    <article class="nft-card nft-card--feed-state">
+      <p class="feed-card-empty-text">Cargando perfiles sugeridos...</p>
+    </article>
+  `;
+}
+
+function renderFeedEmptyState() {
+  return `
+    <article class="nft-card nft-card--feed-state">
+      <p class="feed-card-empty-text">
+        No hay perfiles disponibles en tu feed por ahora.
+      </p>
+    </article>
+  `;
+}
+
+function renderFeedCategoryCarousel(category, index) {
+  const carouselId = `feed-${escapeHtml(category.key)}-${index}`;
+  const cardsMarkup = category.profiles.map((profile) => renderFeedSwipeCard(profile)).join('');
 
   return `
-    <section class="users-grid-section">
-      <div class="section-header ${isFeedSection ? 'section-header--feed' : ''}">
+    <section class="users-grid-section users-grid-section--feed-category">
+      <div class="section-header">
         <div class="section-header-copy">
-          ${sectionHeading}
-          <h3>${escapeHtml(section.subheading)}</h3>
+          <h3>${escapeHtml(category.title)}</h3>
+          <p class="feed-category-subtitle">${escapeHtml(category.subtitle)}</p>
         </div>
-
-        ${
-          isFeedSection
-            ? `<button id="btn-refresh-feed" class="matches-refresh-btn" type="button">
-                Actualizar feed
-              </button>`
-            : ''
-        }
       </div>
 
-      ${
-        isFeedSection
-          ? '<div id="feed-status" class="matches-status feed-carousel-status is-muted" role="status"></div>'
-          : ''
-      }
-
-      <div class="carousel" data-carousel="${escapeHtml(section.id)}">
+      <div class="carousel" data-carousel="${carouselId}">
         <button
           class="prev"
           type="button"
-          aria-label="Ver perfiles anteriores de ${escapeHtml(section.subheading)}"
+          aria-label="Ver perfiles anteriores de ${escapeHtml(category.title)}"
         >
           ‹
         </button>
@@ -487,68 +509,12 @@ function renderSection(section) {
         <button
           class="next"
           type="button"
-          aria-label="Ver perfiles siguientes de ${escapeHtml(section.subheading)}"
+          aria-label="Ver perfiles siguientes de ${escapeHtml(category.title)}"
         >
           ›
         </button>
       </div>
     </section>
-  `;
-}
-
-function renderCard(card) {
-  return `
-    <article class="nft-card">
-      <div class="card-header">
-        <div class="user-skill">
-          <img src="${escapeHtml(card.skillIcon)}" alt="${escapeHtml(card.skillAlt)}" />
-        </div>
-        <button class="more-btn" type="button" aria-label="Más opciones">•••</button>
-      </div>
-
-      <div class="main-image">
-        <img src="${escapeHtml(card.coverImage)}" alt="${escapeHtml(card.coverAlt)}" />
-        <span class="badge">Destacado</span>
-      </div>
-
-      <div class="card-body">
-        <h3>"${escapeHtml(card.title)}"</h3>
-
-        <div class="creator">
-          <img src="${escapeHtml(card.avatar)}" alt="${escapeHtml(card.avatarAlt)}" />
-          <div>
-            <p class="name">${escapeHtml(card.name)}</p>
-            <p class="role">${escapeHtml(card.role)}</p>
-          </div>
-        </div>
-      </div>
-
-      <div class="card-footer">
-        <div class="projects-counter">
-          <p>Proyectos</p>
-          <strong>${escapeHtml(card.projects)}</strong>
-        </div>
-        <div class="match-counter">Match ${escapeHtml(card.match)}</div>
-      </div>
-    </article>
-  `;
-}
-
-function renderFeedLoadingCard() {
-  return `
-    <article class="nft-card nft-card--feed-state">
-      <p class="feed-card-empty-text">Cargando perfiles sugeridos...</p>
-    </article>
-  `;
-}
-
-function renderFeedEmptyCard() {
-  return `
-    <article class="nft-card nft-card--feed-state">
-      <p class="feed-card-empty-text">
-        No hay perfiles disponibles en tu feed por ahora.
-      </p>
-    </article>
   `;
 }
 
@@ -613,6 +579,163 @@ function renderFeedSwipeCard(profile = {}) {
   `;
 }
 
+function renderFeedCategoryBoard(profiles = []) {
+  const categories = groupFeedProfilesByCategory(profiles);
+  if (categories.length === 0) {
+    return renderFeedEmptyState();
+  }
+
+  return categories
+    .map((category, index) => renderFeedCategoryCarousel(category, index))
+    .join('');
+}
+
+function groupFeedProfilesByCategory(profiles = []) {
+  const groupsMap = new Map();
+  const fallbackRule = FEED_CATEGORY_RULES.find((rule) => rule.key === 'otros') || {
+    key: 'otros',
+    title: 'Otras habilidades',
+    subtitle: 'Perfiles con intereses diversos',
+    keywords: [],
+  };
+
+  FEED_CATEGORY_RULES.forEach((rule) => {
+    if (rule.key === fallbackRule.key) return;
+    groupsMap.set(rule.key, {
+      ...rule,
+      profiles: [],
+    });
+  });
+
+  const fallbackGroup = {
+    ...fallbackRule,
+    profiles: [],
+  };
+
+  profiles.forEach((profile) => {
+    const categoryKey = resolveFeedCategoryKey(profile);
+    if (categoryKey === fallbackGroup.key) {
+      fallbackGroup.profiles.push(profile);
+      return;
+    }
+
+    const group = groupsMap.get(categoryKey);
+    if (group) {
+      group.profiles.push(profile);
+      return;
+    }
+
+    fallbackGroup.profiles.push(profile);
+  });
+
+  return [...groupsMap.values(), fallbackGroup].filter(
+    (group) => group.profiles.length > 0
+  );
+}
+
+function resolveFeedCategoryKey(profile = {}) {
+  const normalizedHints = collectProfileCategoryHints(profile)
+    .map((hint) => normalizeFeedCategoryText(hint))
+    .filter(Boolean);
+
+  if (normalizedHints.length === 0) {
+    return 'otros';
+  }
+
+  const directCategoryHint = normalizeFeedCategoryText(
+    profile?.category || profile?.interest || ''
+  );
+
+  const candidateScores = [];
+
+  for (const rule of FEED_CATEGORY_RULES) {
+    if (rule.key === 'otros') continue;
+
+    const score = computeCategoryScore(rule, normalizedHints, directCategoryHint);
+    if (score > 0) {
+      candidateScores.push({ key: rule.key, score });
+    }
+  }
+
+  if (candidateScores.length === 0) {
+    return 'otros';
+  }
+
+  candidateScores.sort((a, b) => b.score - a.score);
+  return candidateScores[0].key;
+}
+
+function computeCategoryScore(rule, normalizedHints, directCategoryHint) {
+  const normalizedKeywords = (rule.keywords || [])
+    .map((keyword) => normalizeFeedCategoryText(keyword))
+    .filter(Boolean);
+
+  if (normalizedKeywords.length === 0) return 0;
+
+  let score = 0;
+
+  normalizedHints.forEach((hint) => {
+    normalizedKeywords.forEach((keyword) => {
+      if (hint === keyword) {
+        score += 4;
+      } else if (hint.includes(keyword)) {
+        score += 2;
+      }
+    });
+  });
+
+  if (directCategoryHint) {
+    if (directCategoryHint === normalizeFeedCategoryText(rule.key)) {
+      score += 8;
+    }
+
+    if (directCategoryHint.includes(normalizeFeedCategoryText(rule.title))) {
+      score += 5;
+    }
+
+    normalizedKeywords.forEach((keyword) => {
+      if (directCategoryHint.includes(keyword)) {
+        score += 3;
+      }
+    });
+  }
+
+  return score;
+}
+
+function collectProfileCategoryHints(profile = {}) {
+  const teachSkills = normalizeSkillList(
+    profile?.skills_to_teach || profile?.teach_skills,
+    { limit: 30 }
+  );
+  const learnSkills = normalizeSkillList(
+    profile?.skills_to_learn || profile?.learn_skills,
+    { limit: 30 }
+  );
+
+  const extraHints = [
+    profile?.interest,
+    profile?.category,
+    profile?.primary_skill,
+    profile?.headline,
+    profile?.bio,
+  ]
+    .map((value) => String(value || '').trim())
+    .filter(Boolean);
+
+  return [...teachSkills, ...learnSkills, ...extraHints];
+}
+
+function normalizeFeedCategoryText(value = '') {
+  return String(value)
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9#+./\s-]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
 function setupSwapsInteractions(currentUserId, options = {}) {
   const cleanups = [];
   const state = {
@@ -638,10 +761,8 @@ function setupSwapsInteractions(currentUserId, options = {}) {
   registerNavigation('[data-nav-profile]', '#profile');
   registerNavigation('[data-nav-matches]', '#swaps');
   registerNavigation('[data-nav-chats]', '#chats');
-
-  if (!options.isChatsView) {
-    cleanups.push(setupSwapsCarousels());
-  }
+  registerNavigation('[data-nav-prices]', '#prices');
+  registerNavigation('[data-nav-memberships]', '#memberships');
 
   cleanups.push(
     setupMatchesChat(state, {
@@ -721,9 +842,7 @@ function setupMatchesChat(state, options = {}) {
   const refreshMatchesButton = document.getElementById('btn-refresh-matches');
   const refreshFeedButton = document.getElementById('btn-refresh-feed');
   const feedStatus = document.getElementById('feed-status');
-  const feedCardWrapper = document.querySelector(
-    '.swaps-dashboard .carousel[data-carousel="carousel1"] .card-wrapper'
-  );
+  const feedCategoriesRoot = document.getElementById('feed-categories-root');
   const chatContainer = document.getElementById('chat-container');
   const chatEmptyState = document.getElementById('chat-empty');
   const chatHeader = document.getElementById('chat-header');
@@ -732,6 +851,7 @@ function setupMatchesChat(state, options = {}) {
   const chatForm = document.getElementById('chat-form');
   const chatInput = document.getElementById('chat-input');
   const closeChatButton = document.getElementById('chat-close-btn');
+  const finishSwapButton = document.getElementById('chat-finish-btn');
   const notificationsButton = document.querySelector(
     '[data-notifications-toggle]'
   );
@@ -746,7 +866,7 @@ function setupMatchesChat(state, options = {}) {
   );
 
   const hasFeedCarousel =
-    Boolean(refreshFeedButton) && Boolean(feedStatus) && Boolean(feedCardWrapper);
+    Boolean(refreshFeedButton) && Boolean(feedStatus) && Boolean(feedCategoriesRoot);
   const hasChatPanel =
     Boolean(matchesList) &&
     Boolean(matchesStatus) &&
@@ -758,7 +878,8 @@ function setupMatchesChat(state, options = {}) {
     Boolean(chatMessages) &&
     Boolean(chatForm) &&
     Boolean(chatInput) &&
-    Boolean(closeChatButton);
+    Boolean(closeChatButton) &&
+    Boolean(finishSwapButton);
   const hasNotificationUI =
     Boolean(notificationsButton) &&
     Boolean(notificationsPanel) &&
@@ -771,6 +892,11 @@ function setupMatchesChat(state, options = {}) {
     return () => {};
   }
 
+  const closedSwapsStorageKey = state.userId
+    ? `learning-swap:closed-swaps:${state.userId}`
+    : 'learning-swap:closed-swaps:guest';
+  const closedRoomIds = readClosedSwapRooms(closedSwapsStorageKey);
+
   const cleanups = [];
   let disposed = false;
   let latestMatchesRequest = 0;
@@ -778,10 +904,26 @@ function setupMatchesChat(state, options = {}) {
   let autoOpenDone = false;
   let rowCleanups = [];
   let feedActionCleanups = [];
+  let feedCarouselControlsCleanup = () => {};
   let feedQueue = [];
   let swipeInProgress = false;
   let notificationsOpen = false;
   const avatarCache = new Map();
+
+  const persistClosedSwaps = () => {
+    persistClosedSwapRooms(closedSwapsStorageKey, closedRoomIds);
+  };
+
+  const isClosedSwapRoom = (roomId) => {
+    if (!roomId) return false;
+    return closedRoomIds.has(String(roomId));
+  };
+
+  const closeSwapRoom = (roomId) => {
+    if (!roomId) return;
+    closedRoomIds.add(String(roomId));
+    persistClosedSwaps();
+  };
 
   const setMatchesStatus = (text, tone = 'muted') => {
     if (!hasChatPanel) return;
@@ -802,7 +944,7 @@ function setupMatchesChat(state, options = {}) {
   const setFeedButtonsDisabled = (disabled) => {
     if (!hasFeedCarousel) return;
 
-    feedCardWrapper.querySelectorAll('.feed-swipe-btn').forEach((button) => {
+    feedCategoriesRoot.querySelectorAll('.feed-swipe-btn').forEach((button) => {
       const hasTarget = Boolean(button.getAttribute('data-user-id'));
       button.disabled = disabled || !hasTarget;
     });
@@ -971,21 +1113,22 @@ function setupMatchesChat(state, options = {}) {
     feedActionCleanups = [];
   };
 
-  const renderFeedCarousel = () => {
+  const renderFeedCarousels = () => {
     if (!hasFeedCarousel) return;
 
     cleanupFeedActions();
+    feedCarouselControlsCleanup();
+    feedCarouselControlsCleanup = () => {};
 
     if (feedQueue.length === 0) {
-      feedCardWrapper.innerHTML = renderFeedEmptyCard();
+      feedCategoriesRoot.innerHTML = renderFeedEmptyState();
       return;
     }
 
-    feedCardWrapper.innerHTML = feedQueue
-      .map((profile) => renderFeedSwipeCard(profile))
-      .join('');
+    feedCategoriesRoot.innerHTML = renderFeedCategoryBoard(feedQueue);
+    feedCarouselControlsCleanup = setupSwapsCarousels();
 
-    feedCardWrapper.querySelectorAll('.feed-card-avatar').forEach((avatar) => {
+    feedCategoriesRoot.querySelectorAll('.feed-card-avatar').forEach((avatar) => {
       const onAvatarError = () => {
         avatar.src = DEFAULT_MATCH_AVATAR;
       };
@@ -1003,7 +1146,7 @@ function setupMatchesChat(state, options = {}) {
       resolveAvatarForEntity(profile, avatarCache).then((resolvedAvatar) => {
         if (disposed) return;
 
-        const avatar = feedCardWrapper.querySelector(
+        const avatar = feedCategoriesRoot.querySelector(
           `[data-feed-avatar-id="${profileId}"]`
         );
         if (avatar) {
@@ -1012,7 +1155,7 @@ function setupMatchesChat(state, options = {}) {
       });
     });
 
-    feedCardWrapper.querySelectorAll('.feed-swipe-btn').forEach((button) => {
+    feedCategoriesRoot.querySelectorAll('.feed-swipe-btn').forEach((button) => {
       const action = button.getAttribute('data-action');
       const userToId = button.getAttribute('data-user-id');
 
@@ -1070,8 +1213,10 @@ function setupMatchesChat(state, options = {}) {
     const text = String(msg.message || '').trim();
     if (!text) return;
 
+    const aiMessage = isAiMessage(msg);
     const senderId = msg.user_id !== undefined ? String(msg.user_id) : '';
-    const isMine = state.userId !== null && senderId === state.userId;
+    const isMine = !aiMessage && state.userId !== null && senderId === state.userId;
+    const senderName = String(msg.username || '').trim();
 
     const historyEmpty = chatMessages.querySelector('.chat-history-empty');
     if (historyEmpty) {
@@ -1079,8 +1224,23 @@ function setupMatchesChat(state, options = {}) {
     }
 
     const bubble = document.createElement('div');
-    bubble.className = `chat-message ${isMine ? 'mensaje-mio' : 'mensaje-otro'}`;
-    bubble.textContent = text;
+    bubble.className = `chat-message ${
+      aiMessage ? 'mensaje-ai' : isMine ? 'mensaje-mio' : 'mensaje-otro'
+    }`;
+
+    if (aiMessage) {
+      const aiLabel = document.createElement('span');
+      aiLabel.className = 'chat-ai-label';
+      aiLabel.textContent = senderName || 'Asistente IA';
+
+      const aiText = document.createElement('span');
+      aiText.className = 'chat-ai-text';
+      aiText.textContent = text;
+
+      bubble.append(aiLabel, aiText);
+    } else {
+      bubble.textContent = text;
+    }
 
     chatMessages.appendChild(bubble);
     chatMessages.scrollTop = chatMessages.scrollHeight;
@@ -1097,9 +1257,7 @@ function setupMatchesChat(state, options = {}) {
       return;
     }
 
-    const parsedUserId = Number.parseInt(state.userId, 10);
     const payload = {
-      user_id: Number.isNaN(parsedUserId) ? state.userId : parsedUserId,
       message: text,
     };
 
@@ -1122,13 +1280,13 @@ function setupMatchesChat(state, options = {}) {
   const openChat = async (match) => {
     if (!hasChatPanel) return;
 
-    const roomId = match?.room_id;
+    const roomId = getMatchRoomId(match);
     if (!roomId) {
       chatRoomHelper.textContent = 'Este match todavía no tiene sala disponible.';
       return;
     }
 
-    state.activeRoomId = String(roomId);
+    state.activeRoomId = roomId;
     latestHistoryRequest += 1;
     const historyRequestId = latestHistoryRequest;
 
@@ -1184,15 +1342,19 @@ function setupMatchesChat(state, options = {}) {
 
         try {
           const message = JSON.parse(event.data);
+          const aiMessage = isAiMessage(message);
           const senderId =
             message?.user_id !== undefined ? String(message.user_id) : null;
-          const isMine = state.userId !== null && senderId === String(state.userId);
+          const isMine = !aiMessage && state.userId !== null && senderId === String(state.userId);
 
           paintMessage(message);
 
           if (!isMine) {
+            const senderName = String(message?.username || '').trim();
             pushIncomingMessageNotification({
-              senderName: fullName || 'Tu match',
+              senderName: aiMessage
+                ? senderName || 'Asistente IA'
+                : fullName || senderName || 'Tu match',
               message: message?.message,
               roomId,
             });
@@ -1208,8 +1370,22 @@ function setupMatchesChat(state, options = {}) {
           'La conexión del chat tuvo un problema. Reintenta abrir la sala.';
       };
 
-      socket.onclose = () => {
+      socket.onclose = async (event) => {
         if (disposed || state.socket !== socket) return;
+
+        if (event?.code === 4001) {
+          state.socket = null;
+          localStorage.removeItem('token');
+          localStorage.removeItem('userData');
+          localStorage.removeItem('currentUser');
+          localStorage.removeItem('user_id');
+          localStorage.removeItem('role');
+          localStorage.removeItem('pendingOnboarding');
+          const { LoginPage } = await import('./login.js');
+          LoginPage('login');
+          return;
+        }
+
         state.socket = null;
         chatRoomHelper.textContent = 'Chat desconectado.';
       };
@@ -1226,25 +1402,32 @@ function setupMatchesChat(state, options = {}) {
 
     cleanupRows();
 
-    if (!state.userId) {
-      setMatchesStatus('No se encontró el identificador del usuario actual.', 'error');
-      return;
-    }
-
     setMatchesStatus('Cargando tus matches...', 'muted');
 
     try {
-      const payload = await getMatches(state.userId);
+      const payload = await getMatches();
       if (disposed || requestId !== latestMatchesRequest) return;
 
-      const matches = normalizeMatchesPayload(payload);
+      const allMatches = normalizeMatchesPayload(payload);
+      const matches = allMatches.filter((match) => {
+        const roomId = getMatchRoomId(match);
+        return !isClosedSwapRoom(roomId);
+      });
+
       if (matches.length === 0) {
-        setMatchesStatus('Aún no tienes matches disponibles.', 'muted');
+        const noActiveSwaps = allMatches.length > 0;
+        setMatchesStatus(
+          noActiveSwaps
+            ? 'No tienes swaps activos. Los swaps cerrados no se muestran aquí.'
+            : 'Aún no tienes matches disponibles.',
+          'muted'
+        );
 
         const emptyMatches = document.createElement('p');
         emptyMatches.className = 'matches-empty-state';
-        emptyMatches.textContent =
-          'Cuando haya coincidencias nuevas, aparecerán aquí para iniciar chat.';
+        emptyMatches.textContent = noActiveSwaps
+          ? 'Cuando recibas nuevas coincidencias, aparecerán aquí para iniciar chat.'
+          : 'Cuando haya coincidencias nuevas, aparecerán aquí para iniciar chat.';
         matchesList.appendChild(emptyMatches);
         return;
       }
@@ -1255,7 +1438,7 @@ function setupMatchesChat(state, options = {}) {
       );
 
       matches.forEach((match) => {
-        const roomId = match?.room_id;
+        const roomId = getMatchRoomId(match);
         const fullName = [match?.first_name, match?.last_name]
           .filter(Boolean)
           .join(' ')
@@ -1263,8 +1446,8 @@ function setupMatchesChat(state, options = {}) {
 
         const wrapper = document.createElement('article');
         wrapper.className = 'match-item';
-        if (roomId !== undefined && roomId !== null) {
-          wrapper.setAttribute('data-room-id', String(roomId));
+        if (roomId) {
+          wrapper.setAttribute('data-room-id', roomId);
         }
 
         const avatar = document.createElement('img');
@@ -1320,8 +1503,7 @@ function setupMatchesChat(state, options = {}) {
 
       if (options.autoOpenFirstMatch && !autoOpenDone && !state.activeRoomId) {
         const firstRoomMatch = matches.find((match) => {
-          const roomId = match?.room_id;
-          return roomId !== undefined && roomId !== null && roomId !== '';
+          return Boolean(getMatchRoomId(match));
         });
 
         if (firstRoomMatch) {
@@ -1339,17 +1521,10 @@ function setupMatchesChat(state, options = {}) {
   const loadFeed = async () => {
     if (!hasFeedCarousel) return;
 
-    if (!state.userId) {
-      setFeedStatus('No se encontró el usuario actual para cargar feed.', 'error');
-      feedQueue = [];
-      renderFeedCarousel();
-      return;
-    }
-
     setFeedStatus('Cargando perfiles sugeridos...', 'muted');
 
     try {
-      const payload = await getFeed(state.userId);
+      const payload = await getFeed();
       if (disposed) return;
 
       const feedProfiles = normalizeFeedPayload(payload).filter((profile) => {
@@ -1363,13 +1538,16 @@ function setupMatchesChat(state, options = {}) {
 
       if (feedQueue.length === 0) {
         setFeedStatus('No hay perfiles disponibles en tu feed por ahora.', 'muted');
-        renderFeedCarousel();
+        renderFeedCarousels();
         return;
       }
 
-      renderFeedCarousel();
+      renderFeedCarousels();
+      const categorizedGroups = groupFeedProfilesByCategory(feedQueue);
       setFeedStatus(
-        `${feedQueue.length} ${feedQueue.length === 1 ? 'perfil disponible' : 'perfiles disponibles'} para swipe.`,
+        `${feedQueue.length} perfiles en ${categorizedGroups.length} ${
+          categorizedGroups.length === 1 ? 'carrusel filtrado' : 'carruseles filtrados'
+        }.`,
         'success'
       );
     } catch (error) {
@@ -1377,7 +1555,7 @@ function setupMatchesChat(state, options = {}) {
 
       setFeedStatus(error?.message || 'No se pudo cargar el feed de perfiles.', 'error');
       feedQueue = [];
-      renderFeedCarousel();
+      renderFeedCarousels();
     }
   };
 
@@ -1393,7 +1571,7 @@ function setupMatchesChat(state, options = {}) {
       : feedQueue[0];
     const userToId = getFeedProfileId(profile);
 
-    if (!profile || !userToId || !state.userId) {
+    if (!profile || !userToId) {
       setFeedStatus('No hay perfil disponible para registrar swipe.', 'error');
       return;
     }
@@ -1403,7 +1581,7 @@ function setupMatchesChat(state, options = {}) {
     setFeedStatus(action === 'like' ? 'Enviando like...' : 'Enviando pass...', 'muted');
 
     try {
-      const response = await sendSwipe(state.userId, userToId, action);
+      const response = await sendSwipe(userToId, action);
       if (disposed) return;
 
       const createdMatch = isMatchCreated(response);
@@ -1427,7 +1605,7 @@ function setupMatchesChat(state, options = {}) {
         return String(getFeedProfileId(candidate)) !== String(userToId);
       });
 
-      renderFeedCarousel();
+      renderFeedCarousels();
 
       if (feedQueue.length === 0) {
         setFeedStatus('No hay más perfiles en el feed. Usa actualizar feed.', 'muted');
@@ -1444,7 +1622,7 @@ function setupMatchesChat(state, options = {}) {
           return String(getFeedProfileId(candidate)) !== String(userToId);
         });
 
-        renderFeedCarousel();
+        renderFeedCarousels();
 
         const hasMoreProfiles = feedQueue.length > 0;
         setFeedStatus(
@@ -1481,6 +1659,27 @@ function setupMatchesChat(state, options = {}) {
     clearChat();
   };
 
+  const onFinishSwap = async () => {
+    if (!hasChatPanel) return;
+
+    if (!state.activeRoomId) {
+      chatRoomHelper.textContent = 'Abre una conversación para cerrar el swap.';
+      return;
+    }
+
+    const activeRoomId = String(state.activeRoomId);
+    const shouldCloseSwap = window.confirm(
+      '¿Deseas cerrar este swap y darlo por terminado? Esta conversación dejará de mostrarse en tu lista activa.'
+    );
+
+    if (!shouldCloseSwap) return;
+
+    closeSwapRoom(activeRoomId);
+    clearChat();
+    setMatchesStatus(`Swap #${activeRoomId} cerrado correctamente.`, 'success');
+    await loadMatches();
+  };
+
   const onNotificationsToggle = () => {
     const nextState = !notificationsOpen;
     setNotificationsOpen(nextState);
@@ -1513,6 +1712,7 @@ function setupMatchesChat(state, options = {}) {
     refreshMatchesButton.addEventListener('click', onRefreshMatches);
     chatForm.addEventListener('submit', onChatSubmit);
     closeChatButton.addEventListener('click', onCloseChat);
+    finishSwapButton.addEventListener('click', onFinishSwap);
   }
 
   if (hasNotificationUI) {
@@ -1534,6 +1734,7 @@ function setupMatchesChat(state, options = {}) {
       refreshMatchesButton.removeEventListener('click', onRefreshMatches);
       chatForm.removeEventListener('submit', onChatSubmit);
       closeChatButton.removeEventListener('click', onCloseChat);
+      finishSwapButton.removeEventListener('click', onFinishSwap);
     }
 
     if (hasNotificationUI) {
@@ -1557,6 +1758,7 @@ function setupMatchesChat(state, options = {}) {
     disposed = true;
     cleanupRows();
     cleanupFeedActions();
+    feedCarouselControlsCleanup();
     closeSocket();
     cleanups.forEach((cleanup) => cleanup());
   };
@@ -1669,6 +1871,42 @@ function getEntityUserId(entity = {}) {
   return String(candidateId);
 }
 
+function getMatchRoomId(match = {}) {
+  const roomId = match?.room_id ?? match?.roomId ?? match?.chat_room_id ?? null;
+
+  if (roomId === null || roomId === undefined || String(roomId).trim() === '') {
+    return null;
+  }
+
+  return String(roomId);
+}
+
+function readClosedSwapRooms(storageKey) {
+  try {
+    const raw = localStorage.getItem(storageKey);
+    if (!raw) return new Set();
+
+    const parsed = JSON.parse(raw);
+    if (!Array.isArray(parsed)) return new Set();
+
+    return new Set(
+      parsed
+        .map((roomId) => String(roomId || '').trim())
+        .filter(Boolean)
+    );
+  } catch {
+    return new Set();
+  }
+}
+
+function persistClosedSwapRooms(storageKey, closedRoomIdsSet) {
+  try {
+    localStorage.setItem(storageKey, JSON.stringify(Array.from(closedRoomIdsSet)));
+  } catch {
+    // Ignore storage errors (private mode, quota, etc.).
+  }
+}
+
 function normalizeMatchesPayload(payload) {
   if (Array.isArray(payload)) return payload;
   if (Array.isArray(payload?.matches)) return payload.matches;
@@ -1681,6 +1919,21 @@ function normalizeMessagesPayload(payload) {
   if (Array.isArray(payload?.messages)) return payload.messages;
   if (Array.isArray(payload?.data?.messages)) return payload.data.messages;
   return [];
+}
+
+function isAiMessage(message = {}) {
+  if (!message || typeof message !== 'object') return false;
+
+  if (message.is_ai === true || message.is_ai === 1) {
+    return true;
+  }
+
+  if (typeof message.is_ai === 'string') {
+    const normalized = message.is_ai.trim().toLowerCase();
+    return normalized === 'true' || normalized === '1';
+  }
+
+  return false;
 }
 
 function normalizeFeedPayload(payload) {
@@ -1698,20 +1951,45 @@ function getFeedProfileId(profile = {}) {
   return getEntityUserId(profile);
 }
 
-function normalizeSkillList(skills) {
-  if (Array.isArray(skills)) {
-    return skills
+function normalizeSkillList(skills, options = {}) {
+  const { limit = 5 } = options;
+
+  const normalizeEntries = (items) => {
+    return items
+      .map((entry) => {
+        if (typeof entry === 'string') {
+          return entry;
+        }
+
+        if (entry && typeof entry === 'object') {
+          return (
+            entry.name ||
+            entry.skill ||
+            entry.skill_name ||
+            entry.title ||
+            entry.label ||
+            ''
+          );
+        }
+
+        return String(entry || '');
+      })
       .map((skill) => String(skill || '').trim())
       .filter(Boolean)
-      .slice(0, 5);
+      .slice(0, Math.max(1, limit));
+  };
+
+  if (Array.isArray(skills)) {
+    return normalizeEntries(skills);
   }
 
   if (typeof skills === 'string' && skills.trim()) {
-    return skills
+    return normalizeEntries(
+      skills
       .split(',')
       .map((skill) => skill.trim())
       .filter(Boolean)
-      .slice(0, 5);
+    );
   }
 
   return [];
@@ -1738,9 +2016,12 @@ function isMatchCreated(payload) {
 }
 
 function buildChatSocketUrl(roomId) {
+  const token = localStorage.getItem('token') || '';
+  const authQuery = `?token=${encodeURIComponent(token)}`;
+
   const wsBase = import.meta.env.VITE_WS_URL;
   if (wsBase) {
-    return `${wsBase.replace(/\/$/, '')}/ws/chat/${roomId}`;
+    return `${wsBase.replace(/\/$/, '')}/ws/chat/${roomId}${authQuery}`;
   }
 
   const apiUrl = import.meta.env.VITE_API_URL;
@@ -1748,13 +2029,13 @@ function buildChatSocketUrl(roomId) {
     try {
       const parsed = new URL(apiUrl);
       const protocol = parsed.protocol === 'https:' ? 'wss:' : 'ws:';
-      return `${protocol}//${parsed.host}/ws/chat/${roomId}`;
+      return `${protocol}//${parsed.host}/ws/chat/${roomId}${authQuery}`;
     } catch {
       // Fall through to default websocket URL.
     }
   }
 
-  return `wss://learning-swap-backend.onrender.com/ws/chat/${roomId}`;
+  return `wss://learning-swap-backend.onrender.com/ws/chat/${roomId}${authQuery}`;
 }
 
 function formatNotificationTime(dateValue) {
