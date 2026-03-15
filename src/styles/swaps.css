@@ -884,6 +884,112 @@ body.swaps-page #app {
   background: #ffe4e6;
 }
 
+.swaps-dashboard .chat-call-btn,
+.swaps-dashboard .chat-hangup-btn {
+  border-radius: 10px;
+  padding: 0.42rem 0.68rem;
+  font-size: 0.74rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.swaps-dashboard .chat-call-btn {
+  border: 1px solid #bfdbfe;
+  background: #eff6ff;
+  color: #1d4ed8;
+}
+
+.swaps-dashboard .chat-call-btn:hover {
+  background: #dbeafe;
+}
+
+.swaps-dashboard .chat-call-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.swaps-dashboard .chat-hangup-btn {
+  border: 1px solid #fecaca;
+  background: #fef2f2;
+  color: #b91c1c;
+}
+
+.swaps-dashboard .chat-hangup-btn:hover {
+  background: #fee2e2;
+}
+
+.swaps-dashboard .call-panel {
+  border: 1px solid #dbe5f5;
+  border-radius: 14px;
+  background: #f8fbff;
+  padding: 0.7rem;
+  display: grid;
+  gap: 0.55rem;
+}
+
+.swaps-dashboard .call-videos-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.6rem;
+}
+
+.swaps-dashboard .call-video-card {
+  border: 1px solid #d7e3f8;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #111827;
+  position: relative;
+  min-height: 146px;
+}
+
+.swaps-dashboard .call-video-card video {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+  background: #0f172a;
+}
+
+.swaps-dashboard .call-video-card p {
+  margin: 0;
+  position: absolute;
+  left: 8px;
+  bottom: 8px;
+  border-radius: 8px;
+  background: rgba(15, 23, 42, 0.72);
+  color: #f8fafc;
+  font-size: 0.66rem;
+  font-weight: 700;
+  padding: 0.18rem 0.44rem;
+}
+
+.swaps-dashboard .call-video-card--local {
+  border-color: #bfdbfe;
+}
+
+.swaps-dashboard .call-status {
+  margin: 0;
+  font-size: 0.74rem;
+  font-weight: 700;
+  border-radius: 8px;
+  padding: 0.4rem 0.52rem;
+}
+
+.swaps-dashboard .call-status.is-muted {
+  background: #edf3ff;
+  color: #2d4a8a;
+}
+
+.swaps-dashboard .call-status.is-success {
+  background: #e9fff2;
+  color: #0c6a45;
+}
+
+.swaps-dashboard .call-status.is-error {
+  background: #fff1f3;
+  color: #9f1239;
+}
+
 .swaps-dashboard .chat-messages {
   flex: 1;
   min-height: 340px;
@@ -1416,8 +1522,14 @@ body.swaps-page #app {
   }
 
   .swaps-dashboard .chat-panel-actions .chat-close-btn,
-  .swaps-dashboard .chat-panel-actions .chat-finish-btn {
+  .swaps-dashboard .chat-panel-actions .chat-finish-btn,
+  .swaps-dashboard .chat-panel-actions .chat-call-btn,
+  .swaps-dashboard .chat-panel-actions .chat-hangup-btn {
     flex: 1 1 140px;
+  }
+
+  .swaps-dashboard .call-videos-grid {
+    grid-template-columns: 1fr;
   }
 
   .swaps-dashboard .feed-card-footer {

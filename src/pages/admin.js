@@ -19,7 +19,7 @@ const RESOURCE_CONFIG = {
 	skills: {
 		title: 'Habilidades registradas',
 		endpointEnv: 'VITE_ADMIN_SKILLS_ENDPOINT',
-		endpointFallbacks: ['/admin/skills'],
+		endpointFallbacks: ['/admin/skills', '/skills'],
 		idAliases: ['id', 'skill_id'],
 		collectionPaths: [
 			'skills',
@@ -37,16 +37,32 @@ const RESOURCE_CONFIG = {
 				requiredOnCreate: true,
 				aliases: ['name', 'skill_name', 'title'],
 			},
+			{
+				key: 'category',
+				label: 'Categoria',
+				type: 'text',
+				requiredOnCreate: false,
+				aliases: ['category', 'type'],
+			},
+			{
+				key: 'description',
+				label: 'Descripcion',
+				type: 'text',
+				requiredOnCreate: false,
+				aliases: ['description', 'detail', 'summary'],
+			},
 		],
 		columns: [
 			{ label: 'ID', aliases: ['id', 'skill_id'] },
 			{ label: 'Nombre', aliases: ['name', 'skill_name', 'title'] },
+			{ label: 'Categoria', aliases: ['category', 'type'] },
+			{ label: 'Descripcion', aliases: ['description', 'detail', 'summary'] },
 		],
 	},
 	users: {
 		title: 'Usuarios registrados',
 		endpointEnv: 'VITE_ADMIN_USERS_ENDPOINT',
-		endpointFallbacks: ['/admin/users'],
+		endpointFallbacks: ['/admin/users', '/users'],
 		idAliases: ['id', 'user_id'],
 		collectionPaths: [
 			'users',
@@ -88,33 +104,16 @@ const RESOURCE_CONFIG = {
 			{
 				key: 'role',
 				label: 'Rol',
-				type: 'select',
+				type: 'text',
 				requiredOnCreate: false,
-				options: [
-					{ value: 'user', label: 'user' },
-					{ value: 'admin', label: 'admin' },
-					{ value: 'superadmin', label: 'superadmin' },
-					{ value: 'teacher', label: 'teacher' },
-				],
 				aliases: ['role', 'user_role'],
 			},
 			{
 				key: 'password',
 				label: 'Password',
 				type: 'password',
-				requiredOnCreate: true,
-				aliases: ['password'],
-			},
-			{
-				key: 'is_active',
-				label: 'Activo',
-				type: 'select',
 				requiredOnCreate: false,
-				options: [
-					{ value: 'true', label: 'true' },
-					{ value: 'false', label: 'false' },
-				],
-				aliases: ['is_active', 'active'],
+				aliases: ['password'],
 			},
 		],
 		columns: [
@@ -123,30 +122,57 @@ const RESOURCE_CONFIG = {
 			{ label: 'Apellido', aliases: ['last_name', 'surname', 'apellido'] },
 			{ label: 'Correo', aliases: ['email', 'mail'] },
 			{ label: 'Rol', aliases: ['role', 'user_role'] },
-			{ label: 'Activo', aliases: ['is_active', 'active'] },
 		],
-		deleteActionLabel: 'Desactivar',
 	},
 	matches: {
-		title: 'Matches registrados (solo lectura)',
+		title: 'Matches registrados',
 		endpointEnv: 'VITE_ADMIN_MATCHES_ENDPOINT',
-		endpointFallbacks: ['/admin/matches'],
-		idAliases: ['match_id', 'id'],
-		readOnly: true,
+		endpointFallbacks: ['/admin/matches', '/matches'],
+		idAliases: ['id', 'match_id', 'room_id'],
 		collectionPaths: [
 			'matches',
-			'data.matches',
 			'items',
 			'results',
+			'data.matches',
+			'data.items',
+			'data.results',
 		],
-		fields: [],
+		fields: [
+			{
+				key: 'user_from_id',
+				label: 'Usuario origen',
+				type: 'number',
+				requiredOnCreate: true,
+				aliases: ['user_from_id', 'user_1_id', 'from_user_id'],
+			},
+			{
+				key: 'user_to_id',
+				label: 'Usuario destino',
+				type: 'number',
+				requiredOnCreate: true,
+				aliases: ['user_to_id', 'user_2_id', 'to_user_id'],
+			},
+			{
+				key: 'status',
+				label: 'Estado',
+				type: 'text',
+				requiredOnCreate: false,
+				aliases: ['status', 'state'],
+			},
+			{
+				key: 'room_id',
+				label: 'Room ID',
+				type: 'number',
+				requiredOnCreate: false,
+				aliases: ['room_id', 'chat_room_id'],
+			},
+		],
 		columns: [
-			{ label: 'ID', aliases: ['match_id', 'id'] },
-			{ label: 'Usuario 1', aliases: ['user1_id', 'user_1_id', 'user_from_id'] },
-			{ label: 'Usuario 2', aliases: ['user2_id', 'user_2_id', 'user_to_id'] },
+			{ label: 'ID', aliases: ['id', 'match_id', 'room_id'] },
+			{ label: 'Usuario origen', aliases: ['user_from_id', 'user_1_id', 'from_user_id'] },
+			{ label: 'Usuario destino', aliases: ['user_to_id', 'user_2_id', 'to_user_id'] },
 			{ label: 'Estado', aliases: ['status', 'state'] },
 			{ label: 'Room ID', aliases: ['room_id', 'chat_room_id'] },
-			{ label: 'Creado', aliases: ['created_at', 'createdAt'] },
 		],
 	},
 };
@@ -294,32 +320,9 @@ export async function AdminPage() {
 
 function renderCrudPanel(resource) {
 	const config = RESOURCE_CONFIG[resource];
-	const hasActions = !config.readOnly;
 	const headers = config.columns
 		.map((column) => `<th>${escapeHtml(column.label)}</th>`)
 		.join('');
-	const formMarkup = config.readOnly
-		? '<p class="admin-readonly-note">Este recurso es solo lectura en backend.</p>'
-		: `
-			<form id="form-${resource}" class="admin-form-grid">
-				${config.fields.map((field) => renderFormField(resource, field)).join('')}
-
-				<div class="admin-form-actions">
-					<button type="submit" id="submit-${resource}" class="admin-btn">Crear</button>
-					<button
-						type="button"
-						id="cancel-${resource}"
-						class="admin-btn admin-btn--ghost"
-						data-resource-cancel="${resource}"
-						hidden
-					>
-						Cancelar edicion
-					</button>
-				</div>
-			</form>
-		`;
-	const actionHeader = hasActions ? '<th>Acciones</th>' : '';
-	const emptyColspan = config.columns.length + (hasActions ? 1 : 0);
 
 	return `
 		<article
@@ -341,59 +344,52 @@ function renderCrudPanel(resource) {
 				Cargando datos...
 			</p>
 
-			${formMarkup}
+			<form id="form-${resource}" class="admin-form-grid">
+				${config.fields
+					.map(
+						(field) => `
+							<label class="admin-form-field">
+								<span>${escapeHtml(field.label)}</span>
+								<input
+									id="field-${resource}-${field.key}"
+									type="${escapeHtml(field.type || 'text')}"
+									placeholder="${escapeHtml(field.label)}"
+								/>
+							</label>
+						`
+					)
+					.join('')}
+
+				<div class="admin-form-actions">
+					<button type="submit" id="submit-${resource}" class="admin-btn">Crear</button>
+					<button
+						type="button"
+						id="cancel-${resource}"
+						class="admin-btn admin-btn--ghost"
+						data-resource-cancel="${resource}"
+						hidden
+					>
+						Cancelar edicion
+					</button>
+				</div>
+			</form>
 
 			<div class="admin-table-wrapper">
 				<table class="admin-table">
 					<thead>
 						<tr>
 							${headers}
-							${actionHeader}
+							<th>Acciones</th>
 						</tr>
 					</thead>
 					<tbody id="tbody-${resource}">
 						<tr>
-							<td colspan="${emptyColspan}" class="admin-table-empty">Sin datos</td>
+							<td colspan="${config.columns.length + 1}" class="admin-table-empty">Sin datos</td>
 						</tr>
 					</tbody>
 				</table>
 			</div>
 		</article>
-	`;
-}
-
-function renderFormField(resource, field) {
-	const fieldId = `field-${resource}-${field.key}`;
-
-	if (field.type === 'select') {
-		const options = (field.options || [])
-			.map((option) => {
-				const value = option?.value ?? '';
-				const label = option?.label ?? value;
-				return `<option value="${escapeHtml(value)}">${escapeHtml(label)}</option>`;
-			})
-			.join('');
-
-		return `
-			<label class="admin-form-field">
-				<span>${escapeHtml(field.label)}</span>
-				<select id="${fieldId}">
-					<option value="">Selecciona...</option>
-					${options}
-				</select>
-			</label>
-		`;
-	}
-
-	return `
-		<label class="admin-form-field">
-			<span>${escapeHtml(field.label)}</span>
-			<input
-				id="${fieldId}"
-				type="${escapeHtml(field.type || 'text')}"
-				placeholder="${escapeHtml(field.label)}"
-			/>
-		</label>
 	`;
 }
 
@@ -441,22 +437,18 @@ function setActiveResource(resource) {
 
 function setupCrudActions() {
 	RESOURCE_ORDER.forEach((resource) => {
-		const config = RESOURCE_CONFIG[resource];
+		document
+			.getElementById(`form-${resource}`)
+			?.addEventListener('submit', async (event) => {
+				event.preventDefault();
+				await submitResource(resource);
+			});
 
-		if (!config.readOnly) {
-			document
-				.getElementById(`form-${resource}`)
-				?.addEventListener('submit', async (event) => {
-					event.preventDefault();
-					await submitResource(resource);
-				});
-
-			document
-				.querySelector(`[data-resource-cancel="${resource}"]`)
-				?.addEventListener('click', () => {
-					resetForm(resource);
-				});
-		}
+		document
+			.querySelector(`[data-resource-cancel="${resource}"]`)
+			?.addEventListener('click', () => {
+				resetForm(resource);
+			});
 
 		document
 			.querySelector(`[data-resource-refresh="${resource}"]`)
@@ -465,8 +457,6 @@ function setupCrudActions() {
 			});
 
 		document.getElementById(`tbody-${resource}`)?.addEventListener('click', async (event) => {
-			if (config.readOnly) return;
-
 			const button = event.target.closest('[data-row-action]');
 			if (!button) return;
 
@@ -489,11 +479,6 @@ function setupCrudActions() {
 
 async function submitResource(resource) {
 	const config = RESOURCE_CONFIG[resource];
-	if (config.readOnly) {
-		setResourceStatus(resource, 'Este recurso es solo lectura.', 'muted');
-		return;
-	}
-
 	const isEditing = Boolean(state.editing[resource]);
 	const payload = buildPayloadFromForm(resource, config.fields, isEditing);
 
@@ -528,11 +513,6 @@ async function submitResource(resource) {
 
 async function deleteEntity(resource, entity) {
 	const config = RESOURCE_CONFIG[resource];
-	if (config.readOnly) {
-		setResourceStatus(resource, 'Este recurso es solo lectura.', 'muted');
-		return;
-	}
-
 	const entityId = getFieldByAliases(entity, config.idAliases);
 
 	if (entityId === null || entityId === undefined || entityId === '') {
@@ -540,8 +520,7 @@ async function deleteEntity(resource, entity) {
 		return;
 	}
 
-	const actionVerb = resource === 'users' ? 'desactivar' : 'eliminar';
-	const shouldDelete = window.confirm(`Deseas ${actionVerb} este registro?`);
+	const shouldDelete = window.confirm('Deseas eliminar este registro?');
 	if (!shouldDelete) return;
 
 	try {
@@ -554,20 +533,12 @@ async function deleteEntity(resource, entity) {
 			resetForm(resource);
 		}
 
-		setResourceStatus(
-			resource,
-			resource === 'users'
-				? 'Usuario desactivado correctamente.'
-				: 'Registro eliminado correctamente.',
-			'success'
-		);
+		setResourceStatus(resource, 'Registro eliminado correctamente.', 'success');
 		await loadResource(resource, { silentSuccessStatus: true });
 	} catch (error) {
 		setResourceStatus(
 			resource,
-			error.message || (resource === 'users'
-				? 'No fue posible desactivar el usuario.'
-				: 'No fue posible eliminar el registro.'),
+			error.message || 'No fue posible eliminar el registro.',
 			'error'
 		);
 	}
@@ -629,7 +600,8 @@ function buildPayloadFromForm(resource, fields, isEditing) {
 	const missingRequired = [];
 
 	fields.forEach((field) => {
-		const rawValue = getFormControlValue(resource, field);
+		const input = document.getElementById(`field-${resource}-${field.key}`);
+		const rawValue = input?.value?.trim() || '';
 
 		if (!rawValue) {
 			if (!isEditing && field.requiredOnCreate) {
@@ -655,37 +627,13 @@ function buildPayloadFromForm(resource, fields, isEditing) {
 		return null;
 	}
 
-	if (resource === 'users' && !isEditing && !payload.role) {
-		payload.role = 'user';
-	}
-
 	return payload;
-}
-
-function getFormControlValue(resource, field) {
-	const control = document.getElementById(`field-${resource}-${field.key}`);
-	if (!control) return '';
-
-	if (control.tagName === 'SELECT') {
-		return String(control.value || '').trim();
-	}
-
-	return String(control.value || '').trim();
 }
 
 function normalizePayloadValue(key, value) {
 	if (key.endsWith('_id')) {
 		const numeric = Number.parseInt(value, 10);
 		return Number.isNaN(numeric) ? value : numeric;
-	}
-
-	if (key === 'is_active') {
-		if (value === 'true') return true;
-		if (value === 'false') return false;
-	}
-
-	if (key === 'role') {
-		return String(value).trim().toLowerCase();
 	}
 
 	return value;
@@ -704,7 +652,7 @@ async function loadStats() {
 
 	for (const endpoint of candidates) {
 		try {
-			const payload = await callApi(endpoint, { method: 'GET', withAuth: false });
+			const payload = await callApi(endpoint, { method: 'GET' });
 			state.endpoints.stats = endpoint;
 			applyStats(payload || {});
 
@@ -777,8 +725,6 @@ async function loadResource(resource, options = {}) {
 
 function renderResourceTable(resource) {
 	const config = RESOURCE_CONFIG[resource];
-	const hasActions = !config.readOnly;
-	const emptyColspan = config.columns.length + (hasActions ? 1 : 0);
 	const rows = state.resources[resource];
 	const body = document.getElementById(`tbody-${resource}`);
 
@@ -787,7 +733,7 @@ function renderResourceTable(resource) {
 	if (!Array.isArray(rows) || rows.length === 0) {
 		body.innerHTML = `
 			<tr>
-				<td colspan="${emptyColspan}" class="admin-table-empty">
+				<td colspan="${config.columns.length + 1}" class="admin-table-empty">
 					No hay registros para mostrar.
 				</td>
 			</tr>
@@ -799,15 +745,16 @@ function renderResourceTable(resource) {
 		.map((row, index) => {
 			const idValue = getFieldByAliases(row, config.idAliases);
 			const hasId = idValue !== null && idValue !== undefined && idValue !== '';
-			const deleteActionLabel = config.deleteActionLabel || 'Eliminar';
 			const columnsHtml = config.columns
 				.map((column) => {
 					const value = getFieldByAliases(row, column.aliases);
 					return `<td>${escapeHtml(value === undefined || value === null || value === '' ? '-' : value)}</td>`;
 				})
 				.join('');
-			const actionsHtml = hasActions
-				? `
+
+			return `
+				<tr>
+					${columnsHtml}
 					<td class="admin-actions-cell">
 						<button
 							type="button"
@@ -825,16 +772,9 @@ function renderResourceTable(resource) {
 							data-row-index="${index}"
 							${hasId ? '' : 'disabled'}
 						>
-							${escapeHtml(deleteActionLabel)}
+							Eliminar
 						</button>
 					</td>
-				`
-				: '';
-
-			return `
-				<tr>
-					${columnsHtml}
-					${actionsHtml}
 				</tr>
 			`;
 		})
@@ -864,11 +804,6 @@ function extractCollection(payload, resource) {
 
 async function requestResource(resource, requestOptions) {
 	const { method, id = null, payload = null } = requestOptions;
-	const config = RESOURCE_CONFIG[resource];
-
-	if (config.readOnly && method !== 'GET') {
-		throw new Error('Este recurso solo permite consulta (GET).');
-	}
 
 	const candidates = [];
 	const resolvedEndpoint = state.endpoints[resource];
@@ -894,7 +829,6 @@ async function requestResource(resource, requestOptions) {
 			const response = await callApi(url, {
 				method,
 				body: payload,
-				withAuth: true,
 			});
 			state.endpoints[resource] = baseEndpoint;
 			return response;
@@ -917,11 +851,11 @@ async function requestResource(resource, requestOptions) {
 }
 
 async function callApi(url, options = {}) {
-	const { method = 'GET', body = null, withAuth = true } = options;
+	const { method = 'GET', body = null } = options;
 
 	const headers = {};
 	const token = localStorage.getItem('token');
-	if (withAuth && token) {
+	if (token) {
 		headers.Authorization = `Bearer ${token}`;
 	}
 
@@ -955,7 +889,7 @@ async function callApi(url, options = {}) {
 	}
 
 	if (!response.ok) {
-		if (withAuth && response.status === 401) {
+		if (response.status === 401) {
 			forceLogoutToLogin();
 		}
 
@@ -1003,7 +937,7 @@ function getStatsEndpointCandidates() {
 		return [toAbsoluteUrl(envValue)];
 	}
 
-	return ['/stats'].map((path) => toAbsoluteUrl(path));
+	return ['/stats', '/admin/stats'].map((path) => toAbsoluteUrl(path));
 }
 
 function toAbsoluteUrl(path) {
@@ -1066,3 +1000,4 @@ function escapeHtml(value = '') {
 		.replace(/"/g, '&quot;')
 		.replace(/'/g, '&#039;');
 }
+
