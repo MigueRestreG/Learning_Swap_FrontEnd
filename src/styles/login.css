@@ -231,7 +231,10 @@
   }
 
   #form-sign-up {
-    padding: 0.85rem 0 1rem;
+    padding: 0.85rem 0 5.8rem;
     gap: 0.45rem;
+    max-height: none;
+    overflow-y: visible;
+    scrollbar-width: auto;
   }
 }

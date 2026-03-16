@@ -10,19 +10,16 @@ import {
   setupNavbarSectionLinks,
 } from '../components/navbar.js';
 import {
-  loginUser,
-  registerUser,
-  saveOnboardingSkills,
-} from '../services/api.js';
+  clearError,
+  escapeHtml,
+  normalizeSkill,
+} from './login/helpers.js';
 import {
-  getCurrentUser,
-  getCurrentUserId,
-  getCurrentUserRole,
-  getToken,
-  saveCurrentUserId,
-  setOnboardingPending,
-  saveUserData,
-} from '../utils/auth.js';
+  handleLoginRequest,
+  handleRegisterRequest,
+  handleSkillsSubmitRequest,
+} from './login/auth-handlers.js';
+import { initializeAuthToggle, setupAuthNavbar } from './login/ui.js';
 
 const createRegisterState = () => ({
   step: 1,
@@ -80,7 +77,6 @@ export function LoginPage(mode = 'login') {
                         <ion-icon name="lock-closed-outline"></ion-icon>
                         <input type="password" id="login-password" placeholder="•••••••" required>
                     </div>
-                    <a href="#forgot-password">¿Olvidaste tu contraseña?</a>
                     <div class="form-error" id="login-error"></div>
                     <button type="submit" class="button-logIn">Iniciar sesión</button>
                 </form>
@@ -209,71 +205,6 @@ export function LoginPage(mode = 'login') {
 }
 
 /**
- * Setup navbar buttons for auth pages to go back to home
- */
-function setupAuthNavbar() {
-  const logoLink = document.querySelector('.navbar-brand');
-  if (logoLink) {
-    logoLink.addEventListener('click', async (e) => {
-      e.preventDefault();
-      document.body.classList.remove('auth-page', 'register-mode');
-      const { HomePage } = await import('./home.js');
-      HomePage();
-    });
-  }
-
-  // buttons on auth pages should switch mode or navigate
-  const navAction = async (targetMode) => {
-    document.body.classList.remove('auth-page', 'register-mode');
-    const { LoginPage } = await import('./login.js');
-    LoginPage(targetMode);
-  };
-
-  ['btnLogin', 'btnLoginMobile'].forEach((id) => {
-    const btn = document.getElementById(id);
-    if (btn) {
-      btn.addEventListener('click', (e) => {
-        e.preventDefault();
-        navAction('login');
-      });
-    }
-  });
-
-  ['btnSignup', 'btnSignupMobile'].forEach((id) => {
-    const btn = document.getElementById(id);
-    if (btn) {
-      btn.addEventListener('click', (e) => {
-        e.preventDefault();
-        navAction('register');
-      });
-    }
-  });
-}
-
-/**
- * Initialize Login/Register toggle functionality
- */
-function initializeAuthToggle() {
-  const container = document.querySelector('.container');
-  const btnSignUp = document.getElementById('btn-sign-up');
-  const btnSignIn = document.getElementById('btn-sign-in');
-
-  if (btnSignUp) {
-    btnSignUp.addEventListener('click', () => {
-      container.classList.add('toggle');
-      document.body.classList.add('register-mode');
-    });
-  }
-
-  if (btnSignIn) {
-    btnSignIn.addEventListener('click', () => {
-      container.classList.remove('toggle');
-      document.body.classList.remove('register-mode');
-    });
-  }
-}
-
-/**
  * Setup form submission handlers
  */
 function setupFormHandlers() {
@@ -285,19 +216,19 @@ function setupFormHandlers() {
   if (loginForm) {
     loginForm.addEventListener('submit', async (e) => {
       e.preventDefault();
-      await handleLogin();
+      await handleLoginRequest();
     });
   }
 
   if (registerForm) {
     registerForm.addEventListener('submit', async (e) => {
       e.preventDefault();
-      await handleSkillsSubmit();
+      await handleSkillsSubmitRequest(registerState);
     });
   }
 
   nextBtn?.addEventListener('click', async () => {
-    await handleRegister();
+    await handleRegisterRequest(registerState, showRegisterStep);
   });
 
   backBtn?.addEventListener('click', () => {
@@ -307,179 +238,6 @@ function setupFormHandlers() {
   setupSkillInputs();
   renderSkillTags('learn');
   renderSkillTags('teach');
-}
-
-/**
- * Handle login submission
- */
-async function handleLogin() {
-  const email = document.getElementById('login-email')?.value.trim();
-  const password = document.getElementById('login-password')?.value;
-  const errorEl = document.getElementById('login-error');
-  const btn = document.querySelector('#form-sign-in .button-logIn');
-
-  if (!email || !password) {
-    showError(errorEl, 'Por favor completa todos los campos.');
-    return;
-  }
-
-  setLoading(btn, true);
-  clearError(errorEl);
-
-  try {
-    const data = await loginUser(email, password);
-    saveUserData(data);
-    setOnboardingPending(false);
-
-    if (!getCurrentUser()) {
-      saveUserData({ user: { email } });
-    }
-
-    await navigateAfterAuthByRole();
-  } catch (error) {
-    showError(
-      errorEl,
-      error.message || 'El inicio de sesión falló. Inténtalo de nuevo.'
-    );
-  } finally {
-    setLoading(btn, false);
-  }
-}
-
-/**
- * Handle register submission
- */
-async function handleRegister() {
-  const firstName = document.getElementById('register-firstname')?.value.trim();
-  const lastName = document.getElementById('register-lastname')?.value.trim();
-  const email = document.getElementById('register-email')?.value.trim();
-  const password = document.getElementById('register-password')?.value;
-  const phone = document.getElementById('register-phone')?.value.trim();
-  const errorEl = document.getElementById('register-error');
-  const btn = document.getElementById('register-next');
-
-  if (registerState.userId) {
-    showRegisterStep(2);
-    return;
-  }
-
-  if (!firstName || !lastName || !email || !password || !phone) {
-    showError(errorEl, 'Por favor completa todos los campos.');
-    return;
-  }
-
-  setLoading(btn, true);
-  clearError(errorEl);
-
-  try {
-    const data = await registerUser(
-      firstName,
-      lastName,
-      email,
-      password,
-      phone
-    );
-    saveUserData(data);
-    registerState.email = email;
-    registerState.password = password;
-
-    const hasSession = await ensureSessionAfterRegister(email, password);
-
-    if (!hasSession) {
-      throw new Error(
-        'Tu cuenta fue creada, pero no se pudo iniciar sesión automáticamente. Inicia sesión para continuar.'
-      );
-    }
-
-    const userId = getUserIdFromResponse(data);
-
-    if (userId) {
-      saveCurrentUserId(userId);
-    }
-
-    setOnboardingPending(true);
-
-    saveUserData({
-      user: {
-        ...(getCurrentUser() || {}),
-        id: userId,
-        first_name: firstName,
-        last_name: lastName,
-        email,
-        phone,
-      },
-    });
-
-    registerState.userId =
-      userId || getCurrentUser()?.id || getCurrentUserId() || null;
-
-    showRegisterStep(2);
-  } catch (error) {
-    showError(
-      errorEl,
-      error.message || 'El registro falló. Inténtalo de nuevo.'
-    );
-  } finally {
-    setLoading(btn, false);
-  }
-}
-
-async function handleSkillsSubmit() {
-  const errorEl = document.getElementById('register-error');
-  const btn = document.getElementById('register-submit');
-  const registerEmail = registerState.email || getRegisterEmail();
-  const registerPassword = registerState.password || getRegisterPassword();
-
-  if (!registerState.userId) {
-    registerState.userId = getCurrentUserId() || null;
-  }
-
-  setLoading(btn, true, 'Guardar habilidades');
-  clearError(errorEl);
-
-  try {
-    const hasSession = await ensureSessionAfterRegister(
-      registerEmail,
-      registerPassword
-    );
-
-    if (!hasSession) {
-      throw new Error(
-        'Tu cuenta fue creada, pero no se pudo iniciar sesión automáticamente. Inicia sesión para continuar.'
-      );
-    }
-
-    await saveOnboardingSkills(registerState.learnSkills, registerState.teachSkills);
-
-    setOnboardingPending(false);
-
-    const currentUser = getCurrentUser() || {};
-    const resolvedUserId =
-      registerState.userId ||
-      currentUser?.id ||
-      currentUser?.user_id ||
-      getCurrentUserId() ||
-      null;
-
-    saveUserData({
-      user: {
-        ...currentUser,
-        ...(resolvedUserId ? { id: resolvedUserId } : {}),
-        learn_skills: [...registerState.learnSkills],
-        teach_skills: [...registerState.teachSkills],
-      },
-    });
-
-    await navigateAfterAuthByRole();
-  } catch (error) {
-    showError(
-      errorEl,
-      error.message ||
-        'No se pudieron guardar las habilidades. Inténtalo de nuevo.'
-    );
-  } finally {
-    setLoading(btn, false, 'Guardar habilidades');
-  }
 }
 
 function setupSkillInputs() {
@@ -626,102 +384,4 @@ function showRegisterStep(step) {
   }
 
   clearError(errorEl);
-}
-
-function getUserIdFromResponse(data) {
-  const candidates = [
-    data?.user?.id,
-    data?.data?.user?.id,
-    data?.profile?.id,
-    data?.id,
-    data?.user_id,
-    data?.data?.id,
-    data?.data?.user_id,
-  ];
-
-  const found = candidates.find(
-    (candidate) =>
-      candidate !== undefined && candidate !== null && candidate !== ''
-  );
-
-  return found ?? null;
-}
-
-async function ensureSessionAfterRegister(email, password) {
-  if (getToken()) return true;
-
-  if (!email || !password) return false;
-
-  try {
-    const loginData = await loginUser(email, password);
-    saveUserData(loginData);
-    return Boolean(getToken());
-  } catch {
-    return false;
-  }
-}
-
-async function navigateAfterAuthByRole() {
-  const role = getCurrentUserRole();
-
-  if (role === 'admin') {
-    const { AdminPage } = await import('./admin.js');
-    AdminPage();
-    return;
-  }
-
-  const { ProfilePage } = await import('./profile.js');
-  ProfilePage();
-}
-
-function getRegisterEmail() {
-  return document.getElementById('register-email')?.value.trim() || '';
-}
-
-function getRegisterPassword() {
-  return document.getElementById('register-password')?.value || '';
-}
-
-function normalizeSkill(value) {
-  return value.replace(/\s+/g, ' ').trim();
-}
-
-function escapeHtml(value = '') {
-  return String(value)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#039;');
-}
-
-/** Show inline error message */
-function showError(el, message) {
-  if (!el) return;
-  el.textContent = message;
-  el.style.display = 'block';
-}
-
-/** Clear inline error message */
-function clearError(el) {
-  if (!el) return;
-  el.textContent = '';
-  el.style.display = 'none';
-}
-
-/** Toggle loading state on submit button */
-function setLoading(btn, loading, defaultLabel = '') {
-  if (!btn) return;
-  btn.disabled = loading;
-  if (!btn.dataset.label) {
-    btn.dataset.label = defaultLabel || btn.textContent;
-  }
-  btn.textContent = loading
-    ? 'Cargando…'
-    : btn.dataset.label || btn.textContent;
-  if (!defaultLabel && !btn.dataset.label && !loading) {
-    btn.textContent = btn.classList.contains('button-logIn')
-      ? 'Iniciar sesión'
-      : 'Registrarse';
-  }
 }

@@ -9,13 +9,37 @@ import {
   isAuthenticated,
   logout,
 } from '../utils/auth.js';
+import {
+  getResolvedTheme,
+  isDarkThemeActive,
+  toggleTheme,
+} from '../utils/theme.js';
 
 export function getNavbar() {
   const user = getCurrentUser();
   const authenticated = isAuthenticated();
+  const darkModeActive = isDarkThemeActive() || getResolvedTheme() === 'dark';
+  const themeButtonLabel = darkModeActive ? 'Claro' : 'Oscuro';
+  const themeButtonIcon = darkModeActive ? 'sunny-outline' : 'moon-outline';
   const profileLabel = user?.first_name || user?.name || 'Perfil';
   const role = getCurrentUserRole();
   const isAdmin = role === 'admin';
+  const themeDesktopAction = `
+      <button class="btn secondary theme-toggle-btn" id="btnThemeToggle" type="button" aria-pressed="${
+        darkModeActive ? 'true' : 'false'
+      }" title="Cambiar tema">
+        <ion-icon name="${themeButtonIcon}"></ion-icon>
+        <span>${themeButtonLabel}</span>
+      </button>
+    `;
+  const themeMobileAction = `
+      <button class="btn secondary theme-toggle-btn" id="btnThemeToggleMobile" type="button" aria-pressed="${
+        darkModeActive ? 'true' : 'false'
+      }" title="Cambiar tema">
+        <ion-icon name="${themeButtonIcon}"></ion-icon>
+        <span>${themeButtonLabel}</span>
+      </button>
+    `;
   const adminDesktopAction = isAdmin
     ? '<a class="btn secondary navbar-swap-link" href="#admin">Admin</a>'
     : '';
@@ -30,10 +54,12 @@ export function getNavbar() {
       ${adminDesktopAction}
       <button class="btn secondary" id="btnProfile">${profileLabel}</button>
       <button class="btn primary" id="btnLogoutNav">Cerrar sesión</button>
+      ${themeDesktopAction}
     `
     : `
       <button class="btn secondary" id="btnLogin">Iniciar sesión</button>
       <button class="btn primary" id="btnSignup">Crear cuenta</button>
+      ${themeDesktopAction}
     `;
 
   const mobileActions = authenticated
@@ -43,10 +69,12 @@ export function getNavbar() {
       ${adminMobileAction}
       <button class="btn secondary" id="btnProfileMobile">${profileLabel}</button>
       <button class="btn primary" id="btnLogoutMobile">Cerrar sesión</button>
+      ${themeMobileAction}
     `
     : `
       <button class="btn secondary" id="btnLoginMobile">Iniciar sesión</button>
       <button class="btn primary" id="btnSignupMobile">Crear cuenta</button>
+      ${themeMobileAction}
     `;
 
   return `
@@ -114,6 +142,8 @@ export function setupNavbarBurger() {
 }
 
 export function setupNavbarAuthActions() {
+  setupNavbarThemeToggle();
+
   const goProfile = async () => {
     const { ProfilePage } = await import('../pages/profile.js');
     ProfilePage();
@@ -159,4 +189,38 @@ export function setupNavbarSectionLinks() {
       HomePage(targetId);
     });
   });
+}
+
+function setupNavbarThemeToggle() {
+  const syncThemeButtons = () => {
+    const darkModeActive = isDarkThemeActive();
+    const themeButtonLabel = darkModeActive ? 'Claro' : 'Oscuro';
+    const themeButtonIcon = darkModeActive
+      ? 'sunny-outline'
+      : 'moon-outline';
+
+    ['btnThemeToggle', 'btnThemeToggleMobile'].forEach((id) => {
+      const button = document.getElementById(id);
+      if (!button) return;
+
+      button.setAttribute('aria-pressed', darkModeActive ? 'true' : 'false');
+      button.innerHTML = `
+        <ion-icon name="${themeButtonIcon}"></ion-icon>
+        <span>${themeButtonLabel}</span>
+      `;
+    });
+  };
+
+  const onToggleTheme = () => {
+    toggleTheme();
+    syncThemeButtons();
+  };
+
+  const desktopToggle = document.getElementById('btnThemeToggle');
+  const mobileToggle = document.getElementById('btnThemeToggleMobile');
+
+  desktopToggle?.addEventListener('click', onToggleTheme);
+  mobileToggle?.addEventListener('click', onToggleTheme);
+
+  syncThemeButtons();
 }
