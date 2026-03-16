@@ -108,10 +108,16 @@ export async function CheckoutPage() {
             <p class="info-step">A continuación los pasos para un pago seguro.</p>
             <p class="info-step">1. Verifica que los datos de tu tarjeta coincidan con los de tu banco.</p>
             <p class="info-step">2. Métodos aceptados:</p>
-            <div class="card-logos">
-              <img src="./public/assets/credit-cards-payzone/Visa.jpg" alt="Visa logo" />
-              <img src="./public/assets/credit-cards-payzone/americanExpress.png" alt="Amex logo" />
-              <img src="https://upload.wikimedia.org/wikipedia/commons/2/2a/Mastercard-logo.svg" alt="Mastercard" />
+            <div class="card-logos" aria-label="Tarjetas aceptadas">
+              <figure class="card-logo-item">
+                <img src="/assets/credit-cards-payzone/Visa.jpg" alt="Visa" loading="lazy" />
+              </figure>
+              <figure class="card-logo-item">
+                <img src="/assets/credit-cards-payzone/americanExpress.png" alt="American Express" loading="lazy" />
+              </figure>
+              <figure class="card-logo-item">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/2/2a/Mastercard-logo.svg" alt="Mastercard" loading="lazy" />
+              </figure>
             </div>
             <p class="info-step">3. Tu compra es 100% segura y cifrada.</p>
             <!-- Spline 3D model viewer -->

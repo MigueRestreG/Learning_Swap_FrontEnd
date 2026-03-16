@@ -1,10 +1,12 @@
 import {
+  finishMatch,
   getFeed,
   getMatches,
   getMessages,
   sendSwipe,
   uploadChatMedia,
 } from '../../services/api.js';
+import { getCurrentUser, saveUserData } from '../../utils/auth.js';
 import {
   CHAT_NOTIFICATION_STORE,
   CHAT_RECORDING_MAX_MS,
@@ -44,6 +46,7 @@ import { groupFeedProfilesByCategory } from './feed-categorization.js';
 import {
   getEntityUserId,
   getMatchAvatar,
+  getMatchId,
   getMatchRoomId,
   resolveAvatarForEntity,
 } from './avatar-utils.js';
@@ -154,6 +157,8 @@ export function setupMatchesChat(state, options = {}) {
   let audioRecorderShouldUpload = true;
   let audioRecordingTimerId = null;
   let notificationsOpen = false;
+  let activeMatch = null;
+  let finishingSwapInProgress = false;
   const avatarCache = new Map();
   const callState = {
     roomId: null,
@@ -179,6 +184,156 @@ export function setupMatchesChat(state, options = {}) {
     if (!roomId) return;
     closedRoomIds.add(String(roomId));
     persistClosedSwaps();
+  };
+
+  const isMatchCompleted = (match = {}) => {
+    const statusCandidate =
+      match?.is_completed ??
+      match?.completed ??
+      match?.isCompleted ??
+      match?.status ??
+      match?.state ??
+      null;
+
+    if (typeof statusCandidate === 'boolean') {
+      return statusCandidate;
+    }
+
+    if (typeof statusCandidate === 'number') {
+      return statusCandidate === 1;
+    }
+
+    if (typeof statusCandidate === 'string') {
+      const normalizedStatus = statusCandidate.trim().toLowerCase();
+      return (
+        normalizedStatus === 'true' ||
+        normalizedStatus === '1' ||
+        normalizedStatus === 'completed' ||
+        normalizedStatus === 'closed' ||
+        normalizedStatus === 'finished' ||
+        normalizedStatus === 'finalizado'
+      );
+    }
+
+    return false;
+  };
+
+  const resolveCurrentUserId = () => {
+    if (state.userId) return String(state.userId);
+
+    const cachedUser = getCurrentUser() || {};
+    const candidate = cachedUser?.id ?? cachedUser?.user_id ?? null;
+    if (candidate === null || candidate === undefined || candidate === '') {
+      return null;
+    }
+
+    return String(candidate);
+  };
+
+  const normalizePointsValue = (points) => {
+    const parsedPoints = Number.parseInt(points, 10);
+    return Number.isNaN(parsedPoints) ? null : parsedPoints;
+  };
+
+  const updateCurrentUserPoints = (points) => {
+    const normalizedPoints = normalizePointsValue(points);
+    if (normalizedPoints === null) return;
+
+    const cachedUser = getCurrentUser() || {};
+    saveUserData({
+      user: {
+        ...cachedUser,
+        points: normalizedPoints,
+      },
+    });
+
+    document.querySelectorAll('[data-current-user-points]').forEach((element) => {
+      element.textContent = String(normalizedPoints);
+    });
+
+    document.querySelectorAll('[data-current-user-points-chip]').forEach((element) => {
+      element.textContent = `${normalizedPoints} pts`;
+    });
+  };
+
+  const resolveAwardedPointsFromFinishPayload = (payload = {}) => {
+    return normalizePointsValue(
+      payload?.puntos_otorgados ??
+        payload?.points_awarded ??
+        payload?.awarded_points ??
+        payload?.data?.puntos_otorgados ??
+        payload?.data?.points_awarded
+    );
+  };
+
+  const resolveUpdatedPointsFromFinishPayload = (payload = {}) => {
+    const directPoints = normalizePointsValue(
+      payload?.points ??
+        payload?.puntos ??
+        payload?.my_points ??
+        payload?.mis_puntos ??
+        payload?.data?.points ??
+        payload?.data?.puntos
+    );
+
+    if (directPoints !== null) {
+      return directPoints;
+    }
+
+    const currentUserId = resolveCurrentUserId();
+    if (!currentUserId) {
+      return null;
+    }
+
+    const candidates = [
+      payload?.user1,
+      payload?.user2,
+      payload?.data?.user1,
+      payload?.data?.user2,
+    ].filter(Boolean);
+
+    for (const userPayload of candidates) {
+      const candidateUserId =
+        userPayload?.user_id ?? userPayload?.id ?? userPayload?.userId ?? null;
+
+      if (
+        candidateUserId === null ||
+        candidateUserId === undefined ||
+        candidateUserId === ''
+      ) {
+        continue;
+      }
+
+      if (String(candidateUserId) !== String(currentUserId)) {
+        continue;
+      }
+
+      const updatedPoints = normalizePointsValue(
+        userPayload?.nuevos_puntos ??
+          userPayload?.new_points ??
+          userPayload?.points ??
+          userPayload?.puntos
+      );
+
+      if (updatedPoints !== null) {
+        return updatedPoints;
+      }
+    }
+
+    return null;
+  };
+
+  const setFinishSwapButtonState = (match) => {
+    if (!hasChatPanel) return;
+
+    const canFinishMatch =
+      Boolean(match) && Boolean(getMatchId(match)) && !isMatchCompleted(match);
+
+    finishSwapButton.hidden = !canFinishMatch;
+    finishSwapButton.disabled = !canFinishMatch || finishingSwapInProgress;
+    finishSwapButton.textContent = finishingSwapInProgress
+      ? 'Finalizando...'
+      : 'Cerrar swap';
   };
 
   const setMatchesStatus = (text, tone = 'muted') => {
@@ -1427,6 +1582,7 @@ export function setupMatchesChat(state, options = {}) {
     });
 
     state.activeRoomId = null;
+    activeMatch = null;
     mediaUploadInProgress = false;
     closeSocket();
     markActiveMatch(null);
@@ -1434,6 +1590,7 @@ export function setupMatchesChat(state, options = {}) {
     chatMessages.innerHTML = '';
     chatHeader.textContent = 'Chat';
     chatRoomHelper.textContent = 'Selecciona una conversación para empezar.';
+    setFinishSwapButtonState(null);
     setChatComposerBusy(false);
 
     if (hasMediaUploadUI) {
@@ -1444,6 +1601,87 @@ export function setupMatchesChat(state, options = {}) {
       setCallPanelVisible(false);
       setCallStatus('Listo para iniciar llamada.', 'muted');
       setCallButtons();
+    }
+  };
+
+  const finishSelectedMatch = async (match, options = {}) => {
+    if (!hasChatPanel || !match || finishingSwapInProgress) return;
+
+    const { closeCurrentChat = false } = options;
+    const matchId = getMatchId(match);
+    const roomId = getMatchRoomId(match);
+
+    if (!matchId) {
+      setMatchesStatus('No se encontró el ID del match para finalizar.', 'error');
+      return;
+    }
+
+    if (isMatchCompleted(match)) {
+      setMatchesStatus(`El match #${matchId} ya está finalizado.`, 'muted');
+      return;
+    }
+
+    const shouldFinish = window.confirm(
+      '¿Estás seguro que deseas finalizar esta sesión de aprendizaje? Ambos recibirán puntos.'
+    );
+
+    if (!shouldFinish) return;
+
+    finishingSwapInProgress = true;
+    setFinishSwapButtonState(activeMatch);
+
+    try {
+      const response = await finishMatch(matchId);
+      if (disposed) return;
+
+      const successMessage =
+        response?.msg ||
+        response?.message ||
+        response?.detail ||
+        'El match se finalizó correctamente.';
+      const awardedPoints = resolveAwardedPointsFromFinishPayload(response);
+      const updatedPoints = resolveUpdatedPointsFromFinishPayload(response);
+
+      if (updatedPoints !== null) {
+        updateCurrentUserPoints(updatedPoints);
+      }
+
+      if (roomId) {
+        closeSwapRoom(roomId);
+      }
+
+      if (activeMatch && String(getMatchId(activeMatch)) === String(matchId)) {
+        activeMatch = {
+          ...activeMatch,
+          is_completed: true,
+          completed: true,
+        };
+      }
+
+      const pointsSummary =
+        awardedPoints !== null
+          ? ` Puntos ganados: ${awardedPoints}.`
+          : updatedPoints !== null
+          ? ` Tus puntos actuales: ${updatedPoints}.`
+          : '';
+
+      setMatchesStatus(`${successMessage}${pointsSummary}`, 'success');
+      window.alert(`${successMessage}${pointsSummary}`);
+
+      if (closeCurrentChat) {
+        clearChat();
+      }
+
+      await loadMatches();
+    } catch (error) {
+      if (disposed) return;
+
+      const errorMessage = error?.message || 'No se pudo finalizar el match.';
+      setMatchesStatus(errorMessage, 'error');
+      window.alert(`Error: ${errorMessage}`);
+    } finally {
+      finishingSwapInProgress = false;
+      setFinishSwapButtonState(activeMatch);
     }
   };
 
@@ -1467,6 +1705,8 @@ export function setupMatchesChat(state, options = {}) {
     }
 
     state.activeRoomId = roomId;
+    activeMatch = match;
+    setFinishSwapButtonState(activeMatch);
     latestHistoryRequest += 1;
     const historyRequestId = latestHistoryRequest;
 
@@ -1496,8 +1736,11 @@ export function setupMatchesChat(state, options = {}) {
     }
 
     const fullName = [match.first_name, match.last_name].filter(Boolean).join(' ');
+    const matchId = getMatchId(match);
     chatHeader.textContent = `Chat con ${fullName || 'tu match'}`;
-    chatRoomHelper.textContent = `Cargando historial de la sala ${roomId}...`;
+    chatRoomHelper.textContent = matchId
+      ? `Cargando historial del match #${matchId} en sala ${roomId}...`
+      : `Cargando historial de la sala ${roomId}...`;
 
     try {
       const historyPayload = await getMessages(roomId);
@@ -1618,7 +1861,8 @@ export function setupMatchesChat(state, options = {}) {
       const allMatches = normalizeMatchesPayload(payload);
       const matches = allMatches.filter((match) => {
         const roomId = getMatchRoomId(match);
-        return !isClosedSwapRoom(roomId);
+        if (isClosedSwapRoom(roomId)) return false;
+        return !isMatchCompleted(match);
       });
 
       if (matches.length === 0) {
@@ -1636,6 +1880,11 @@ export function setupMatchesChat(state, options = {}) {
           ? 'Cuando recibas nuevas coincidencias, aparecerán aquí para iniciar chat.'
           : 'Cuando haya coincidencias nuevas, aparecerán aquí para iniciar chat.';
         matchesList.appendChild(emptyMatches);
+
+        if (state.activeRoomId) {
+          clearChat();
+        }
+
         return;
       }
 
@@ -1646,6 +1895,7 @@ export function setupMatchesChat(state, options = {}) {
 
       matches.forEach((match) => {
         const roomId = getMatchRoomId(match);
+        const matchId = getMatchId(match);
         const fullName = [match?.first_name, match?.last_name]
           .filter(Boolean)
           .join(' ')
@@ -1676,7 +1926,13 @@ export function setupMatchesChat(state, options = {}) {
 
         const room = document.createElement('span');
         room.className = 'match-room';
-        room.textContent = roomId ? `Sala #${roomId}` : 'Sala no disponible';
+        room.textContent = [
+          matchId ? `Match #${matchId}` : 'Match sin ID',
+          roomId ? `Sala #${roomId}` : 'Sala no disponible',
+        ].join(' • ');
+
+        const actions = document.createElement('div');
+        actions.className = 'match-actions';
 
         const action = document.createElement('button');
         action.className = 'match-chat-btn';
@@ -1684,11 +1940,22 @@ export function setupMatchesChat(state, options = {}) {
         action.textContent = 'Chatear';
         action.disabled = !roomId;
 
+        const finishAction = document.createElement('button');
+        finishAction.className = 'match-finish-btn';
+        finishAction.type = 'button';
+        finishAction.textContent = 'Finalizar';
+        finishAction.disabled = !matchId || finishingSwapInProgress;
+        if (matchId) {
+          finishAction.setAttribute('data-match-id', String(matchId));
+        }
+
         profile.appendChild(name);
         profile.appendChild(room);
         wrapper.appendChild(avatar);
         wrapper.appendChild(profile);
-        wrapper.appendChild(action);
+        actions.appendChild(action);
+        actions.appendChild(finishAction);
+        wrapper.appendChild(actions);
         matchesList.appendChild(wrapper);
 
         const onAvatarError = () => {
@@ -1699,14 +1966,37 @@ export function setupMatchesChat(state, options = {}) {
           openChat(match);
         };
 
+        const onFinishMatch = async () => {
+          await finishSelectedMatch(match, {
+            closeCurrentChat:
+              Boolean(state.activeRoomId) &&
+              Boolean(roomId) &&
+              String(state.activeRoomId) === String(roomId),
+          });
+        };
+
         avatar.addEventListener('error', onAvatarError);
         action.addEventListener('click', onOpenChat);
+        finishAction.addEventListener('click', onFinishMatch);
 
         rowCleanups.push(() => {
           avatar.removeEventListener('error', onAvatarError);
           action.removeEventListener('click', onOpenChat);
+          finishAction.removeEventListener('click', onFinishMatch);
         });
       });
+
+      if (state.activeRoomId) {
+        const activeMatchStillVisible = matches.some((match) => {
+          return String(getMatchRoomId(match)) === String(state.activeRoomId);
+        });
+
+        if (!activeMatchStillVisible) {
+          clearChat();
+        }
+      }
+
+      setFinishSwapButtonState(activeMatch);
 
       if (options.autoOpenFirstMatch && !autoOpenDone && !state.activeRoomId) {
         const firstRoomMatch = matches.find((match) => {
@@ -1908,22 +2198,12 @@ export function setupMatchesChat(state, options = {}) {
   const onFinishSwap = async () => {
     if (!hasChatPanel) return;
 
-    if (!state.activeRoomId) {
+    if (!state.activeRoomId || !activeMatch) {
       chatRoomHelper.textContent = 'Abre una conversación para cerrar el swap.';
       return;
     }
 
-    const activeRoomId = String(state.activeRoomId);
-    const shouldCloseSwap = window.confirm(
-      '¿Deseas cerrar este swap y darlo por terminado? Esta conversación dejará de mostrarse en tu lista activa.'
-    );
-
-    if (!shouldCloseSwap) return;
-
-    closeSwapRoom(activeRoomId);
-    clearChat();
-    setMatchesStatus(`Swap #${activeRoomId} cerrado correctamente.`, 'success');
-    await loadMatches();
+    await finishSelectedMatch(activeMatch, { closeCurrentChat: true });
   };
 
   const onNotificationsToggle = () => {
@@ -2023,6 +2303,7 @@ export function setupMatchesChat(state, options = {}) {
 
   if (hasChatPanel) {
     setChatComposerBusy(false);
+    setFinishSwapButtonState(null);
     loadMatches();
   }
 

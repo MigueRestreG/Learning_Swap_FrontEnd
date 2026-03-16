@@ -223,6 +223,7 @@ function setupFormHandlers() {
   if (registerForm) {
     registerForm.addEventListener('submit', async (e) => {
       e.preventDefault();
+      capturePendingSkillsFromInputs();
       await handleSkillsSubmitRequest(registerState);
     });
   }
@@ -299,6 +300,21 @@ function addSkill(target) {
 
   input.value = '';
   input.focus();
+}
+
+function capturePendingSkillsFromInputs() {
+  ['learn', 'teach'].forEach((target) => {
+    const input = document.getElementById(
+      target === 'learn' ? 'register-learn-skill' : 'register-teach-skill'
+    );
+
+    if (!input) return;
+
+    const pendingValue = normalizeSkill(input.value || '');
+    if (!pendingValue) return;
+
+    addSkill(target);
+  });
 }
 
 function removeSkill(target, index) {
