@@ -44,10 +44,12 @@
   }
 
   .navbar-mobile.open {
-    max-height: 360px;
+    max-height: min(84vh, 560px);
     opacity: 1;
     padding: 0.4rem 8% 1rem;
     border-top-color: var(--line-soft);
+    overflow-y: auto;
+    overscroll-behavior: contain;
   }
 
   .navbar-mobile .nav-link {
@@ -58,12 +60,26 @@
 
   .navbar-mobile-actions {
     display: flex;
+    flex-wrap: wrap;
+    align-items: stretch;
     gap: 0.5rem;
     padding-top: 0.35rem;
+    width: 100%;
   }
 
   .navbar-mobile .btn {
-    flex: 1;
+    flex: 1 1 calc(50% - 0.25rem);
+    min-width: 0;
+  }
+
+  .navbar-mobile .theme-toggle-btn {
+    min-width: 0;
+  }
+
+  .navbar-mobile .navbar-swap-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
   }
 
   /* Escenas 2 (why) y 3 (how) — una columna, scroll si hay overflow */
@@ -144,5 +160,9 @@
 @media (max-width: 600px) {
   .hero-banner {
     display: none;
+  }
+
+  .navbar-mobile .btn {
+    flex-basis: 100%;
   }
 }

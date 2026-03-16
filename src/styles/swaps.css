@@ -1640,9 +1640,24 @@ body.swaps-page #app {
   }
 
   .swaps-dashboard .chat-panel {
-    min-height: 420px;
-    height: min(76vh, 680px);
-    max-height: min(76vh, 680px);
+    min-height: 0;
+    height: auto;
+    max-height: none;
+    overflow: visible;
+  }
+
+  .swaps-dashboard .call-panel {
+    order: 1;
+  }
+
+  .swaps-dashboard .chat-messages {
+    order: 2;
+    min-height: 240px;
+    max-height: 44vh;
+  }
+
+  .swaps-dashboard .chat-input-row {
+    order: 3;
   }
 
   .swaps-dashboard .chat-panel-actions {
@@ -1658,7 +1673,11 @@ body.swaps-page #app {
   }
 
   .swaps-dashboard .call-videos-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .swaps-dashboard .call-video-card {
+    min-height: 112px;
   }
 
   .swaps-dashboard .feed-card-footer {
@@ -1740,9 +1759,22 @@ body.swaps-page #app {
   }
 
   .swaps-dashboard .chat-panel {
-    min-height: 380px;
-    height: min(74vh, 620px);
-    max-height: min(74vh, 620px);
+    min-height: 0;
+    height: auto;
+    max-height: none;
+  }
+
+  .swaps-dashboard .chat-messages {
+    min-height: 220px;
+    max-height: 50vh;
+  }
+
+  .swaps-dashboard .call-videos-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .swaps-dashboard .call-video-card {
+    min-height: 120px;
   }
 
   .swaps-dashboard .chat-input-row {
