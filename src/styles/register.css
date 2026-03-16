@@ -532,3 +532,13 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* Mobile override: avoid oversized sticky register buttons */
+@media (max-width: 479px) {
+  .register-actions .button-register {
+    flex: 0 0 auto;
+    width: 100%;
+    min-height: 44px;
+    height: 44px;
+  }
+}
