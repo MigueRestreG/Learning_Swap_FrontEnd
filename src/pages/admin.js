@@ -10,18 +10,18 @@ import {
 	isAuthenticated,
 	logout,
 } from '../utils/auth.js';
-import { RESOURCE_CONFIG, RESOURCE_ORDER } from './admin/config.js';
+import { RESOURCE_CONFIG, RESOURCE_ORDER } from './admin-modules/config.js';
 import {
 	escapeHtml,
 	getFieldByAliases,
-} from './admin/helpers.js';
-import { renderCrudPanel } from './admin/render.js';
+} from './admin-modules/helpers.js';
+import { renderCrudPanel } from './admin-modules/render.js';
 import {
 	loadResource,
 	loadStats,
 	requestResource,
 	setResourceStatus,
-} from './admin/data.js';
+} from './admin-modules/data.js';
 
 const API_URL = (import.meta.env.VITE_API_URL || '').replace(/\/$/, '');
 
