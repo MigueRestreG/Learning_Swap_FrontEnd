@@ -23,6 +23,8 @@ export async function SwapsPage(view = 'matches') {
   const currentUserId = getCurrentUserId();
   const isChatsView = view === 'chats';
   const profileLabel = user?.first_name || user?.name || 'Learning Swap';
+  const rawUserPoints = Number.parseInt(user?.points ?? user?.puntos ?? 0, 10);
+  const currentUserPoints = Number.isNaN(rawUserPoints) ? 0 : rawUserPoints;
 
   window.history.replaceState(null, '', isChatsView ? '#chats' : '#swaps');
 
@@ -100,6 +102,9 @@ export async function SwapsPage(view = 'matches') {
 
             <div class="user-actions">
               <span class="membership" aria-hidden="true"></span>
+              <span class="user-points-chip" data-current-user-points-chip>
+                ${currentUserPoints} pts
+              </span>
               <button class="icon-action" type="button" aria-label="Idioma">
                 <ion-icon name="earth-outline"></ion-icon>
               </button>

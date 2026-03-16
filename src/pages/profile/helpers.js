@@ -1,5 +1,18 @@
 import { getMatches } from '../../services/api.js';
 
+function resolvePointsValue(payload = {}) {
+  const candidate =
+    payload?.points ??
+    payload?.puntos ??
+    payload?.score ??
+    payload?.total_points ??
+    payload?.user_points ??
+    0;
+
+  const parsedPoints = Number.parseInt(candidate, 10);
+  return Number.isNaN(parsedPoints) ? 0 : parsedPoints;
+}
+
 export function escapeHtml(value = '') {
   return value
     .replace(/&/g, '&amp;')
@@ -43,6 +56,7 @@ export function normalizeUserResponse(payload = {}) {
       payload.skills_to_teach ??
       payload.skills ??
       [],
+    points: resolvePointsValue(payload),
   };
 }
 
@@ -51,13 +65,21 @@ export function getProfilePayload(payload = {}) {
     return {};
   }
 
-  return (
+  const basePayload =
     payload.user ||
     payload.profile ||
     payload.data?.user ||
     payload.data ||
-    payload
-  );
+    payload;
+
+  if (!basePayload || typeof basePayload !== 'object' || Array.isArray(basePayload)) {
+    return {};
+  }
+
+  return {
+    ...payload,
+    ...basePayload,
+  };
 }
 
 export function createEmptyProfileStats() {

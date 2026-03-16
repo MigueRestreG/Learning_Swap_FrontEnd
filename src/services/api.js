@@ -322,6 +322,24 @@ export async function getMatches() {
   return handleResponse(response);
 }
 
+/** Finish an active match and award points to both users */
+export async function finishMatch(matchId) {
+  const normalizedMatchId = String(matchId || '').trim();
+  if (!normalizedMatchId) {
+    throw new Error('No se pudo identificar el match a finalizar.');
+  }
+
+  const response = await fetch(
+    `${API_URL}/matches/${encodeURIComponent(normalizedMatchId)}/finish`,
+    {
+      method: 'POST',
+      headers: buildHeaders({ withAuth: true }),
+    }
+  );
+
+  return handleResponse(response);
+}
+
 /** Get chat history by room id */
 export async function getMessages(roomId) {
   if (!roomId) {

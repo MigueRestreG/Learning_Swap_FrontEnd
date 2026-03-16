@@ -72,6 +72,23 @@ export function getEntityUserId(entity = {}) {
   return String(candidateId);
 }
 
+export function getMatchId(match = {}) {
+  const matchId =
+    match?.match_id ??
+    match?.id ??
+    match?.matchId ??
+    match?.id_match ??
+    match?.interaction_id ??
+    match?.swap_id ??
+    null;
+
+  if (matchId === null || matchId === undefined || String(matchId).trim() === '') {
+    return null;
+  }
+
+  return String(matchId);
+}
+
 export function getMatchRoomId(match = {}) {
   const roomId = match?.room_id ?? match?.roomId ?? match?.chat_room_id ?? null;
 

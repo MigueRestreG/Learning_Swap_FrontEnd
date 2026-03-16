@@ -41,6 +41,8 @@ export function renderProfile(
   const offeredSkillsCount =
     profileStats.offeredSkills ?? countUniqueSkills(teachSkills);
   const sessionsCount = profileStats.sessions ?? 0;
+  const parsedPoints = Number.parseInt(user?.points ?? user?.puntos ?? 0, 10);
+  const pointsCount = Number.isNaN(parsedPoints) ? 0 : parsedPoints;
 
   app.innerHTML = `
     ${getNavbar()}
@@ -114,7 +116,7 @@ export function renderProfile(
           <ion-icon name="people-outline"></ion-icon>
         </div>
         <div class="stat-card">
-          <span class="stat-number">0</span>
+          <span class="stat-number" data-current-user-points>${pointsCount}</span>
           <span class="stat-label">Puntos ganados</span>
           <ion-icon name="star-outline"></ion-icon>
         </div>

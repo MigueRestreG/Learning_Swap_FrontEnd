@@ -130,6 +130,20 @@ export async function handleSkillsSubmitRequest(registerState) {
   const btn = document.getElementById('register-submit');
   const registerEmail = registerState.email || getRegisterEmail();
   const registerPassword = registerState.password || getRegisterPassword();
+  const learnSkills = Array.isArray(registerState.learnSkills)
+    ? registerState.learnSkills
+    : [];
+  const teachSkills = Array.isArray(registerState.teachSkills)
+    ? registerState.teachSkills
+    : [];
+
+  if (learnSkills.length === 0 || teachSkills.length === 0) {
+    showError(
+      errorEl,
+      'Agrega al menos una habilidad para aprender y una para enseñar.'
+    );
+    return;
+  }
 
   if (!registerState.userId) {
     registerState.userId = getCurrentUserId() || null;
@@ -150,7 +164,7 @@ export async function handleSkillsSubmitRequest(registerState) {
       );
     }
 
-    await saveOnboardingSkills(registerState.learnSkills, registerState.teachSkills);
+    await saveOnboardingSkills(learnSkills, teachSkills);
 
     setOnboardingPending(false);
 
@@ -166,8 +180,8 @@ export async function handleSkillsSubmitRequest(registerState) {
       user: {
         ...currentUser,
         ...(resolvedUserId ? { id: resolvedUserId } : {}),
-        learn_skills: [...registerState.learnSkills],
-        teach_skills: [...registerState.teachSkills],
+        learn_skills: [...learnSkills],
+        teach_skills: [...teachSkills],
       },
     });
 

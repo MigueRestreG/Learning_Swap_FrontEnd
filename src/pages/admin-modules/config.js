@@ -22,26 +22,9 @@ export const RESOURCE_CONFIG = {
         requiredOnCreate: true,
         aliases: ['name', 'skill_name', 'title'],
       },
-      {
-        key: 'category',
-        label: 'Categoria',
-        type: 'text',
-        requiredOnCreate: false,
-        aliases: ['category', 'type'],
-      },
-      {
-        key: 'description',
-        label: 'Descripcion',
-        type: 'text',
-        requiredOnCreate: false,
-        aliases: ['description', 'detail', 'summary'],
-      },
     ],
     columns: [
-      { label: 'ID', aliases: ['id', 'skill_id'] },
       { label: 'Nombre', aliases: ['name', 'skill_name', 'title'] },
-      { label: 'Categoria', aliases: ['category', 'type'] },
-      { label: 'Descripcion', aliases: ['description', 'detail', 'summary'] },
     ],
   },
   users: {
@@ -113,7 +96,15 @@ export const RESOURCE_CONFIG = {
     title: 'Matches registrados',
     endpointEnv: 'VITE_ADMIN_MATCHES_ENDPOINT',
     endpointFallbacks: ['/admin/matches', '/matches'],
-    idAliases: ['id', 'match_id', 'room_id'],
+    idAliases: [
+      'match_id',
+      'id',
+      'matchId',
+      'id_match',
+      'interaction_id',
+      'swap_id',
+      'room_id',
+    ],
     collectionPaths: [
       'matches',
       'items',
@@ -142,7 +133,7 @@ export const RESOURCE_CONFIG = {
         label: 'Estado',
         type: 'text',
         requiredOnCreate: false,
-        aliases: ['status', 'state'],
+        aliases: ['status', 'state', 'is_completed', 'completed'],
       },
       {
         key: 'room_id',
@@ -153,10 +144,19 @@ export const RESOURCE_CONFIG = {
       },
     ],
     columns: [
-      { label: 'ID', aliases: ['id', 'match_id', 'room_id'] },
-      { label: 'Usuario origen', aliases: ['user_from_id', 'user_1_id', 'from_user_id'] },
-      { label: 'Usuario destino', aliases: ['user_to_id', 'user_2_id', 'to_user_id'] },
-      { label: 'Estado', aliases: ['status', 'state'] },
+      {
+        label: 'Match ID',
+        aliases: ['match_id', 'id', 'matchId', 'id_match', 'interaction_id', 'swap_id'],
+      },
+      {
+        label: 'Usuario origen',
+        aliases: ['user_from_id', 'user_1_id', 'from_user_id', 'user1_id'],
+      },
+      {
+        label: 'Usuario destino',
+        aliases: ['user_to_id', 'user_2_id', 'to_user_id', 'user2_id'],
+      },
+      { label: 'Estado', aliases: ['status', 'state', 'is_completed', 'completed'] },
       { label: 'Room ID', aliases: ['room_id', 'chat_room_id'] },
     ],
   },
