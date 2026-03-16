@@ -82,6 +82,18 @@
   white-space: nowrap;
 }
 
+.navbar .theme-toggle-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  min-width: 112px;
+}
+
+.navbar .theme-toggle-btn ion-icon {
+  font-size: 1rem;
+}
+
 .navbar-burger {
   display: none;
   width: 42px;
@@ -105,4 +117,8 @@
 
 .navbar-mobile {
   display: none;
+}
+
+.navbar-mobile-actions .theme-toggle-btn {
+  width: 100%;
 }
