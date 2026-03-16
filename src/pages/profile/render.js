@@ -26,6 +26,13 @@ export function renderProfile(
     user.last_name
   );
   const bio = (user.bio || user.about_me || '').trim();
+  const membershipPlan = localStorage.getItem('user-membership') || null;
+  const MEMBERSHIP_BADGES = {
+  emerald: { label: 'Emerald', icon: 'sparkles-outline', color: '#10b981' },
+  ruby:    { label: 'Ruby',    icon: 'rose-outline',     color: '#e11d48' },
+  diamond: { label: 'Diamond', icon: 'diamond-outline',  color: '#6366f1' },
+};
+const badge = membershipPlan ? MEMBERSHIP_BADGES[membershipPlan] : null;
   const safeBio = escapeHtml(bio).replace(/\n/g, '<br>');
   const fullName = [user.first_name || user.name, user.last_name]
     .filter(Boolean)
@@ -65,7 +72,15 @@ export function renderProfile(
           </div>
 
           <div class="profile-hero-info">
-            <h1 class="profile-name">${fullName || 'Usuario de Learning Swap'}</h1>
+            <h1 class="profile-name">
+              ${fullName || 'Usuario de Learning Swap'}
+              ${badge ? `
+                <span class="membership-badge" style="--badge-color: ${badge.color}">
+                  <ion-icon name="${badge.icon}"></ion-icon>
+                  ${badge.label}
+              </span>
+              ` : ''}
+            </h1>
             <p class="profile-email">
               <ion-icon name="mail-outline"></ion-icon>
               ${user.email || ''}

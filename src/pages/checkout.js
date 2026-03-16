@@ -318,14 +318,17 @@ export async function CheckoutPage() {
   // ─── Show Modal ──────────────────────────────────────────────────────────────
 
   // Populates and displays the success modal with payment receipt data
-  function showModal(data) {
-    document.getElementById('res-name').textContent      = data.customerName;
-    document.getElementById('res-plan').textContent      = data.plan;
-    document.getElementById('res-amount').textContent    = data.amount;
-    document.getElementById('res-date').textContent      = data.date;
-    document.getElementById('res-card-type').textContent = `Método: ${data.cardType}`;
-    successModal.classList.remove('hidden');
-  }
+ function showModal(data) {
+  document.getElementById('res-name').textContent      = data.customerName;
+  document.getElementById('res-plan').textContent      = data.plan;
+  document.getElementById('res-amount').textContent    = data.amount;
+  document.getElementById('res-date').textContent      = data.date;
+  document.getElementById('res-card-type').textContent = `Método: ${data.cardType}`;
+  successModal.classList.remove('hidden');
+
+  // keep the plan and show the icon in the profile
+  localStorage.setItem('user-membership', data.plan.toLowerCase());
+}
 
   // ─── Cleanup Registration ─────────────────────────────────────────────────────
 
