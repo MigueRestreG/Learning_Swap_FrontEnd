@@ -28,6 +28,7 @@ import {
   normalizeSkillCollection,
   normalizeSkillInput,
   normalizeUserResponse,
+  renderEditableSkillTags,
 } from './profile/helpers.js';
 import { renderProfile } from './profile/render.js';
 
