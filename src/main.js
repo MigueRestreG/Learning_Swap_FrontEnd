@@ -1,5 +1,8 @@
 import { HomePage } from './pages/home.js';
 import { getCurrentUserRole, isAuthenticated } from './utils/auth.js';
+import { initializeTheme } from './utils/theme.js';
+
+initializeTheme();
 
 const HOME_HASHES = new Set([
   '',

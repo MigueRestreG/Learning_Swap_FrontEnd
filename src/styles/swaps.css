@@ -628,7 +628,7 @@ body.swaps-page #app {
   gap: 1rem;
   margin-bottom: 26px;
   align-items: stretch;
-  min-height: clamp(500px, 68vh, 760px);
+  min-height: clamp(560px, 74vh, 860px);
 }
 
 .swaps-dashboard .matches-panel,
@@ -797,7 +797,7 @@ body.swaps-page #app {
   gap: 0.45rem;
   align-self: stretch;
   place-content: center;
-  min-height: clamp(500px, 68vh, 760px);
+  min-height: clamp(560px, 74vh, 860px);
 }
 
 .swaps-dashboard .chat-empty-state h3 {
@@ -819,7 +819,10 @@ body.swaps-page #app {
   display: flex;
   flex-direction: column;
   gap: 0.8rem;
-  min-height: clamp(500px, 68vh, 760px);
+  min-height: clamp(560px, 74vh, 860px);
+  height: clamp(560px, 74vh, 860px);
+  max-height: clamp(560px, 74vh, 860px);
+  overflow: hidden;
 }
 
 .swaps-dashboard .chat-panel[hidden] {
@@ -992,12 +995,13 @@ body.swaps-page #app {
 
 .swaps-dashboard .chat-messages {
   flex: 1;
-  min-height: 340px;
+  min-height: 0;
   border: 1px solid #dbe5f5;
   border-radius: 14px;
   background: #f8fbff;
   padding: 0.75rem;
   overflow-y: auto;
+  overscroll-behavior: contain;
   display: flex;
   flex-direction: column;
   gap: 0.45rem;
@@ -1063,13 +1067,90 @@ body.swaps-page #app {
   display: block;
 }
 
+.swaps-dashboard .chat-message-media {
+  padding: 0.4rem;
+  border: 1px solid #dbe5f5;
+  background: #fff;
+}
+
+.swaps-dashboard .mensaje-mio.chat-message-media {
+  background: #eff6ff;
+  border-color: #bfdbfe;
+}
+
+.swaps-dashboard .chat-media-image {
+  display: block;
+  width: 100%;
+  max-width: 250px;
+  border-radius: 10px;
+  object-fit: cover;
+}
+
+.swaps-dashboard .chat-media-audio {
+  display: block;
+  width: 280px;
+  max-width: 100%;
+  min-height: 34px;
+}
+
 .swaps-dashboard .chat-input-row {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-columns: auto auto minmax(0, 1fr) auto;
   gap: 0.7rem;
 }
 
-.swaps-dashboard .chat-input-row input {
+.swaps-dashboard .chat-file-input {
+  display: none;
+}
+
+.swaps-dashboard .chat-file-btn {
+  border: 1px solid #dbe5f5;
+  border-radius: 12px;
+  background: #fff;
+  color: #1e293b;
+  font-size: 0.78rem;
+  font-weight: 700;
+  padding: 0.62rem 0.86rem;
+  cursor: pointer;
+}
+
+.swaps-dashboard .chat-file-btn:hover {
+  background: #eff6ff;
+}
+
+.swaps-dashboard .chat-file-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.65;
+}
+
+.swaps-dashboard .chat-record-btn {
+  border: 1px solid #fecaca;
+  border-radius: 12px;
+  background: #fff5f5;
+  color: #b91c1c;
+  font-size: 0.78rem;
+  font-weight: 700;
+  padding: 0.62rem 0.86rem;
+  cursor: pointer;
+}
+
+.swaps-dashboard .chat-record-btn:hover {
+  background: #ffe4e6;
+}
+
+.swaps-dashboard .chat-record-btn.is-recording {
+  background: #dc2626;
+  border-color: #dc2626;
+  color: #fff;
+  box-shadow: 0 10px 20px rgba(220, 38, 38, 0.22);
+}
+
+.swaps-dashboard .chat-record-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.65;
+}
+
+.swaps-dashboard .chat-input-row #chat-input {
   border: 1px solid #c8d7f1;
   border-radius: 12px;
   padding: 0.62rem 0.74rem;
@@ -1078,12 +1159,12 @@ body.swaps-page #app {
   font-size: 0.82rem;
 }
 
-.swaps-dashboard .chat-input-row input:focus {
+.swaps-dashboard .chat-input-row #chat-input:focus {
   outline: 2px solid rgba(37, 99, 235, 0.35);
   border-color: #2563eb;
 }
 
-.swaps-dashboard .chat-input-row button {
+.swaps-dashboard .chat-input-row #btn-enviar {
   border: none;
   border-radius: 12px;
   background: linear-gradient(135deg, #2563eb, #4f46e5);
@@ -1094,8 +1175,13 @@ body.swaps-page #app {
   cursor: pointer;
 }
 
-.swaps-dashboard .chat-input-row button:hover {
+.swaps-dashboard .chat-input-row #btn-enviar:hover {
   box-shadow: 0 10px 20px rgba(37, 99, 235, 0.24);
+}
+
+.swaps-dashboard .chat-input-row #btn-enviar:disabled {
+  cursor: not-allowed;
+  opacity: 0.65;
 }
 
 .swaps-dashboard .users-grid-section {
@@ -1397,7 +1483,7 @@ body.swaps-page #app {
   }
 
   .swaps-dashboard .chat-messages {
-    max-height: 300px;
+    max-height: none;
   }
 }
 
@@ -1513,7 +1599,9 @@ body.swaps-page #app {
   }
 
   .swaps-dashboard .chat-panel {
-    min-height: 380px;
+    min-height: 420px;
+    height: min(76vh, 680px);
+    max-height: min(76vh, 680px);
   }
 
   .swaps-dashboard .chat-panel-actions {
@@ -1608,6 +1696,12 @@ body.swaps-page #app {
   .swaps-dashboard .chat-empty-state,
   .swaps-dashboard .swipe-discovery-panel {
     border-radius: 16px;
+  }
+
+  .swaps-dashboard .chat-panel {
+    min-height: 380px;
+    height: min(74vh, 620px);
+    max-height: min(74vh, 620px);
   }
 
   .swaps-dashboard .chat-input-row {

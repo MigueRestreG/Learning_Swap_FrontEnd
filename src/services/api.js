@@ -335,3 +335,21 @@ export async function getMessages(roomId) {
 
   return handleResponse(response);
 }
+
+/** Upload chat media file (image/audio) and return storage URL + type */
+export async function uploadChatMedia(file) {
+  if (!file) {
+    throw new Error('Selecciona un archivo para subir al chat.');
+  }
+
+  const formData = new FormData();
+  formData.append('file', file, file.name || 'chat-media');
+
+  const response = await fetch(`${API_URL}/chat/upload`, {
+    method: 'POST',
+    headers: buildHeaders({ withAuth: true, includeJsonContentType: false }),
+    body: formData,
+  });
+
+  return handleResponse(response);
+}
