@@ -141,7 +141,8 @@ export function HomePage(initialSectionId = null) {
       
      <!-- PRICING / MEMBERSHIPS SECTION -->
 <section class="prices" id="prices">
-  <div class="prices-cards-grid prices-cards-grid--4">
+  <div class="prices-scroll-area" aria-label="Planes de membresía">
+    <div class="prices-cards-grid prices-cards-grid--4">
 
     <!-- Free plan -->
     <article class="prices-card">
@@ -236,6 +237,7 @@ export function HomePage(initialSectionId = null) {
       <button class="prices-cta-btn prices-cta-btn--elite home-plan-btn" type="button" data-plan="Diamond">Registrate para iniciar</button>
     </article>
 
+    </div>
   </div>
 </section>
 
@@ -244,6 +246,11 @@ export function HomePage(initialSectionId = null) {
         <h2>¿Listo para empezar a intercambiar conocimiento?</h2>
         <button class="btn primary" id="btnCreateAccount">Crea tu cuenta</button>
       </section>
+
+      <p class="home-scroll-hint" aria-hidden="true">
+        Desliza hacia abajo
+        <ion-icon name="chevron-down-outline"></ion-icon>
+      </p>
 
     </main>
   `;
@@ -324,6 +331,7 @@ export function HomePage(initialSectionId = null) {
             Math.round(window.scrollY / window.innerHeight)
           )
         );
+  const pricesScrollArea = document.querySelector('.prices-scroll-area');
   let isSceneTransitioning = false;
   let sceneTransitionTimer = null;
 
@@ -362,6 +370,33 @@ export function HomePage(initialSectionId = null) {
     }, 650);
   };
 
+  const resolveWheelScrollableContainer = (target) => {
+    if (!pricesScrollArea || !(target instanceof Element)) {
+      return null;
+    }
+
+    const matchedContainer = target.closest('.prices-scroll-area');
+    if (!matchedContainer) {
+      return null;
+    }
+
+    if (pricesScrollArea.scrollHeight <= pricesScrollArea.clientHeight + 1) {
+      return null;
+    }
+
+    return pricesScrollArea;
+  };
+
+  const canScrollContainerByDelta = (container, deltaY) => {
+    if (!container || !deltaY) return false;
+
+    if (deltaY > 0) {
+      return container.scrollTop + container.clientHeight < container.scrollHeight - 1;
+    }
+
+    return container.scrollTop > 1;
+  };
+
   const onScroll = () => {
     const index = Math.min(
       scenes.length - 1,
@@ -377,6 +412,13 @@ export function HomePage(initialSectionId = null) {
 
   const onWheel = (event) => {
     if (Math.abs(event.deltaY) < 8) return;
+
+    const scrollableContainer = resolveWheelScrollableContainer(event.target);
+    if (canScrollContainerByDelta(scrollableContainer, event.deltaY)) {
+      event.preventDefault();
+      scrollableContainer.scrollTop += event.deltaY;
+      return;
+    }
 
     event.preventDefault();
     transitionTo(event.deltaY > 0 ? 1 : -1);
@@ -438,9 +480,32 @@ export function HomePage(initialSectionId = null) {
     ...document.querySelectorAll('.navbar-links .nav-link'),
     ...document.querySelectorAll('.navbar-mobile .nav-link'),
   ];
+  const planPrices = {
+    Emerald: '$12.000',
+    Ruby: '$25.000',
+    Diamond: '$35.000',
+  };
+  const homePlanButtons = Array.from(
+    document.querySelectorAll('.home-plan-btn[data-plan]')
+  );
+
+  const onHomePlanClick = (event) => {
+    const clickedButton = event.currentTarget;
+    const plan = clickedButton?.getAttribute('data-plan');
+    if (!plan) return;
+
+    sessionStorage.setItem('checkout-plan', plan);
+    sessionStorage.setItem('checkout-price', planPrices[plan] || '');
+    sessionStorage.setItem('checkout-billing', 'monthly');
+    window.location.hash = '#checkout';
+  };
 
   navLinks.forEach((link) => {
     link.addEventListener('click', onNavLinkClick);
+  });
+
+  homePlanButtons.forEach((button) => {
+    button.addEventListener('click', onHomePlanClick);
   });
 
   window.addEventListener('wheel', onWheel, { passive: false });
@@ -466,16 +531,8 @@ export function HomePage(initialSectionId = null) {
     navLinks.forEach((link) => {
       link.removeEventListener('click', onNavLinkClick);
     });
-  // ── Plan buttons in home → redirect to checkout ──
-document.querySelectorAll('.home-plan-btn[data-plan]').forEach((btn) => {
-  btn.addEventListener('click', () => {
-    const plan = btn.getAttribute('data-plan');
-    const prices = { Emerald: '$12.000', Ruby: '$25.000', Diamond: '$35.000' };
-    sessionStorage.setItem('checkout-plan',  plan);
-    sessionStorage.setItem('checkout-price', prices[plan] || '');
-    sessionStorage.setItem('checkout-billing', 'monthly');
-    window.location.hash = '#checkout';
-  });
-});
-};
+    homePlanButtons.forEach((button) => {
+      button.removeEventListener('click', onHomePlanClick);
+    });
+  };
 }
